@@ -1,0 +1,86 @@
+{
+    "name": "opencultureconsulting/oai-pmh2",
+    "description": "This is a stand-alone OAI-PMH 2.0 data provider. It serves records in any XML metadata format from a database, supports deleted records, resumption tokens and sets.",
+    "type": "project",
+    "keywords": [
+        "oai",
+        "oaipmh",
+        "oaipmh2",
+        "oai-pmh",
+        "oai-pmh2",
+        "code4lib"
+    ],
+    "homepage": "https://github.com/opencultureconsulting/oai-pmh2",
+    "readme": "README.md",
+    "license": ["GPL-3.0-or-later"],
+    "authors": [
+        {
+            "name": "Sebastian Meyer",
+            "email": "sebastian.meyer@opencultureconsulting.com",
+            "homepage": "https://www.opencultureconsulting.com",
+            "role": "maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/opencultureconsulting/oai-pmh2/issues",
+        "source": "https://github.com/opencultureconsulting/oai-pmh2",
+        "docs": "https://github.com/opencultureconsulting/oai-pmh2/blob/main/README.md"
+    },
+    "require": {
+        "php": "^8.1",
+        "ext-dom": "*",
+        "ext-libxml": "*",
+        "ext-sqlite3": "*",
+        "doctrine/dbal": "^3.7",
+        "doctrine/orm": "^2.17",
+        "opencultureconsulting/basics": "^1.0",
+        "opencultureconsulting/psr15": "^1.0",
+        "symfony/cache": "^6.4",
+        "symfony/console": "^6.4",
+        "symfony/filesystem": "^6.4",
+        "symfony/serializer":"^6.4",
+        "symfony/validator": "^6.4",
+        "symfony/yaml": "^6.4"
+    },
+    "require-dev": {
+        "phpstan/phpstan": "^1.10",
+        "phpstan/phpstan-strict-rules": "^1.5",
+        "friendsofphp/php-cs-fixer": "^3.45"
+    },
+    "autoload": {
+        "psr-4": {
+            "OCC\\OaiPmh2\\": "src/"
+        }
+    },
+    "scripts": {
+        "pre-install-cmd": [
+            "@php -r \"!is_dir('./data') && mkdir('./data', 0775);\"",
+            "@php -r \"!file_exists('./config/config.yml') && copy('./config/config.dist.yml', './config/config.yml');\""
+        ],
+        "post-install-cmd": [
+            "@doctrine:clear-cache --quiet",
+            "@php bin/cli orm:generate-proxies --quiet"
+        ],
+        "post-create-project-cmd": [
+            "@doctrine:initialize-database --quiet"
+        ],
+        "doctrine:clear-cache": [
+            "@php bin/cli orm:clear-cache:metadata --flush",
+            "@php bin/cli orm:clear-cache:query --flush",
+            "@php bin/cli orm:clear-cache:result --flush"
+        ],
+        "doctrine:initialize-database": [
+            "@php bin/cli orm:schema-tool:update --complete --force",
+            "@oai:update-formats --quiet"
+        ],
+        "oai:update-formats": [
+            "@php bin/cli oai:formats:update"
+        ]
+    },
+    "scripts-descriptions": {
+        "doctrine:clear-cache": "Clears the Doctrine/ORM metadata, query and result caches",
+        "doctrine:generate-proxies": "Generates the Doctrine/ORM entity proxies",
+        "doctrine:initialize-database": "Initializes a new database (NOT RECOMMENDED IN PRODUCTION!)",
+        "oai:update-formats": "Updates supported metadata formats from configuration"
+    }
+}

@@ -1,0 +1,35 @@
+name: PHP Static Analyzer
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  PHPStan:
+    name: PHPStan Scanner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: php-actions/composer@v6
+        with:
+          command: update
+          php_version: "8.0"
+
+      - name: Run PHPStan
+        uses: php-actions/phpstan@v3
+        with:
+          path: src/
+          configuration: phpstan.dist.neon

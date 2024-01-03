@@ -1,0 +1,90 @@
+#
+# The default configuration
+#
+# Copy this file as 'config.yml' and change the settings to your preferences.
+# See https://www.openarchives.org/OAI/2.0/openarchivesprotocol.htm for further
+# explanation.
+#
+
+#
+# A human readable name for the repository
+#
+repositoryName: 'OAI-PMH 2.0 Data Provider'
+
+#
+# Email address for contacting the repository owner
+#
+# This has to be a valid email according to RFC 822 Address Specification.
+# See https://www.w3.org/Protocols/rfc822/#z8 for further explanation.
+#
+adminEmail: admin@example.org
+
+#
+# Database connection details
+#
+# This has to be a valid data source name (DSN) URL. The scheme is used to
+# specify a driver, the user and password in the URL encode user and password
+# for the connection, followed by the host and port parts. The path after the
+# authority part represents the name of the database (the leading slash is
+# removed so add an extra slash to specify an absolute file path for SQLite).
+# The placeholder "%BASEDIR%" may be used to represent the application's base
+# directory.
+# Any optional query parameters are used as additional connection parameters.
+# Since the scheme determines the database driver, it also specifies if the PDO
+# abstraction ("mariadb", "mssql", "mysql", "oracle", "postgres", "sqlite") or
+# native drivers ("ibm-db2", "mysqli", "oci8", "pgsql", "sqlite3", "sqlsrv")
+# should be used to handle the connection. Make sure the corresponding PHP
+# extensions are installed.
+# See https://www.doctrine-project.org/projects/doctrine-dbal/en/3.7/reference/configuration.html#connecting-using-a-url
+# for further explanation.
+#
+# %DRIVER%://[%USER%[:%PASSWORD%]@]%HOST%[:%PORT%]/%DBNAME%[?%OPTIONS%]
+#
+# Examples:
+# database: 'mssql://oaipmh:secret@127.0.0.1/oaipmh'
+# database: 'mysql://root@localhost/oai?charset=utf8mb4'
+# database: 'pgsql://oaipmh:secret@localhost:5432/oai_data_provider'
+# database: 'sqlite3:////home/oaipmh/database.db'
+#
+# Run "composer doctrine:initialize-database" after switching to a new DB to
+# test the settings and initialize the database!
+#
+database: 'sqlite3:///%BASEDIR%/data/sqlite3.db'
+
+#
+# Metadata formats, namespaces and schemas of your records
+#
+# The default is 'oai_dc' which is also required by the OAI-PMH specification,
+# but technically you can provide any XML based data formats you want. Just add
+# another entry with the metadata prefix as key and namespace/schema URIs as
+# array values or replace the default entry (although not recommended).
+# You do not have to provide every record in each metadata format, but if you
+# have the same record in multiple formats, it's highly recommended to use the
+# same identifier for all versions of the record.
+#
+# Run "composer oai:update-formats" after changing metadata prefixes to update
+# the database accordingly!
+#
+metadataPrefix: {
+    oai_dc: {
+        namespace: 'http://www.openarchives.org/OAI/2.0/oai_dc/',
+        schema: 'https://www.openarchives.org/OAI/2.0/oai_dc.xsd'
+    }
+}
+
+#
+# Maximum number of records to return per request
+#
+# For larger result sets resumption tokens are provided repeatedly, which
+# allow requesting more batches of records until the set is complete.
+#
+# [1 - 100]
+#
+maxRecords: 50
+
+#
+# Number of seconds a resumption token should be valid
+#
+# [300 - 86400]
+#
+tokenValid: 1800 # 30 minutes

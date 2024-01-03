@@ -1,0 +1,55 @@
+#!/usr/bin/env php
+<?php
+
+/**
+ * OAI-PMH 2.0 Data Provider
+ * Copyright (C) 2023 Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+declare(strict_types=1);
+
+namespace OCC\OaiPmh2;
+
+use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use Exception;
+use OCC\OaiPmh2\Console\AddRecordCommand;
+use OCC\OaiPmh2\Console\BulkUpdateCommand;
+use OCC\OaiPmh2\Console\DeleteRecordCommand;
+use OCC\OaiPmh2\Console\PruneResumptionTokensCommand;
+use OCC\OaiPmh2\Console\UpdateFormatsCommand;
+
+require __DIR__ . '/../vendor/autoload.php';
+
+$commands = [
+    new AddRecordCommand(),
+    new BulkUpdateCommand(),
+    new DeleteRecordCommand(),
+    new PruneResumptionTokensCommand(),
+    new UpdateFormatsCommand()
+];
+
+try {
+    ConsoleRunner::run(
+        new SingleManagerProvider(
+            Database::getInstance()->getEntityManager()
+        ),
+        $commands
+    );
+} catch (Exception $exception) {
+    echo '[ERROR] Exception ' . $exception->getCode() . ' thrown:' . PHP_EOL;
+    echo $exception->getMessage() . PHP_EOL;
+}

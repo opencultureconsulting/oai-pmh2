@@ -1,0 +1,14 @@
+#
+# Configuration for PHPStan.
+# @see https://phpstan.org/config-reference
+#
+
+includes:
+    - vendor/phpstan/phpstan-strict-rules/rules.neon
+
+parameters:
+    level: 9
+    strictRules:
+        noVariableVariables: false
+    paths:
+        - src

@@ -1,0 +1,16 @@
+version: 2
+updates:
+  - package-ecosystem: "composer"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    assignees:
+      - "sebastian-meyer"
+    labels: [ ]
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "monthly"
+    assignees:
+      - "sebastian-meyer"
+    labels: [ ]
