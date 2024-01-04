@@ -51,7 +51,7 @@ class Record
      * The associated format.
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Format::class, inversedBy: 'records')]
+    #[ORM\ManyToOne(targetEntity: Format::class, inversedBy: 'records', cascade: ['persist'])]
     #[ORM\JoinColumn(name: 'format', referencedColumnName: 'prefix')]
     private Format $format;
 
@@ -185,7 +185,7 @@ class Record
     {
         if (isset($data)) {
             $data = trim($data);
-            if ($validate && $data !== '') {
+            if ($validate) {
                 try {
                     $data = $this->validate($data);
                 } catch (ValidationFailedException $exception) {
@@ -236,7 +236,13 @@ class Record
     protected function validate(string $xml): string
     {
         $validator = Validation::createValidator();
-        $violations = $validator->validate($xml, new Assert\Type('string'));
+        $violations = $validator->validate(
+            $xml,
+            [
+                new Assert\Type('string'),
+                new Assert\NotBlank()
+            ]
+        );
         if ($violations->count() > 0) {
             throw new ValidationFailedException(null, $violations);
         }
@@ -249,18 +255,17 @@ class Record
      * @param string $identifier The record identifier
      * @param Format $format The format
      * @param ?string $data The record's content
+     * @param ?DateTime $lastChanged The date of last change
      *
      * @throws ValidationFailedException
      */
-    public function __construct(string $identifier, Format $format, ?string $data = null)
+    public function __construct(string $identifier, Format $format, ?string $data = null, ?DateTime $lastChanged = null)
     {
         try {
             $this->identifier = $identifier;
             $this->setFormat($format);
-            if (isset($data)) {
-                $this->setContent($data);
-            }
-            $this->setLastChanged();
+            $this->setContent($data);
+            $this->setLastChanged($lastChanged);
             $this->sets = new ArrayCollection();
         } catch (ValidationFailedException $exception) {
             throw $exception;

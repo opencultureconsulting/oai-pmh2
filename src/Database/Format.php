@@ -63,7 +63,7 @@ class Format
      *
      * @var Collection<int, Record>
      */
-    #[ORM\OneToMany(targetEntity: Record::class, mappedBy: 'format', fetch: 'EXTRA_LAZY', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Record::class, mappedBy: 'format', fetch: 'EXTRA_LAZY', cascade: ['persist'], orphanRemoval: true)]
     private Collection $records;
 
     /**

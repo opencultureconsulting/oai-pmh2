@@ -103,6 +103,68 @@ class Database
     }
 
     /**
+     * Add or update record.
+     *
+     * @param string $identifier The record identifier
+     * @param Format|string $format The metadata prefix
+     * @param ?string $data The record's content
+     * @param ?DateTime $lastChanged The date of last change
+     * @param ?array<string, Set> $sets The record's associated sets
+     * @param bool $bulkMode Should we operate in bulk mode (no flush)?
+     *
+     * @return void
+     */
+    public function addOrUpdateRecord(
+        string $identifier,
+        Format|string $format,
+        ?string $data = null,
+        ?DateTime $lastChanged = null,
+        // TODO: Complete support for sets
+        ?array $sets,
+        bool $bulkMode = false
+    ): void
+    {
+        if (!$format instanceof Format) {
+            /** @var Format */
+            $format = $this->entityManager->getReference(Format::class, $format);
+        }
+        $record = $this->entityManager->find(Record::class, ['identifier' => $identifier, 'format' => $format]);
+        if (isset($record)) {
+            try {
+                $record->setContent($data);
+                $record->setLastChanged($lastChanged);
+            } catch (ValidationFailedException $exception) {
+                throw $exception;
+            }
+        } else {
+            try {
+                $record = new Record($identifier, $format, $data, $lastChanged);
+            } catch (ValidationFailedException $exception) {
+                throw $exception;
+            }
+        }
+        $this->entityManager->persist($record);
+        if (!$bulkMode) {
+            $this->entityManager->flush();
+        }
+    }
+
+    /**
+     * Flush all changes to the database.
+     *
+     * @param bool $clear Also clear the entity manager?
+     *
+     * @return void
+     */
+    public function flush(bool $clear = false): void
+    {
+        $this->entityManager->flush();
+        if ($clear) {
+            $this->entityManager->clear();
+        }
+    }
+
+    /**
      * Get the earliest datestamp of any record.
      *
      * @return string The earliest datestamp

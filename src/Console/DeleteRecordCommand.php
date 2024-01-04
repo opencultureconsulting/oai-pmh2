@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
+use OCC\OaiPmh2\Configuration;
+use OCC\OaiPmh2\Database;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,6 +43,8 @@ class DeleteRecordCommand extends Command
 {
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $policy = Configuration::getInstance()->deletedRecords;
+        Database::getInstance()->pruneOrphanSets();
         return Command::SUCCESS;
     }
 }

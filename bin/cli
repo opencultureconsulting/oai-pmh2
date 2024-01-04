@@ -27,7 +27,7 @@ use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Exception;
 use OCC\OaiPmh2\Console\AddRecordCommand;
-use OCC\OaiPmh2\Console\BulkUpdateCommand;
+use OCC\OaiPmh2\Console\CsvImportCommand;
 use OCC\OaiPmh2\Console\DeleteRecordCommand;
 use OCC\OaiPmh2\Console\PruneRecordsCommand;
 use OCC\OaiPmh2\Console\PruneResumptionTokensCommand;
@@ -37,7 +37,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $commands = [
     new AddRecordCommand(),
-    new BulkUpdateCommand(),
+    new CsvImportCommand(),
     new DeleteRecordCommand(),
     new PruneRecordsCommand(),
     new PruneResumptionTokensCommand(),

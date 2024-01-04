@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
+use OCC\OaiPmh2\Database;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -41,6 +42,7 @@ class AddRecordCommand extends Command
 {
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        Database::getInstance()->pruneOrphanSets();
         return Command::SUCCESS;
     }
 }
