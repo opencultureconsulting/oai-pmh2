@@ -51,6 +51,7 @@ class UpdateFormatsCommand extends Command
         $inDatabase = Database::getInstance()->getMetadataFormats()->getQueryResult();
         $added = 0;
         $deleted = 0;
+        $failure = false;
         foreach ($formats as $prefix => $format) {
             if (in_array($prefix, array_keys($inDatabase), true)) {
                 if (
@@ -70,6 +71,7 @@ class UpdateFormatsCommand extends Command
                     )
                 ]);
             } catch (ValidationFailedException $exception) {
+                $failure = true;
                 $output->writeln([
                     sprintf(
                         ' [ERROR] Could not add or update metadata format "%s". ',
@@ -90,6 +92,7 @@ class UpdateFormatsCommand extends Command
                         )
                     ]);
                 } else {
+                    $failure = true;
                     $output->writeln([
                         sprintf(
                             ' [ERROR] Could not delete metadata format "%s". ',
@@ -133,6 +136,10 @@ class UpdateFormatsCommand extends Command
                 1 | 16
             );
         }
-        return Command::SUCCESS;
+        if (!$failure) {
+            return Command::SUCCESS;
+        } else {
+            return Command::FAILURE;
+        }
     }
 }
