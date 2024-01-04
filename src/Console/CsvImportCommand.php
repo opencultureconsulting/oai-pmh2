@@ -24,7 +24,6 @@ namespace OCC\OaiPmh2\Console;
 
 use DateTime;
 use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Database\Record;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -160,6 +159,7 @@ class CsvImportCommand extends Command
             }
         }
         Database::getInstance()->flush(true);
+        Database::getInstance()->pruneOrphanSets();
 
         $output->writeln([
             '',

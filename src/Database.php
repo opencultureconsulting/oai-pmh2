@@ -129,21 +129,27 @@ class Database
             $format = $this->entityManager->getReference(Format::class, $format);
         }
         $record = $this->entityManager->find(Record::class, ['identifier' => $identifier, 'format' => $format]);
-        if (isset($record)) {
-            try {
-                $record->setContent($data);
-                $record->setLastChanged($lastChanged);
-            } catch (ValidationFailedException $exception) {
-                throw $exception;
+        if (!isset($data) && Configuration::getInstance()->deletedRecords === 'no') {
+            if (isset($record)) {
+                $this->entityManager->remove($record);
             }
         } else {
-            try {
-                $record = new Record($identifier, $format, $data, $lastChanged);
-            } catch (ValidationFailedException $exception) {
-                throw $exception;
+            if (isset($record)) {
+                try {
+                    $record->setContent($data);
+                    $record->setLastChanged($lastChanged);
+                } catch (ValidationFailedException $exception) {
+                    throw $exception;
+                }
+            } else {
+                try {
+                    $record = new Record($identifier, $format, $data, $lastChanged);
+                } catch (ValidationFailedException $exception) {
+                    throw $exception;
+                }
             }
+            $this->entityManager->persist($record);
         }
-        $this->entityManager->persist($record);
         if (!$bulkMode) {
             $this->entityManager->flush();
         }
