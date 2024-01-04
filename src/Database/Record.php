@@ -70,7 +70,7 @@ class Record
     /**
      * Collection of associated sets.
      *
-     * @var Collection<int, Set>
+     * @var Collection<string, Set>
      */
     #[ORM\ManyToMany(targetEntity: Set::class, inversedBy: 'records', indexBy: 'spec')]
     #[ORM\JoinTable(name: 'records_sets')]
@@ -78,39 +78,6 @@ class Record
     #[ORM\JoinColumn(name: 'record_format', referencedColumnName: 'format')]
     #[ORM\InverseJoinColumn(name: 'set_spec', referencedColumnName: 'spec')]
     private Collection $sets;
-
-    /**
-     * Get the record's content.
-     *
-     * @return string The record's content
-     */
-    public function getContent(): string
-    {
-        return $this->content;
-    }
-
-    /**
-     * Get the record identifier.
-     *
-     * @return string The record identifier
-     */
-    public function getIdentifier(): string
-    {
-        return $this->identifier;
-    }
-
-    /**
-     * Update bi-directional association with format.
-     *
-     * @param Format $format The metadata prefix
-     *
-     * @return void
-     */
-    private function addFormat(Format $format): void
-    {
-        $this->format = $format;
-        $format->addRecord($this);
-    }
 
     /**
      * Associate the record with a set.
@@ -128,6 +95,16 @@ class Record
     }
 
     /**
+     * Get the record's content.
+     *
+     * @return string The record's content
+     */
+    public function getContent(): string
+    {
+        return $this->content;
+    }
+
+    /**
      * Get the associated format.
      *
      * @return Format The associated format
@@ -135,6 +112,16 @@ class Record
     public function getFormat(): Format
     {
         return $this->format;
+    }
+
+    /**
+     * Get the record identifier.
+     *
+     * @return string The record identifier
+     */
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
     }
 
     /**
@@ -148,13 +135,25 @@ class Record
     }
 
     /**
+     * Get a associated set.
+     *
+     * @param string $setSpec The set's spec
+     *
+     * @return ?Set The Set or NULL on failure
+     */
+    public function getSet(string $setSpec): ?Set
+    {
+        return $this->sets->get($setSpec);
+    }
+
+    /**
      * Get a collection of associated sets.
      *
-     * @return Collection<int, Set> The associated sets
+     * @return array<string, Set> The associated sets
      */
-    public function getSets(): Collection
+    public function getSets(): array
     {
-        return $this->sets;
+        return $this->sets->toArray();
     }
 
     /**
@@ -193,6 +192,19 @@ class Record
             }
         }
         $this->content = $data;
+    }
+
+    /**
+     * Set format of the record.
+     *
+     * @param Format $format The record's format
+     *
+     * @return void
+     */
+    protected function setFormat(Format $format): void
+    {
+        $this->format = $format;
+        $format->addRecord($this);
     }
 
     /**
@@ -242,7 +254,7 @@ class Record
     {
         try {
             $this->identifier = $identifier;
-            $this->addFormat($format);
+            $this->setFormat($format);
             $this->setContent($data);
             $this->setLastChanged();
             $this->sets = new ArrayCollection();

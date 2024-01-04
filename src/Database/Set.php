@@ -60,7 +60,7 @@ class Set
      *
      * @var Collection<int, Record>
      */
-    #[ORM\ManyToMany(targetEntity: Record::class, mappedBy: 'sets')]
+    #[ORM\ManyToMany(targetEntity: Record::class, mappedBy: 'sets', fetch: 'EXTRA_LAZY')]
     private Collection $records;
 
     /**
@@ -110,11 +110,11 @@ class Set
     /**
      * Get a collection of associated records.
      *
-     * @return Collection<int, Record> The associated records
+     * @return array<int, Record> The associated records
      */
-    public function getRecords(): Collection
+    public function getRecords(): array
     {
-        return $this->records;
+        return $this->records->toArray();
     }
 
     /**
@@ -138,7 +138,7 @@ class Set
      */
     public function setDescription(string $description): void
     {
-        $this->description = $description;
+        $this->description =  trim($description);
     }
 
     /**

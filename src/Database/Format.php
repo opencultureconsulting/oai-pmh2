@@ -63,7 +63,7 @@ class Format
      *
      * @var Collection<int, Record>
      */
-    #[ORM\OneToMany(targetEntity: Record::class, mappedBy: 'format')]
+    #[ORM\OneToMany(targetEntity: Record::class, mappedBy: 'format', fetch: 'EXTRA_LAZY', orphanRemoval: true)]
     private Collection $records;
 
     /**
@@ -121,15 +121,69 @@ class Format
     }
 
     /**
-     * Update bi-directional association with records.
+     * Set the format's namespace URI.
      *
-     * @param Record $record The record to remove from this metadata prefix
+     * @param string $namespace The namespace URI
      *
      * @return void
+     *
+     * @throws ValidationFailedException
      */
-    public function removeRecord(Record $record): void
+    public function setNamespace(string $namespace): void
     {
-        $this->records->removeElement($record);
+        try {
+            $this->namespace = $this->validateUrl($namespace);
+        } catch (ValidationFailedException $exception) {
+            throw $exception;
+        }
+    }
+
+    /**
+     * Set the format's schema URL.
+     *
+     * @param string $schema The schema URL
+     *
+     * @return void
+     *
+     * @throws ValidationFailedException
+     */
+    public function setSchema(string $schema): void
+    {
+        try {
+            $this->xmlSchema = $this->validateUrl($schema);
+        } catch (ValidationFailedException $exception) {
+            throw $exception;
+        }
+    }
+
+    /**
+     * Validate metadata prefix.
+     *
+     * @param string $prefix The metadata prefix
+     *
+     * @return string The validated prefix
+     *
+     * @throws ValidationFailedException
+     */
+    protected function validatePrefix(string $prefix): string
+    {
+        $prefix = trim($prefix);
+        $validator = Validation::createValidator();
+        $violations = $validator->validate(
+            $prefix,
+            [
+                new Assert\Regex([
+                    'pattern' => '/\s/',
+                    'match' => false,
+                    'message' => 'This value contains whitespaces.'
+                ]),
+                new Assert\NotBlank()
+            ]
+        );
+        if ($violations->count() > 0) {
+            throw new ValidationFailedException(null, $violations);
+        }
+        return $prefix;
     }
 
     /**
@@ -141,8 +195,9 @@ class Format
      *
      * @throws ValidationFailedException
      */
-    protected function validate(string $url): string
+    protected function validateUrl(string $url): string
     {
+        $url = trim($url);
         $validator = Validation::createValidator();
         $violations = $validator->validate($url, new Assert\Url());
         if ($violations->count() > 0) {
@@ -163,9 +218,9 @@ class Format
     public function __construct(string $prefix, string $namespace, string $schema)
     {
         try {
-            $this->prefix = $prefix;
-            $this->namespace = $this->validate($namespace);
-            $this->xmlSchema = $this->validate($schema);
+            $this->prefix = $this->validatePrefix($prefix);
+            $this->setNamespace($namespace);
+            $this->setSchema($schema);
             $this->records = new ArrayCollection();
         } catch (ValidationFailedException $exception) {
             throw $exception;
