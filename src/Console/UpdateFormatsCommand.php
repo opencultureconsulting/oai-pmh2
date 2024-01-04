@@ -31,6 +31,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * Synchronize metadata formats in database with configuration.
@@ -59,7 +60,8 @@ class UpdateFormatsCommand extends Command
                     continue;
                 }
             }
-            if (Database::getInstance()->addOrUpdateMetadataFormat($prefix, $format['namespace'], $format['schema'])) {
+            try {
+                Database::getInstance()->addOrUpdateMetadataFormat($prefix, $format['namespace'], $format['schema']);
                 ++$added;
                 $output->writeln([
                     sprintf(
@@ -67,12 +69,13 @@ class UpdateFormatsCommand extends Command
                         $prefix
                     )
                 ]);
-            } else {
+            } catch (ValidationFailedException $exception) {
                 $output->writeln([
                     sprintf(
                         ' [ERROR] Could not add or update metadata format "%s". ',
                         $prefix
-                    )
+                    ),
+                    $exception->getMessage()
                 ]);
             }
         }

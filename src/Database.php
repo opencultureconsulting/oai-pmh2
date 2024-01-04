@@ -32,7 +32,6 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Proxy\ProxyFactory;
 use Doctrine\ORM\Tools\Pagination\Paginator;
-use Exception;
 use OCC\Basics\Traits\Singleton;
 use OCC\OaiPmh2\Database\Format;
 use OCC\OaiPmh2\Database\Record;
@@ -41,6 +40,7 @@ use OCC\OaiPmh2\Database\Set;
 use OCC\OaiPmh2\Database\Token;
 use Symfony\Component\Cache\Adapter\PhpFilesAdapter;
 use Symfony\Component\Filesystem\Path;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * Handles all database shenanigans.
@@ -76,37 +76,29 @@ class Database
      * @param string $namespace The namespace URI
      * @param string $schema The schema URL
      *
-     * @return bool Whether the format was inserted/updated successfully
+     * @return void
+     *
+     * @throws ValidationFailedException
      */
-    public function addOrUpdateMetadataFormat(string $prefix, string $namespace, string $schema): bool
+    public function addOrUpdateMetadataFormat(string $prefix, string $namespace, string $schema): void
     {
-        $inDatabase = $this->getMetadataFormats()->getQueryResult();
-        if (in_array($prefix, array_keys($inDatabase), true)) {
+        $format = $this->entityManager->find(Format::class, $prefix);
+        if (isset($format)) {
             try {
-                $dql = $this->entityManager->createQueryBuilder();
-                $dql->update(Format::class, 'format')
-                    ->set('format.namespace', ':namepsace')
-                    ->set('format.xmlSchema', ':schema')
-                    ->where($dql->expr()->eq('format.prefix', ':prefix'))
-                    ->setParameter('prefix', $prefix)
-                    ->setParameter('namespace', $namespace)
-                    ->setParameter('schema', $schema);
-                $query = $dql->getQuery();
-                $query->execute();
-                return true;
-            } catch (Exception) {
-                return false;
+                $format->setNamespace($namespace);
+                $format->setSchema($schema);
+            } catch (ValidationFailedException $exception) {
+                throw $exception;
             }
         } else {
             try {
                 $format = new Format($prefix, $namespace, $schema);
-                $this->entityManager->persist($format);
-                $this->entityManager->flush();
-                return true;
-            } catch (Exception) {
-                return false;
+            } catch (ValidationFailedException $exception) {
+                throw $exception;
             }
         }
+        $this->entityManager->persist($format);
+        $this->entityManager->flush();
     }
 
     /**
@@ -183,17 +175,13 @@ class Database
      */
     public function getRecord(string $identifier, string $metadataPrefix): ?Record
     {
-        $dql = $this->entityManager->createQueryBuilder();
-        $dql->select('record')
-            ->from(Record::class, 'record')
-            ->where($dql->expr()->eq('record.identifier', ':identifier'))
-            ->andWhere($dql->expr()->eq('record.format', ':format'))
-            ->setParameter('identifier', $identifier)
-            ->setParameter('format', $metadataPrefix)
-            ->setMaxResults(1);
-        $query = $dql->getQuery();
-        /** @var ?Record */
-        return $query->getOneOrNullResult();
+        return $this->entityManager->find(
+            Record::class,
+            [
+                'identifier' => $identifier,
+                'format' => $metadataPrefix
+            ]
+        );
     }
 
     /**
@@ -365,15 +353,12 @@ class Database
      */
     public function removeMetadataFormat(string $prefix): bool
     {
-        $dql = $this->entityManager->createQueryBuilder();
-        $dql->delete(Format::class, 'format')
-            ->where($dql->expr()->eq('format.prefix', ':prefix'))
-            ->setParameter('prefix', $prefix);
-        $query = $dql->getQuery();
-        try {
-            $query->execute();
+        $format = $this->entityManager->find(Format::class, $prefix);
+        if (isset($format)) {
+            $this->entityManager->remove($format);
+            $this->entityManager->flush();
             return true;
-        } catch (Exception) {
+        } else {
             return false;
         }
     }
