@@ -66,7 +66,7 @@ class UpdateFormatsCommand extends Command
                 ++$added;
                 $output->writeln([
                     sprintf(
-                        ' [OK] Metadata format "%s" added or updated successfully. ',
+                        ' [OK] Metadata format "%s" added or updated successfully! ',
                         $prefix
                     )
                 ]);
@@ -87,7 +87,7 @@ class UpdateFormatsCommand extends Command
                     ++$deleted;
                     $output->writeln([
                         sprintf(
-                            ' [OK] Metadata format "%s" and all associated records deleted successfully. ',
+                            ' [OK] Metadata format "%s" and all associated records deleted successfully! ',
                             $prefix
                         )
                     ]);

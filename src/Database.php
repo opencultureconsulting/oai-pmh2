@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2;
 
 use DateTime;
+use Doctrine\Common\Collections\Criteria;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Tools\DsnParser;
@@ -149,11 +150,11 @@ class Database
         if (isset($identifier)) {
             $dql->innerJoin(
                     'format.records',
-                    'records',
+                    'record',
                     'WITH',
                     $dql->expr()->andX(
-                        $dql->expr()->eq('records.identifier', ':identifier'),
-                        $dql->expr()->neq('records.data', '')
+                        $dql->expr()->eq('record.identifier', ':identifier'),
+                        $dql->expr()->isNotNull('record.content')
                     )
                 )
                 ->setParameter('identifier', $identifier);
@@ -329,19 +330,55 @@ class Database
     }
 
     /**
+     * Prune deleted records.
+     *
+     * @return int The number of removed records
+     */
+    public function pruneDeletedRecords(): int
+    {
+        $repository = $this->entityManager->getRepository(Record::class);
+        $criteria = Criteria::create()->where(Criteria::expr()->isNull('content'));
+        $records = $repository->matching($criteria);
+        foreach ($records as $record) {
+            $this->entityManager->remove($record);
+        }
+        $this->entityManager->flush();
+        $this->pruneOrphanSets();
+        return count($records);
+    }
+
+    /**
+     * Prune orphan sets.
+     *
+     * @return void
+     */
+    public function pruneOrphanSets(): void
+    {
+        $repository = $this->entityManager->getRepository(Set::class);
+        $sets = $repository->findAll();
+        foreach ($sets as $set) {
+            if ($set->isEmpty()) {
+                $this->entityManager->remove($set);
+            }
+        }
+        $this->entityManager->flush();
+    }
+
+    /**
      * Prune expired resumption tokens.
      *
      * @return int The number of deleted tokens
      */
     public function pruneResumptionTokens(): int
     {
-        $dql = $this->entityManager->createQueryBuilder();
-        $dql->delete(Token::class, 'token')
-            ->where($dql->expr()->lt('token.validUntil', ':now'))
-            ->setParameter('now', new DateTime());
-        $query = $dql->getQuery();
-        /** @var int */
-        return $query->execute();
+        $repository = $this->entityManager->getRepository(Token::class);
+        $criteria = Criteria::create()->where(Criteria::expr()->lt('validUntil', new DateTime()));
+        $tokens = $repository->matching($criteria);
+        foreach ($tokens as $token) {
+            $this->entityManager->remove($token);
+        }
+        $this->entityManager->flush();
+        return count($tokens);
     }
 
     /**
@@ -357,6 +394,7 @@ class Database
         if (isset($format)) {
             $this->entityManager->remove($format);
             $this->entityManager->flush();
+            $this->pruneOrphanSets();
             return true;
         } else {
             return false;

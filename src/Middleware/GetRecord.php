@@ -64,7 +64,7 @@ class GetRecord extends Middleware
         $getRecord->appendChild($record);
 
         $header = $document->createElement('header');
-        if ($oaiRecord->getContent() === '') {
+        if ($oaiRecord->getContent() === null) {
             $header->setAttribute('status', 'deleted');
         }
         $record->appendChild($header);
@@ -80,7 +80,7 @@ class GetRecord extends Middleware
             $header->appendChild($setSpec);
         }
 
-        if ($oaiRecord->getContent() !== '') {
+        if ($oaiRecord->getContent() !== null) {
             $metadata = $document->createElement('metadata');
             $record->appendChild($metadata);
 

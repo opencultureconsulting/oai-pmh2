@@ -106,7 +106,7 @@ class ListIdentifiers extends Middleware
             }
 
             $header = $document->createElement('header');
-            if ($oaiRecord->getContent() === '') {
+            if ($oaiRecord->getContent() === null) {
                 $header->setAttribute('status', 'deleted');
             }
             $baseNode->appendChild($header);
@@ -122,7 +122,7 @@ class ListIdentifiers extends Middleware
                 $header->appendChild($setSpec);
             }
 
-            if ($verb === 'ListRecords' && $oaiRecord->getContent() !== '') {
+            if ($verb === 'ListRecords' && $oaiRecord->getContent() !== null) {
                 $metadata = $document->createElement('metadata');
                 $baseNode->appendChild($metadata);
 

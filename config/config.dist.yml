@@ -73,6 +73,29 @@ metadataPrefix: {
 }
 
 #
+# Deleted records policy
+#
+# This states if and how the repository keeps track of deleted records. You can
+# delete records by importing empty records with the same identifiers and
+# metadata prefixes. Depending on the deleted records policy those records will
+# be either marked as deleted or completely removed from the database.
+# "no" means the repository does not provide any information about deletions.
+# "persistent" means the repository consistently provides information about
+# deletions.
+# "transient" - The repository may provide information about deletions. This is
+# handled exactly the same as "persistent", but you are allowed to manually
+# prune deleted records from the database (see below).
+#
+# ["no"|"persistent"|"transient"]
+#
+# Run "bin/cli oai:records:prune" after changing the deleted records policy to
+# "no" to remove all deleted records from the database.
+# If your policy is "transient" and you want to clean up deleted records from
+# the database anyway, run the command with the "--force" flag.
+#
+deletedRecords: 'transient'
+
+#
 # Maximum number of records to return per request
 #
 # For larger result sets resumption tokens are provided repeatedly, which

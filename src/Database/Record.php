@@ -64,8 +64,8 @@ class Record
     /**
      * The record's content.
      */
-    #[ORM\Column(type: 'text')]
-    private string $content = '';
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $content = null;
 
     /**
      * Collection of associated sets.
@@ -97,9 +97,9 @@ class Record
     /**
      * Get the record's content.
      *
-     * @return string The record's content
+     * @return ?string The record's content or NULL if deleted
      */
-    public function getContent(): string
+    public function getContent(): ?string
     {
         return $this->content;
     }
@@ -174,21 +174,23 @@ class Record
     /**
      * Set record's content.
      *
-     * @param string $data The record's content
+     * @param ?string $data The record's content or NULL to mark as deleted
      * @param bool $validate Should the input be validated?
      *
      * @return void
      *
      * @throws ValidationFailedException
      */
-    public function setContent(string $data, bool $validate = true): void
+    public function setContent(?string $data = null, bool $validate = true): void
     {
-        $data = trim($data);
-        if ($validate && $data !== '') {
-            try {
-                $data = $this->validate($data);
-            } catch (ValidationFailedException $exception) {
-                throw $exception;
+        if (isset($data)) {
+            $data = trim($data);
+            if ($validate && $data !== '') {
+                try {
+                    $data = $this->validate($data);
+                } catch (ValidationFailedException $exception) {
+                    throw $exception;
+                }
             }
         }
         $this->content = $data;
@@ -246,16 +248,18 @@ class Record
      *
      * @param string $identifier The record identifier
      * @param Format $format The format
-     * @param string $data The record's content
+     * @param ?string $data The record's content
      *
      * @throws ValidationFailedException
      */
-    public function __construct(string $identifier, Format $format, string $data = '')
+    public function __construct(string $identifier, Format $format, ?string $data = null)
     {
         try {
             $this->identifier = $identifier;
             $this->setFormat($format);
-            $this->setContent($data);
+            if (isset($data)) {
+                $this->setContent($data);
+            }
             $this->setLastChanged();
             $this->sets = new ArrayCollection();
         } catch (ValidationFailedException $exception) {
@@ -270,6 +274,6 @@ class Record
      */
     public function __toString(): string
     {
-        return $this->content;
+        return $this->content ?? '';
     }
 }

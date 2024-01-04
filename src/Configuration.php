@@ -40,11 +40,12 @@ use Symfony\Component\Yaml\Yaml;
  * @property-read string $adminEmail
  * @property-read string $database
  * @property-read array $metadataPrefix
+ * @property-read string $deletedRecords
  * @property-read int $maxRecords
  * @property-read int $tokenValid
  *
  * @template TKey of string
- * @template TValue
+ * @template TValue of array|int|string
  */
 class Configuration
 {
@@ -101,6 +102,11 @@ class Configuration
                         ]
                     ])
                 ])
+            ],
+            'deletedRecords' => [
+                new Assert\Type('string'),
+                new Assert\Choice(['no', 'persistent', 'transient']),
+                new Assert\NotBlank()
             ],
             'maxRecords' => [
                 new Assert\Type('int'),

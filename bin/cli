@@ -29,6 +29,7 @@ use Exception;
 use OCC\OaiPmh2\Console\AddRecordCommand;
 use OCC\OaiPmh2\Console\BulkUpdateCommand;
 use OCC\OaiPmh2\Console\DeleteRecordCommand;
+use OCC\OaiPmh2\Console\PruneRecordsCommand;
 use OCC\OaiPmh2\Console\PruneResumptionTokensCommand;
 use OCC\OaiPmh2\Console\UpdateFormatsCommand;
 
@@ -38,6 +39,7 @@ $commands = [
     new AddRecordCommand(),
     new BulkUpdateCommand(),
     new DeleteRecordCommand(),
+    new PruneRecordsCommand(),
     new PruneResumptionTokensCommand(),
     new UpdateFormatsCommand()
 ];

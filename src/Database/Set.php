@@ -25,6 +25,9 @@ namespace OCC\OaiPmh2\Database;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Component\Validator\Validation;
 
 /**
  * Doctrine/ORM Entity for sets.
@@ -74,6 +77,7 @@ class Set
     {
         if (!$this->records->contains($record)) {
             $this->records->add($record);
+            $record->addSet($this);
         }
     }
 
@@ -118,6 +122,16 @@ class Set
     }
 
     /**
+     * Whether this set contains any records.
+     *
+     * @return bool TRUE if empty or FALSE otherwise
+     */
+    public function isEmpty(): bool
+    {
+        return count($this->records) === 0;
+    }
+
+    /**
      * Update bi-directional association with records.
      *
      * @param Record $record The record to remove from this set
@@ -126,7 +140,10 @@ class Set
      */
     public function removeRecord(Record $record): void
     {
-        $this->records->removeElement($record);
+        if ($this->records->contains($record)) {
+            $this->records->removeElement($record);
+            $record->removeSet($this);
+        }
     }
 
     /**
@@ -142,17 +159,53 @@ class Set
     }
 
     /**
+     * Validate set spec.
+     *
+     * @param string $spec The set spec
+     *
+     * @return string The validated spec
+     *
+     * @throws ValidationFailedException
+     */
+    protected function validate(string $spec): string
+    {
+        $spec = trim($spec);
+        $validator = Validation::createValidator();
+        $violations = $validator->validate(
+            $spec,
+            [
+                new Assert\Regex([
+                    'pattern' => '/\s/',
+                    'match' => false,
+                    'message' => 'This value contains whitespaces.'
+                ]),
+                new Assert\NotBlank()
+            ]
+        );
+        if ($violations->count() > 0) {
+            throw new ValidationFailedException(null, $violations);
+        }
+        return $spec;
+    }
+
+    /**
      * Get new entity of set.
      *
      * @param string $spec The set spec
      * @param string $name The name of the set
      * @param string $description The description of the set
+     *
+     * @throws ValidationFailedException
      */
     public function __construct(string $spec, string $name, string $description = '')
     {
-        $this->spec = $spec;
-        $this->name = $name;
-        $this->setDescription($description);
-        $this->records = new ArrayCollection();
+        try {
+            $this->spec = $this->validate($spec);
+            $this->name = trim($name);
+            $this->setDescription($description);
+            $this->records = new ArrayCollection();
+        } catch (ValidationFailedException $exception) {
+            throw $exception;
+        }
     }
 }
