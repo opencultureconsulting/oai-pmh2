@@ -62,7 +62,7 @@ database: 'sqlite3:///%BASEDIR%/data/sqlite3.db'
 # have the same record in multiple formats, it's highly recommended to use the
 # same identifier for all versions of the record.
 #
-# Run "composer oai:update-formats" after changing metadata prefixes to update
+# Run "bin/cli oai:formats:update" after changing metadata prefixes to update
 # the database accordingly!
 #
 metadataPrefix: {

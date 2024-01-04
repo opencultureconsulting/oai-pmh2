@@ -71,16 +71,11 @@
         ],
         "doctrine:initialize-database": [
             "@php bin/cli orm:schema-tool:update --complete --force",
-            "@oai:update-formats --quiet"
-        ],
-        "oai:update-formats": [
-            "@php bin/cli oai:formats:update"
+            "@php bin/cli oai:formats:update --quiet"
         ]
     },
     "scripts-descriptions": {
         "doctrine:clear-cache": "Clears the Doctrine/ORM metadata, query and result caches",
-        "doctrine:generate-proxies": "Generates the Doctrine/ORM entity proxies",
-        "doctrine:initialize-database": "Initializes a new database (NOT RECOMMENDED IN PRODUCTION!)",
-        "oai:update-formats": "Updates supported metadata formats from configuration"
+        "doctrine:initialize-database": "Initializes a new database (NOT RECOMMENDED IN PRODUCTION!)"
     }
 }
