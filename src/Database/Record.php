@@ -51,7 +51,7 @@ class Record
      * The associated format.
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Format::class)]
+    #[ORM\ManyToOne(targetEntity: Format::class, fetch: 'EXTRA_LAZY')]
     #[ORM\JoinColumn(name: 'format', referencedColumnName: 'prefix')]
     private Format $format;
 
@@ -72,7 +72,7 @@ class Record
      *
      * @var Collection<string, Set>
      */
-    #[ORM\ManyToMany(targetEntity: Set::class, inversedBy: 'records', indexBy: 'spec', cascade: ['persist'])]
+    #[ORM\ManyToMany(targetEntity: Set::class, inversedBy: 'records', indexBy: 'spec', fetch: 'EXTRA_LAZY', cascade: ['persist'])]
     #[ORM\JoinTable(name: 'records_sets')]
     #[ORM\JoinColumn(name: 'record_identifier', referencedColumnName: 'identifier')]
     #[ORM\JoinColumn(name: 'record_format', referencedColumnName: 'format')]
