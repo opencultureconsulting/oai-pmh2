@@ -81,9 +81,12 @@ class Identify extends Middleware
         $granularity = $document->createElement('granularity', 'YYYY-MM-DDThh:mm:ssZ');
         $identify->appendChild($granularity);
 
-        // TODO: Add support for content compression
-        // $compression = $document->createElement('compression', '...');
-        // $identify->appendChild($compression);
+        // TODO: Implement explicit content compression support.
+        // $compressionDeflate = $document->createElement('compression', 'deflate');
+        // $identify->appendChild($compressionDeflate);
+
+        // $compressionGzip = $document->createElement('compression', 'gzip');
+        // $identify->appendChild($compressionGzip);
 
         $this->preparedResponse = $document;
     }

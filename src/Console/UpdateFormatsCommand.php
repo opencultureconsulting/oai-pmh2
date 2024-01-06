@@ -93,7 +93,7 @@ class UpdateFormatsCommand extends Command
         }
         foreach (array_keys($inDatabase) as $prefix) {
             if (!in_array($prefix, array_keys($formats), true)) {
-                Database::getInstance()->removeMetadataFormat($inDatabase[$prefix]);
+                Database::getInstance()->deleteMetadataFormat($inDatabase[$prefix]);
                 ++$deleted;
                 $output->writeln([
                     sprintf(

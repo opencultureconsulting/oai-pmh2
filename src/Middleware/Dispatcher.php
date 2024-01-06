@@ -103,6 +103,7 @@ class Dispatcher extends AbstractMiddleware
     {
         // TODO: Add support for content compression
         // https://openarchives.org/OAI/openarchivesprotocol.html#ResponseCompression
+        // https://github.com/middlewares/encoder
         return $response->withHeader('Content-Type', 'text/xml');
     }
 

@@ -24,8 +24,11 @@ namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Database;
+use OCC\OaiPmh2\Database\Format;
+use OCC\OaiPmh2\Database\Record;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -42,6 +45,26 @@ use Symfony\Component\Console\Output\OutputInterface;
 class DeleteRecordCommand extends Command
 {
     /**
+     * Configures the current command.
+     *
+     * @return void
+     */
+    protected function configure(): void
+    {
+        $this->addArgument(
+            'identifier',
+            InputArgument::REQUIRED,
+            'The record identifier.'
+        );
+        $this->addArgument(
+            'format',
+            InputArgument::REQUIRED,
+            'The metadata prefix.'
+        );
+        parent::configure();
+    }
+
+    /**
      * Executes the current command.
      *
      * @param InputInterface $input The input
@@ -51,8 +74,42 @@ class DeleteRecordCommand extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $policy = Configuration::getInstance()->deletedRecords;
-        Database::getInstance()->pruneOrphanSets();
-        return Command::SUCCESS;
+        /** @var array<string, string> */
+        $arguments = $input->getArguments();
+        $entityManager = Database::getInstance()->getEntityManager();
+
+        $format = $entityManager->getReference(Format::class, $arguments['format']);
+        $record = $entityManager->find(
+            Record::class,
+            [
+                'identifier' => $arguments['identifier'],
+                'format' => $format
+            ]
+        );
+
+        if (isset($record)) {
+            Database::getInstance()->deleteRecord($record);
+            $output->writeln([
+                '',
+                sprintf(
+                    ' [OK] Record "%s" with metadata prefix "%s" successfully deleted. ',
+                    $arguments['identifier'],
+                    $arguments['format']
+                ),
+                ''
+            ]);
+            return Command::SUCCESS;
+        } else {
+            $output->writeln([
+                '',
+                sprintf(
+                    ' [ERROR] Record "%s" with metadata prefix "%s" not found. ',
+                    $arguments['identifier'],
+                    $arguments['format']
+                ),
+                ''
+            ]);
+            return Command::FAILURE;
+        }
     }
 }

@@ -420,13 +420,13 @@ class Database
     }
 
     /**
-     * Remove metadata format and all associated records.
+     * Delete metadata format and all associated records.
      *
      * @param Format $format The metadata format
      *
      * @return void
      */
-    public function removeMetadataFormat(Format $format): void
+    public function deleteMetadataFormat(Format $format): void
     {
         $repository = $this->entityManager->getRepository(Record::class);
         $criteria = Criteria::create()->where(Criteria::expr()->eq('format', $format));
@@ -435,6 +435,25 @@ class Database
             $this->entityManager->remove($record);
         }
         $this->entityManager->remove($format);
+        $this->entityManager->flush();
+        $this->pruneOrphanSets();
+    }
+
+    /**
+     * Delete a record.
+     *
+     * @param Record $record The record
+     *
+     * @return void
+     */
+    public function deleteRecord(Record $record): void
+    {
+        if (Configuration::getInstance()->deletedRecords === 'no') {
+            $this->entityManager->remove($record);
+        } else {
+            $record->setContent(null);
+            $record->setLastChanged(new DateTime());
+        }
         $this->entityManager->flush();
         $this->pruneOrphanSets();
     }
