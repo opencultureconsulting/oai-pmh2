@@ -157,6 +157,16 @@ class Record
     }
 
     /**
+     * Whether this record has any content.
+     *
+     * @return bool TRUE if content exists, FALSE otherwise
+     */
+    public function hasContent(): bool
+    {
+        return isset($this->content);
+    }
+
+    /**
      * Remove record from set.
      *
      * @param Set $set The set
@@ -184,6 +194,7 @@ class Record
     public function setContent(?string $data = null, bool $validate = true): void
     {
         if (isset($data)) {
+            $data = trim($data);
             if ($validate) {
                 try {
                     $data = $this->validate($data);
@@ -233,7 +244,6 @@ class Record
      */
     protected function validate(string $xml): string
     {
-        $xml = trim($xml);
         $validator = Validation::createValidator();
         $violations = $validator->validate(
             $xml,

@@ -95,6 +95,13 @@ class CsvImportCommand extends Command
             'Name of the CSV column which holds the records\' sets list.',
             'sets'
         );
+        $this->addOption(
+            'noValidation',
+            null,
+            InputOption::VALUE_NONE,
+            'Omit content validation (improves performance for large record sets).',
+            false
+        );
         parent::configure();
     }
 
@@ -117,6 +124,8 @@ class CsvImportCommand extends Command
         $arguments = $input->getArguments();
         /** @var Format */
         $format = Database::getInstance()->getEntityManager()->getReference(Format::class, $arguments['format']);
+        /** @var bool */
+        $noValidation = $input->getOption('noValidation');
         /** @var resource */
         $file = fopen($arguments['file'], 'r');
 
@@ -129,23 +138,25 @@ class CsvImportCommand extends Command
         $progressIndicator = new ProgressIndicator($output, 'verbose', 200, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
         $progressIndicator->start('Importing...');
 
-        while ($record = fgetcsv($file)) {
-            Database::getInstance()->addOrUpdateRecord(
-                $record[$columns['idColumn']],
+        while ($row = fgetcsv($file)) {
+            $record = new Record(
+                $row[$columns['idColumn']],
                 $format,
-                trim($record[$columns['contentColumn']]),
-                new DateTime($record[$columns['dateColumn']] ?? 'now'),
-                // TODO: Complete support for sets.
-                /* $record[$columns['setColumn']] ?? */ null,
-                true
+                null,
+                new DateTime($row[$columns['dateColumn']] ?? 'now')
             );
+            if (strlen(trim($row[$columns['contentColumn']])) > 0) {
+                $record->setContent($row[$columns['contentColumn']], !$noValidation);
+            }
+            // TODO: Complete support for sets.
+            Database::getInstance()->addOrUpdateRecord($record, true);
 
             ++$count;
             $progressIndicator->advance();
             $progressIndicator->setMessage((string) $count . ' done.');
 
             // Flush to database if memory usage reaches 90% of available limit.
-            if (memory_get_usage() / $memoryLimit > 0.9) {
+            if ((memory_get_usage() / $memoryLimit) > 0.9) {
                 Database::getInstance()->flush([Record::class]);
             }
         }

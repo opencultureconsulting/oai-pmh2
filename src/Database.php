@@ -92,46 +92,32 @@ class Database
     /**
      * Add or update record.
      *
-     * @param string $identifier The record identifier
-     * @param Format $format The metadata prefix
-     * @param ?string $data The record's content
-     * @param ?DateTime $lastChanged The date of last change
-     * @param ?array<string, Set> $sets The record's associated sets
+     * @param Record $newRecord The record
      * @param bool $bulkMode Should we operate in bulk mode (no flush)?
      *
      * @return void
      */
-    public function addOrUpdateRecord(
-        string $identifier,
-        Format $format,
-        ?string $data = null,
-        ?DateTime $lastChanged = null,
-        // TODO: Complete support for sets
-        ?array $sets,
-        bool $bulkMode = false
-    ): void
+    public function addOrUpdateRecord(Record $newRecord, bool $bulkMode = false): void
     {
-        $record = $this->entityManager->find(Record::class, ['identifier' => $identifier, 'format' => $format]);
-        if (!isset($data) && Configuration::getInstance()->deletedRecords === 'no') {
-            if (isset($record)) {
-                $this->entityManager->remove($record);
+        $oldRecord = $this->entityManager->find(
+            Record::class,
+            [
+                'identifier' => $newRecord->getIdentifier(),
+                'format' => $newRecord->getFormat()
+            ]
+        );
+        if (isset($oldRecord)) {
+            if ($newRecord->hasContent() || Configuration::getInstance()->deletedRecords !== 'no') {
+                $oldRecord->setContent($newRecord->getContent(), false);
+                $oldRecord->setLastChanged($newRecord->getLastChanged());
+                // TODO: Add full set support.
+            } else {
+                $this->entityManager->remove($oldRecord);
             }
         } else {
-            if (isset($record)) {
-                try {
-                    $record->setContent($data);
-                    $record->setLastChanged($lastChanged);
-                } catch (ValidationFailedException $exception) {
-                    throw $exception;
-                }
-            } else {
-                try {
-                    $record = new Record($identifier, $format, $data, $lastChanged);
-                } catch (ValidationFailedException $exception) {
-                    throw $exception;
-                }
+            if ($newRecord->hasContent() || Configuration::getInstance()->deletedRecords !== 'no') {
+                $this->entityManager->persist($newRecord);
             }
-            $this->entityManager->persist($record);
         }
         if (!$bulkMode) {
             $this->entityManager->flush();
