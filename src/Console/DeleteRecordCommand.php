@@ -41,6 +41,14 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class DeleteRecordCommand extends Command
 {
+    /**
+     * Executes the current command.
+     *
+     * @param InputInterface $input The input
+     * @param OutputInterface $output The output
+     *
+     * @return int 0 if everything went fine, or an error code
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $policy = Configuration::getInstance()->deletedRecords;

@@ -42,17 +42,30 @@ use Symfony\Component\Console\Output\OutputInterface;
 )]
 class PruneRecordsCommand extends Command
 {
+    /**
+     * Configures the current command.
+     *
+     * @return void
+     */
     protected function configure(): void
     {
         $this->addOption(
             'force',
-            null,
+            'f',
             InputOption::VALUE_NONE,
             'Deletes records even under "transient" policy.'
         );
         parent::configure();
     }
 
+    /**
+     * Executes the current command.
+     *
+     * @param InputInterface $input The input
+     * @param OutputInterface $output The output
+     *
+     * @return int 0 if everything went fine, or an error code
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $policy = Configuration::getInstance()->deletedRecords;

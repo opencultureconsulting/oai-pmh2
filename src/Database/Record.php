@@ -51,7 +51,7 @@ class Record
      * The associated format.
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Format::class, inversedBy: 'records', cascade: ['persist'])]
+    #[ORM\ManyToOne(targetEntity: Format::class, inversedBy: 'records')]
     #[ORM\JoinColumn(name: 'format', referencedColumnName: 'prefix')]
     private Format $format;
 
@@ -206,7 +206,6 @@ class Record
     protected function setFormat(Format $format): void
     {
         $this->format = $format;
-        $format->addRecord($this);
     }
 
     /**

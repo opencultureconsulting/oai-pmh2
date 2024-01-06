@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Database;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
@@ -59,28 +57,6 @@ class Format
     private string $xmlSchema;
 
     /**
-     * Collection of associated records.
-     *
-     * @var Collection<int, Record>
-     */
-    #[ORM\OneToMany(targetEntity: Record::class, mappedBy: 'format', fetch: 'EXTRA_LAZY', cascade: ['persist'], orphanRemoval: true)]
-    private Collection $records;
-
-    /**
-     * Update bi-directional association with records.
-     *
-     * @param Record $record The record to add to this format
-     *
-     * @return void
-     */
-    public function addRecord(Record $record): void
-    {
-        if (!$this->records->contains($record)) {
-            $this->records->add($record);
-        }
-    }
-
-    /**
      * Get the format's namespace URI.
      *
      * @return string The namespace URI
@@ -98,16 +74,6 @@ class Format
     public function getPrefix(): string
     {
         return $this->prefix;
-    }
-
-    /**
-     * Get a collection of associated records.
-     *
-     * @return Collection<int, Record> The associated records
-     */
-    public function getRecords(): Collection
-    {
-        return $this->records;
     }
 
     /**
@@ -221,7 +187,6 @@ class Format
             $this->prefix = $this->validatePrefix($prefix);
             $this->setNamespace($namespace);
             $this->setSchema($schema);
-            $this->records = new ArrayCollection();
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }

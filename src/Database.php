@@ -106,7 +106,7 @@ class Database
      * Add or update record.
      *
      * @param string $identifier The record identifier
-     * @param Format|string $format The metadata prefix
+     * @param Format $format The metadata prefix
      * @param ?string $data The record's content
      * @param ?DateTime $lastChanged The date of last change
      * @param ?array<string, Set> $sets The record's associated sets
@@ -116,7 +116,7 @@ class Database
      */
     public function addOrUpdateRecord(
         string $identifier,
-        Format|string $format,
+        Format $format,
         ?string $data = null,
         ?DateTime $lastChanged = null,
         // TODO: Complete support for sets
@@ -124,10 +124,6 @@ class Database
         bool $bulkMode = false
     ): void
     {
-        if (!$format instanceof Format) {
-            /** @var Format */
-            $format = $this->entityManager->getReference(Format::class, $format);
-        }
         $record = $this->entityManager->find(Record::class, ['identifier' => $identifier, 'format' => $format]);
         if (!isset($data) && Configuration::getInstance()->deletedRecords === 'no') {
             if (isset($record)) {
@@ -257,7 +253,7 @@ class Database
      * Get list of records.
      *
      * @param string $verb The currently requested verb ('ListIdentifiers' or 'ListRecords')
-     * @param string $metadataPrefix The metadata prefix
+     * @param Format $metadataPrefix The metadata format
      * @param int $counter Counter for split result sets
      * @param ?string $from The "from" datestamp
      * @param ?string $until The "until" datestamp
@@ -267,7 +263,7 @@ class Database
      */
     public function getRecords(
         string $verb,
-        string $metadataPrefix,
+        Format $metadataPrefix,
         int $counter = 0,
         ?string $from = null,
         ?string $until = null,
@@ -305,7 +301,7 @@ class Database
             $token = new Token($verb, [
                 'counter' => $counter + 1,
                 'completeListSize' => count($paginator),
-                'metadataPrefix' => $metadataPrefix,
+                'metadataPrefix' => $metadataPrefix->getPrefix(),
                 'from' => $from,
                 'until' => $until,
                 'set' => $set

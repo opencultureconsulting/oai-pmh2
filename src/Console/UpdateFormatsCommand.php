@@ -45,6 +45,14 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 )]
 class UpdateFormatsCommand extends Command
 {
+    /**
+     * Executes the current command.
+     *
+     * @param InputInterface $input The input
+     * @param OutputInterface $output The output
+     *
+     * @return int 0 if everything went fine, or an error code
+     */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $formats = Configuration::getInstance()->metadataPrefix;
