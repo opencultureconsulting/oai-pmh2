@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Middleware;
 
+use DateTime;
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Database;
 use OCC\OaiPmh2\Database\Record;
@@ -75,15 +76,29 @@ class ListIdentifiers extends Middleware
             ErrorHandler::getInstance()->withError('cannotDisseminateFormat');
             return;
         }
+        if (isset($from)) {
+            $from = new DateTime($from);
+        }
+        if (isset($until)) {
+            $until = new DateTime($until);
+        }
         if (isset($set)) {
-            $sets = Database::getInstance()->getSets();
-            if (!in_array($set, array_keys($sets->getQueryResult()), true)) {
+            $sets = Database::getInstance()->getSets()->getQueryResult();
+            if (!in_array($set, array_keys($sets), true)) {
                 ErrorHandler::getInstance()->withError('noSetHierarchy');
                 return;
             }
+            $set = $sets[$set];
         }
 
-        $records = Database::getInstance()->getRecords($verb, $prefixes[$metadataPrefix], $counter, $from, $until, $set);
+        $records = Database::getInstance()->getRecords(
+            $verb,
+            $prefixes[$metadataPrefix],
+            $counter,
+            $from,
+            $until,
+            $set
+        );
         if (count($records) === 0) {
             ErrorHandler::getInstance()->withError('noRecordsMatch');
             return;

@@ -25,6 +25,7 @@ namespace OCC\OaiPmh2\Console;
 use DateTime;
 use OCC\OaiPmh2\Database;
 use OCC\OaiPmh2\Database\Format;
+use OCC\OaiPmh2\Database\Record;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressIndicator;
@@ -145,12 +146,10 @@ class CsvImportCommand extends Command
 
             // Flush to database if memory usage reaches 90% of available limit.
             if (memory_get_usage() / $memoryLimit > 0.9) {
-                Database::getInstance()->flush(true);
-                /** @var Format */
-                $format = Database::getInstance()->getEntityManager()->getReference(Format::class, $arguments['format']);
+                Database::getInstance()->flush([Record::class]);
             }
         }
-        Database::getInstance()->flush(true);
+        Database::getInstance()->flush();
         Database::getInstance()->pruneOrphanSets();
 
         $progressIndicator->finish('All done!');

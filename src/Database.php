@@ -154,15 +154,15 @@ class Database
     /**
      * Flush all changes to the database.
      *
-     * @param bool $clear Also clear the entity manager?
+     * @param string[] $entities Optional array of entity types to clear from entity manager
      *
      * @return void
      */
-    public function flush(bool $clear = false): void
+    public function flush(array $entities = []): void
     {
         $this->entityManager->flush();
-        if ($clear) {
-            $this->entityManager->clear();
+        foreach ($entities as $entity) {
+            $this->entityManager->clear($entity);
         }
     }
 
@@ -255,9 +255,9 @@ class Database
      * @param string $verb The currently requested verb ('ListIdentifiers' or 'ListRecords')
      * @param Format $metadataPrefix The metadata format
      * @param int $counter Counter for split result sets
-     * @param ?string $from The "from" datestamp
-     * @param ?string $until The "until" datestamp
-     * @param ?string $set The set spec
+     * @param ?DateTime $from The "from" datestamp
+     * @param ?DateTime $until The "until" datestamp
+     * @param ?Set $set The set spec
      *
      * @return Result<Records> The records and possibly a resumtion token
      */
@@ -265,9 +265,9 @@ class Database
         string $verb,
         Format $metadataPrefix,
         int $counter = 0,
-        ?string $from = null,
-        ?string $until = null,
-        ?string $set = null
+        ?DateTime $from = null,
+        ?DateTime $until = null,
+        ?Set $set = null
     ): Result
     {
         $maxRecords = Configuration::getInstance()->maxRecords;
@@ -282,15 +282,18 @@ class Database
             ->setMaxResults($maxRecords);
         if (isset($from)) {
             $dql->andWhere($dql->expr()->gte('record.lastChanged', ':from'));
-            $dql->setParameter('from', new DateTime($from));
+            $dql->setParameter('from', $from);
+            $from = $from->format('Y-m-d\TH:i:s\Z');
         }
         if (isset($until)) {
             $dql->andWhere($dql->expr()->lte('record.lastChanged', ':until'));
-            $dql->setParameter('until', new DateTime($until));
+            $dql->setParameter('until', $until);
+            $until = $until->format('Y-m-d\TH:i:s\Z');
         }
         if (isset($set)) {
             $dql->andWhere($dql->expr()->in('record.sets', ':set'));
             $dql->setParameter('set', $set);
+            $set = $set->getSpec();
         }
         $query = $dql->getQuery();
         /** @var Records */
@@ -456,6 +459,12 @@ class Database
     {
         $format = $this->entityManager->find(Format::class, $prefix);
         if (isset($format)) {
+            $repository = $this->entityManager->getRepository(Record::class);
+            $criteria = Criteria::create()->where(Criteria::expr()->eq('format', $format));
+            $records = $repository->matching($criteria);
+            foreach ($records as $record) {
+                $this->entityManager->remove($record);
+            }
             $this->entityManager->remove($format);
             $this->entityManager->flush();
             $this->pruneOrphanSets();
