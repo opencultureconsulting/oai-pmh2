@@ -51,7 +51,7 @@ class Record
      * The associated format.
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Format::class, inversedBy: 'records')]
+    #[ORM\ManyToOne(targetEntity: Format::class)]
     #[ORM\JoinColumn(name: 'format', referencedColumnName: 'prefix')]
     private Format $format;
 
@@ -72,7 +72,7 @@ class Record
      *
      * @var Collection<string, Set>
      */
-    #[ORM\ManyToMany(targetEntity: Set::class, inversedBy: 'records', indexBy: 'spec')]
+    #[ORM\ManyToMany(targetEntity: Set::class, inversedBy: 'records', indexBy: 'spec', cascade: ['persist'])]
     #[ORM\JoinTable(name: 'records_sets')]
     #[ORM\JoinColumn(name: 'record_identifier', referencedColumnName: 'identifier')]
     #[ORM\JoinColumn(name: 'record_format', referencedColumnName: 'format')]
@@ -184,7 +184,6 @@ class Record
     public function setContent(?string $data = null, bool $validate = true): void
     {
         if (isset($data)) {
-            $data = trim($data);
             if ($validate) {
                 try {
                     $data = $this->validate($data);
@@ -234,11 +233,13 @@ class Record
      */
     protected function validate(string $xml): string
     {
+        $xml = trim($xml);
         $validator = Validation::createValidator();
         $violations = $validator->validate(
             $xml,
             [
                 new Assert\Type('string'),
+                // TODO: Validate well-formed XML.
                 new Assert\NotBlank()
             ]
         );

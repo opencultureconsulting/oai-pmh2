@@ -73,32 +73,19 @@ class Database
     /**
      * Add or update metadata format.
      *
-     * @param string $prefix The metadata prefix
-     * @param string $namespace The namespace URI
-     * @param string $schema The schema URL
+     * @param Format $newFormat The metadata format
      *
      * @return void
-     *
-     * @throws ValidationFailedException
      */
-    public function addOrUpdateMetadataFormat(string $prefix, string $namespace, string $schema): void
+    public function addOrUpdateMetadataFormat(Format $newFormat): void
     {
-        $format = $this->entityManager->find(Format::class, $prefix);
-        if (isset($format)) {
-            try {
-                $format->setNamespace($namespace);
-                $format->setSchema($schema);
-            } catch (ValidationFailedException $exception) {
-                throw $exception;
-            }
+        $oldFormat = $this->entityManager->find(Format::class, $newFormat->getPrefix());
+        if (isset($oldFormat)) {
+            $oldFormat->setNamespace($newFormat->getNamespace());
+            $oldFormat->setSchema($newFormat->getSchema());
         } else {
-            try {
-                $format = new Format($prefix, $namespace, $schema);
-            } catch (ValidationFailedException $exception) {
-                throw $exception;
-            }
+            $this->entityManager->persist($newFormat);
         }
-        $this->entityManager->persist($format);
         $this->entityManager->flush();
     }
 
@@ -212,10 +199,8 @@ class Database
         $dql->select('format')
             ->from(Format::class, 'format', 'format.prefix');
         if (isset($identifier)) {
-            $dql->innerJoin(
-                    'format.records',
-                    'record',
-                    'WITH',
+            $dql->innerJoin(Record::class, 'record')
+                ->where(
                     $dql->expr()->andX(
                         $dql->expr()->eq('record.identifier', ':identifier'),
                         $dql->expr()->isNotNull('record.content')
@@ -451,27 +436,21 @@ class Database
     /**
      * Remove metadata format and all associated records.
      *
-     * @param string $prefix The metadata prefix
+     * @param Format $format The metadata format
      *
-     * @return bool TRUE on success or FALSE on failure
+     * @return void
      */
-    public function removeMetadataFormat(string $prefix): bool
+    public function removeMetadataFormat(Format $format): void
     {
-        $format = $this->entityManager->find(Format::class, $prefix);
-        if (isset($format)) {
-            $repository = $this->entityManager->getRepository(Record::class);
-            $criteria = Criteria::create()->where(Criteria::expr()->eq('format', $format));
-            $records = $repository->matching($criteria);
-            foreach ($records as $record) {
-                $this->entityManager->remove($record);
-            }
-            $this->entityManager->remove($format);
-            $this->entityManager->flush();
-            $this->pruneOrphanSets();
-            return true;
-        } else {
-            return false;
+        $repository = $this->entityManager->getRepository(Record::class);
+        $criteria = Criteria::create()->where(Criteria::expr()->eq('format', $format));
+        $records = $repository->matching($criteria);
+        foreach ($records as $record) {
+            $this->entityManager->remove($record);
         }
+        $this->entityManager->remove($format);
+        $this->entityManager->flush();
+        $this->pruneOrphanSets();
     }
 
     /**

@@ -24,6 +24,7 @@ namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Database;
+use OCC\OaiPmh2\Database\Format;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -70,7 +71,8 @@ class UpdateFormatsCommand extends Command
                 }
             }
             try {
-                Database::getInstance()->addOrUpdateMetadataFormat($prefix, $format['namespace'], $format['schema']);
+                $format = new Format($prefix, $format['namespace'], $format['schema']);
+                Database::getInstance()->addOrUpdateMetadataFormat($format);
                 ++$added;
                 $output->writeln([
                     sprintf(
@@ -91,23 +93,14 @@ class UpdateFormatsCommand extends Command
         }
         foreach (array_keys($inDatabase) as $prefix) {
             if (!in_array($prefix, array_keys($formats), true)) {
-                if (Database::getInstance()->removeMetadataFormat($prefix)) {
-                    ++$deleted;
-                    $output->writeln([
-                        sprintf(
-                            ' [OK] Metadata format "%s" and all associated records deleted successfully! ',
-                            $prefix
-                        )
-                    ]);
-                } else {
-                    $failure = true;
-                    $output->writeln([
-                        sprintf(
-                            ' [ERROR] Could not delete metadata format "%s". ',
-                            $prefix
-                        )
-                    ]);
-                }
+                Database::getInstance()->removeMetadataFormat($inDatabase[$prefix]);
+                ++$deleted;
+                $output->writeln([
+                    sprintf(
+                        ' [OK] Metadata format "%s" and all associated records deleted successfully! ',
+                        $prefix
+                    )
+                ]);
             }
         }
         /** @var Application */
