@@ -29,7 +29,7 @@ use Exception;
 use OCC\OaiPmh2\Console\AddRecordCommand;
 use OCC\OaiPmh2\Console\CsvImportCommand;
 use OCC\OaiPmh2\Console\DeleteRecordCommand;
-use OCC\OaiPmh2\Console\PruneRecordsCommand;
+use OCC\OaiPmh2\Console\PruneDeletedRecordsCommand;
 use OCC\OaiPmh2\Console\PruneResumptionTokensCommand;
 use OCC\OaiPmh2\Console\UpdateFormatsCommand;
 
@@ -39,7 +39,7 @@ $commands = [
     new AddRecordCommand(),
     new CsvImportCommand(),
     new DeleteRecordCommand(),
-    new PruneRecordsCommand(),
+    new PruneDeletedRecordsCommand(),
     new PruneResumptionTokensCommand(),
     new UpdateFormatsCommand()
 ];

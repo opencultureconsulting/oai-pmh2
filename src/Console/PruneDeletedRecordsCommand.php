@@ -40,7 +40,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:prune',
     description: 'Prune deleted records from database'
 )]
-class PruneRecordsCommand extends Command
+class PruneDeletedRecordsCommand extends Command
 {
     /**
      * Configures the current command.
