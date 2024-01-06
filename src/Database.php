@@ -219,17 +219,17 @@ class Database
      * Get a single record.
      *
      * @param string $identifier The record identifier
-     * @param string $metadataPrefix The metadata prefix
+     * @param Format $format The metadata format
      *
      * @return ?Record The record or NULL on failure
      */
-    public function getRecord(string $identifier, string $metadataPrefix): ?Record
+    public function getRecord(string $identifier, Format $format): ?Record
     {
         return $this->entityManager->find(
             Record::class,
             [
                 'identifier' => $identifier,
-                'format' => $metadataPrefix
+                'format' => $format
             ]
         );
     }

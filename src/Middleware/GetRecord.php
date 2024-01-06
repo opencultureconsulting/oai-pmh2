@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Middleware;
 
 use OCC\OaiPmh2\Database;
+use OCC\OaiPmh2\Database\Format;
 use OCC\OaiPmh2\Document;
 use OCC\OaiPmh2\Middleware;
 use Psr\Http\Message\ServerRequestInterface;
@@ -46,7 +47,9 @@ class GetRecord extends Middleware
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $params = $request->getAttributes();
-        $oaiRecord = Database::getInstance()->getRecord($params['identifier'], $params['metadataPrefix']);
+        /** @var Format */
+        $format = Database::getInstance()->getEntityManager()->getReference(Format::class, $params['metadataPrefix']);
+        $oaiRecord = Database::getInstance()->getRecord($params['identifier'], $format);
 
         if (!isset($oaiRecord)) {
             if (Database::getInstance()->idDoesExist($params['identifier'])) {
