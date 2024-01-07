@@ -28,6 +28,7 @@ use DOMException;
 use DOMNode;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 
 /**
  * An OAI-PMH XML response object.
@@ -46,6 +47,111 @@ class Document
      * This holds the root node of the OAI-PMH XML response.
      */
     protected DOMElement $rootNode;
+
+    /**
+     * This holds the current server request.
+     */
+    protected ServerRequestInterface $serverRequest;
+
+    /**
+     * Add XSL processing instructions to XML response document.
+     *
+     * @return void
+     */
+    protected function addProcessingInstructions(): void
+    {
+        $uri = $this->serverRequest->getUri();
+        $basePath = $uri->getPath();
+        if (str_ends_with($basePath, 'index.php')) {
+            $basePath = pathinfo($basePath, PATHINFO_DIRNAME);
+        }
+        $stylesheet = Uri::composeComponents(
+            $uri->getScheme(),
+            $uri->getAuthority(),
+            rtrim($basePath, '/') . '/resources/stylesheet.xsl',
+            null,
+            null
+        );
+        $xslt = $this->dom->createProcessingInstruction(
+            'xml-stylesheet',
+            sprintf(
+                'type="text/xsl" href="%s"',
+                $stylesheet
+            )
+        );
+        $this->dom->appendChild($xslt);
+    }
+
+    /**
+     * Create and append request element.
+     *
+     * @return void
+     */
+    protected function appendRequest(): void
+    {
+        $uri = $this->serverRequest->getUri();
+        $baseUrl = Uri::composeComponents(
+            $uri->getScheme(),
+            $uri->getAuthority(),
+            $uri->getPath(),
+            null,
+            null
+        );
+        $request = $this->dom->createElement('request', $baseUrl);
+        $this->rootNode->appendChild($request);
+        foreach ($this->serverRequest->getAttributes() as $param => $value) {
+            $request->setAttribute(
+                $param,
+                htmlspecialchars($value, ENT_XML1 | ENT_COMPAT, 'UTF-8')
+            );
+        }
+    }
+
+    /**
+     * Create and append response date element.
+     *
+     * @return void
+     */
+    protected function appendResponseDate(): void
+    {
+        $responseDate = $this->dom->createElement('responseDate', gmdate('Y-m-d\TH:i:s\Z'));
+        $this->rootNode->appendChild($responseDate);
+    }
+
+    /**
+     * Create and append root element.
+     *
+     * @return void
+     */
+    protected function appendRootElement(): void
+    {
+        $this->rootNode = $this->dom->createElement('OAI-PMH');
+        $this->rootNode->setAttribute(
+            'xmlns',
+            'http://www.openarchives.org/OAI/2.0/'
+        );
+        $this->rootNode->setAttribute(
+            'xmlns:xsi',
+            'http://www.w3.org/2001/XMLSchema-instance'
+        );
+        $this->rootNode->setAttribute(
+            'xsi:schemaLocation',
+            'http://www.openarchives.org/OAI/2.0/ https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
+        );
+        $this->dom->appendChild($this->rootNode);
+    }
+
+    /**
+     * Create the DOM document.
+     *
+     * @return void
+     */
+    protected function createDocument(): void
+    {
+        $this->dom = new DOMDocument('1.0', 'UTF-8');
+        $this->dom->preserveWhiteSpace = false;
+        $this->addProcessingInstructions();
+    }
 
     /**
      * Create a new XML element.
@@ -101,71 +207,11 @@ class Document
      */
     public function __construct(ServerRequestInterface $serverRequest)
     {
-        $uri = $serverRequest->getUri();
-
-        // Create XML document.
-        $this->dom = new DOMDocument('1.0', 'UTF-8');
-        $this->dom->preserveWhiteSpace = false;
-
-        // Add processing instructions.
-        $basePath = $uri->getPath();
-        if (str_ends_with($basePath, 'index.php')) {
-            $basePath = pathinfo($basePath, PATHINFO_DIRNAME);
-        }
-        $stylesheet = Uri::composeComponents(
-            $uri->getScheme(),
-            $uri->getAuthority(),
-            rtrim($basePath, '/') . '/resources/stylesheet.xsl',
-            null,
-            null
-        );
-        $xslt = $this->dom->createProcessingInstruction(
-            'xml-stylesheet',
-            sprintf(
-                'type="text/xsl" href="%s"',
-                $stylesheet
-            )
-        );
-        $this->dom->appendChild($xslt);
-
-        // Add root element "OAI-PMH".
-        $root = $this->dom->createElement('OAI-PMH');
-        $this->dom->appendChild($root);
-        $root->setAttribute(
-            'xmlns',
-            'http://www.openarchives.org/OAI/2.0/'
-        );
-        $root->setAttribute(
-            'xmlns:xsi',
-            'http://www.w3.org/2001/XMLSchema-instance'
-        );
-        $root->setAttribute(
-            'xsi:schemaLocation',
-            'http://www.openarchives.org/OAI/2.0/ https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
-        );
-
-        // Add element "responseDate".
-        $responseDate = $this->dom->createElement('responseDate', gmdate('Y-m-d\TH:i:s\Z'));
-        $root->appendChild($responseDate);
-
-        // Add element "request".
-        $baseUrl = Uri::composeComponents(
-            $uri->getScheme(),
-            $uri->getAuthority(),
-            $uri->getPath(),
-            null,
-            null
-        );
-        $request = $this->dom->createElement('request', $baseUrl);
-        $root->appendChild($request);
-        foreach ($serverRequest->getAttributes() as $param => $value) {
-            $request->setAttribute(
-                $param,
-                htmlspecialchars($value, ENT_XML1 | ENT_COMPAT, 'UTF-8')
-            );
-        }
-
-        $this->rootNode = $root;
+        $this->serverRequest = $serverRequest;
+        $this->createDocument();
+        $this->appendRootElement();
+        $this->appendResponseDate();
+        $this->appendRequest();
     }
 
     /**

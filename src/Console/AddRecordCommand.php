@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
+use OCC\OaiPmh2\ConsoleCommand;
 use OCC\OaiPmh2\Database;
 use OCC\OaiPmh2\Database\Format;
 use OCC\OaiPmh2\Database\Record;
@@ -41,7 +42,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:add',
     description: 'Add or update a record in the database'
 )]
-class AddRecordCommand extends Command
+class AddRecordCommand extends ConsoleCommand
 {
     /**
      * Configures the current command.
@@ -109,6 +110,8 @@ class AddRecordCommand extends Command
 
         Database::getInstance()->addOrUpdateRecord($record);
         Database::getInstance()->pruneOrphanSets();
+
+        $this->clearResultCache();
 
         $output->writeln([
             '',

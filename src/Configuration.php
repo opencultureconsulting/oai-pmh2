@@ -152,7 +152,7 @@ class Configuration
         if ($violations->count() > 0) {
             throw new ValidationFailedException(null, $violations);
         }
-        /** @var array<TKey, TValue> $config */
+        /** @var array<TKey, TValue> */
         return $config;
     }
 

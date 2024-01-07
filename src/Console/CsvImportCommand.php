@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use DateTime;
+use OCC\OaiPmh2\ConsoleCommand;
 use OCC\OaiPmh2\Database;
 use OCC\OaiPmh2\Database\Format;
 use OCC\OaiPmh2\Database\Record;
@@ -44,7 +45,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:import:csv',
     description: 'Import records from a CSV file'
 )]
-class CsvImportCommand extends Command
+class CsvImportCommand extends ConsoleCommand
 {
     /**
      * Configures the current command.
@@ -99,8 +100,7 @@ class CsvImportCommand extends Command
             'noValidation',
             null,
             InputOption::VALUE_NONE,
-            'Omit content validation (improves performance for large record sets).',
-            false
+            'Omit content validation (improves performance for large record sets).'
         );
         parent::configure();
     }
@@ -135,7 +135,7 @@ class CsvImportCommand extends Command
         }
 
         $count = 0;
-        $progressIndicator = new ProgressIndicator($output, 'verbose', 200, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
+        $progressIndicator = new ProgressIndicator($output, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
         $progressIndicator->start('Importing...');
 
         while ($row = fgetcsv($file)) {
@@ -153,10 +153,10 @@ class CsvImportCommand extends Command
 
             ++$count;
             $progressIndicator->advance();
-            $progressIndicator->setMessage((string) $count . ' done.');
+            $progressIndicator->setMessage('Importing... ' . (string) $count . ' records done.');
 
-            // Flush to database if memory usage reaches 90% of available limit.
-            if ((memory_get_usage() / $memoryLimit) > 0.9) {
+            // Flush to database if memory usage reaches 30% of available limit.
+            if ((memory_get_usage() / $memoryLimit) > 0.3) {
                 Database::getInstance()->flush([Record::class]);
             }
         }
@@ -166,6 +166,8 @@ class CsvImportCommand extends Command
         $progressIndicator->finish('All done!');
 
         fclose($file);
+
+        $this->clearResultCache();
 
         $output->writeln([
             '',
@@ -227,30 +229,6 @@ class CsvImportCommand extends Command
             return [];
         }
         return $columns;
-    }
-
-    /**
-     * Get the PHP memory limit in bytes.
-     *
-     * @return int The memory limit in bytes or -1 if unlimited
-     */
-    protected function getMemoryLimit(): int
-    {
-        $ini = trim(ini_get('memory_limit'));
-        $limit = (int) $ini;
-        $unit = strtolower($ini[strlen($ini)-1]);
-        switch($unit) {
-            case 'g':
-                $limit *= 1024;
-            case 'm':
-                $limit *= 1024;
-            case 'k':
-                $limit *= 1024;
-        }
-        if ($limit < 0) {
-            return -1;
-        }
-        return $limit;
     }
 
     /**

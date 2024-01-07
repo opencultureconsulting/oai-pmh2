@@ -23,14 +23,12 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Configuration;
+use OCC\OaiPmh2\ConsoleCommand;
 use OCC\OaiPmh2\Database;
 use OCC\OaiPmh2\Database\Format;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
@@ -44,7 +42,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
     name: 'oai:formats:update',
     description: 'Update metadata formats in database from configuration'
 )]
-class UpdateFormatsCommand extends Command
+class UpdateFormatsCommand extends ConsoleCommand
 {
     /**
      * Executes the current command.
@@ -103,15 +101,7 @@ class UpdateFormatsCommand extends Command
                 ]);
             }
         }
-        /** @var Application */
-        $app = $this->getApplication();
-        $app->doRun(
-            new ArrayInput([
-                'command' => 'orm:clear-cache:result',
-                '--flush' => true
-            ]),
-            new NullOutput()
-        );
+        $this->clearResultCache();
         $currentFormats = array_keys(Database::getInstance()->getMetadataFormats()->getQueryResult());
         if (count($currentFormats) > 0) {
             $output->writeln(

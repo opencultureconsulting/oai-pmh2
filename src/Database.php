@@ -41,7 +41,6 @@ use OCC\OaiPmh2\Database\Set;
 use OCC\OaiPmh2\Database\Token;
 use Symfony\Component\Cache\Adapter\PhpFilesAdapter;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
  * Handles all database shenanigans.
@@ -122,6 +121,51 @@ class Database
         if (!$bulkMode) {
             $this->entityManager->flush();
         }
+    }
+
+    /**
+     * Delete metadata format and all associated records.
+     *
+     * @param Format $format The metadata format
+     *
+     * @return void
+     */
+    public function deleteMetadataFormat(Format $format): void
+    {
+        $dql = $this->entityManager->createQueryBuilder();
+        $dql->delete(Record::class, 'record')
+            ->where($dql->expr()->eq('record.format', ':format'))
+            ->setParameter('format', $format->getPrefix());
+        $query = $dql->getQuery();
+        $query->execute();
+
+        // Explicitly remove associations with sets for deleted records.
+        $sql = $this->entityManager->getConnection();
+        $sql->executeStatement("DELETE FROM records_sets WHERE record_format='{$format->getPrefix()}'");
+
+        $this->entityManager->remove($format);
+        $this->entityManager->flush();
+
+        $this->pruneOrphanSets();
+    }
+
+    /**
+     * Delete a record.
+     *
+     * @param Record $record The record
+     *
+     * @return void
+     */
+    public function deleteRecord(Record $record): void
+    {
+        if (Configuration::getInstance()->deletedRecords === 'no') {
+            $this->entityManager->remove($record);
+        } else {
+            $record->setContent(null);
+            $record->setLastChanged(new DateTime());
+        }
+        $this->entityManager->flush();
+        $this->pruneOrphanSets();
     }
 
     /**
@@ -319,7 +363,7 @@ class Database
      *
      * @return Result<Sets> The sets and possibly a resumption token
      */
-    public function getSets($counter = 0): Result
+    public function getSets(int $counter = 0): Result
     {
         $result = [];
         $maxRecords = Configuration::getInstance()->maxRecords;
@@ -388,18 +432,21 @@ class Database
     /**
      * Prune orphan sets.
      *
-     * @return void
+     * @return int The number of removed sets
      */
-    public function pruneOrphanSets(): void
+    public function pruneOrphanSets(): int
     {
         $repository = $this->entityManager->getRepository(Set::class);
         $sets = $repository->findAll();
+        $count = 0;
         foreach ($sets as $set) {
             if ($set->isEmpty()) {
                 $this->entityManager->remove($set);
+                ++$count;
             }
         }
         $this->entityManager->flush();
+        return $count;
     }
 
     /**
@@ -417,45 +464,6 @@ class Database
         }
         $this->entityManager->flush();
         return count($tokens);
-    }
-
-    /**
-     * Delete metadata format and all associated records.
-     *
-     * @param Format $format The metadata format
-     *
-     * @return void
-     */
-    public function deleteMetadataFormat(Format $format): void
-    {
-        $repository = $this->entityManager->getRepository(Record::class);
-        $criteria = Criteria::create()->where(Criteria::expr()->eq('format', $format));
-        $records = $repository->matching($criteria);
-        foreach ($records as $record) {
-            $this->entityManager->remove($record);
-        }
-        $this->entityManager->remove($format);
-        $this->entityManager->flush();
-        $this->pruneOrphanSets();
-    }
-
-    /**
-     * Delete a record.
-     *
-     * @param Record $record The record
-     *
-     * @return void
-     */
-    public function deleteRecord(Record $record): void
-    {
-        if (Configuration::getInstance()->deletedRecords === 'no') {
-            $this->entityManager->remove($record);
-        } else {
-            $record->setContent(null);
-            $record->setLastChanged(new DateTime());
-        }
-        $this->entityManager->flush();
-        $this->pruneOrphanSets();
     }
 
     /**
@@ -480,7 +488,7 @@ class Database
             new AttributeDriver([__DIR__ . '/Database'])
         );
         $configuration->setProxyDir(__DIR__ . '/../var/generated');
-        $configuration->setProxyNamespace('OCC\OaiPmh2\Proxy');
+        $configuration->setProxyNamespace('OCC\OaiPmh2\Database\Proxy');
         $configuration->setQueryCache(
             new PhpFilesAdapter(
                 'Query',
