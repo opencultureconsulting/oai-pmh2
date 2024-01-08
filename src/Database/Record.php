@@ -249,11 +249,11 @@ class Record
             $xml,
             [
                 new Assert\Type('string'),
-                // TODO: Validate well-formed XML.
                 new Assert\NotBlank()
             ]
         );
-        if ($violations->count() > 0) {
+        if ($violations->count() > 0
+            or simplexml_load_string($xml) === false) {
             throw new ValidationFailedException(null, $violations);
         }
         return $xml;
