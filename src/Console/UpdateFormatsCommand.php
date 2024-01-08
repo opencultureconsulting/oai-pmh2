@@ -55,6 +55,7 @@ class UpdateFormatsCommand extends ConsoleCommand
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $formats = Configuration::getInstance()->metadataPrefix;
+        $this->clearResultCache();
         $inDatabase = Database::getInstance()->getMetadataFormats()->getQueryResult();
         $added = 0;
         $deleted = 0;
@@ -107,10 +108,11 @@ class UpdateFormatsCommand extends ConsoleCommand
             $output->writeln(
                 [
                     '',
-                    ' The following metadata formats are currently supported: ',
-                    ' ======================================================= ',
+                    ' [INFO] The following metadata formats are currently supported: ',
+                    ' "' . implode('", "', $currentFormats) . '" ',
                     '',
-                    '  "' . implode('", "', $currentFormats) . '" ',
+                    ' To change supported formats edit config/config.yml an run ',
+                    ' command "php bin/cli oai:formats:update" again! ',
                     ''
                 ],
                 1 | 16
