@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Configuration;
-use OCC\OaiPmh2\ConsoleCommand;
+use OCC\OaiPmh2\Console;
 use OCC\OaiPmh2\Database;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -41,7 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:prune',
     description: 'Prune deleted records from database'
 )]
-class PruneDeletedRecordsCommand extends ConsoleCommand
+class PruneDeletedRecordsCommand extends Console
 {
     /**
      * Configures the current command.

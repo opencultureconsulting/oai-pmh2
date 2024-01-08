@@ -24,9 +24,8 @@ namespace OCC\OaiPmh2\Middleware;
 
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Database\Set;
-use OCC\OaiPmh2\Database\Token;
 use OCC\OaiPmh2\Document;
+use OCC\OaiPmh2\Entity\Set;
 use OCC\OaiPmh2\Middleware;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -92,8 +91,11 @@ class ListSets extends Middleware
             $set->appendChild($setName);
 
             if ($oaiSet->getDescription() !== '') {
-                $setDescription = $document->createElement('setDescription', $oaiSet->getDescription());
+                $setDescription = $document->createElement('setDescription');
                 $set->appendChild($setDescription);
+
+                $description = $document->importData($oaiSet->getDescription());
+                $setDescription->appendChild($description);
             }
         }
 

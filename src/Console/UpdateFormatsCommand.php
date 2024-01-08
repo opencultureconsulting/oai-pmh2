@@ -23,9 +23,9 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Configuration;
-use OCC\OaiPmh2\ConsoleCommand;
+use OCC\OaiPmh2\Console;
 use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Database\Format;
+use OCC\OaiPmh2\Entity\Format;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -42,7 +42,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
     name: 'oai:formats:update',
     description: 'Update metadata formats in database from configuration'
 )]
-class UpdateFormatsCommand extends ConsoleCommand
+class UpdateFormatsCommand extends Console
 {
     /**
      * Executes the current command.

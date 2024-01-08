@@ -25,7 +25,9 @@ namespace OCC\OaiPmh2;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
+use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Base class for all OAI-PMH console commands.
@@ -33,7 +35,7 @@ use Symfony\Component\Console\Output\NullOutput;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package opencultureconsulting/oai-pmh2
  */
-abstract class ConsoleCommand extends Command
+abstract class Console extends Command
 {
     /**
      * Clears the result cache.
@@ -75,5 +77,44 @@ abstract class ConsoleCommand extends Command
             return -1;
         }
         return $limit;
+    }
+
+    /**
+     * Validate input arguments.
+     *
+     * @param InputInterface $input The inputs
+     * @param OutputInterface $output The output interface
+     *
+     * @return bool Whether the inputs validate
+     */
+    protected function validateInput(InputInterface $input, OutputInterface $output): bool
+    {
+        /** @var array<string, string> */
+        $arguments = $input->getArguments();
+
+        $formats = Database::getInstance()->getMetadataFormats()->getQueryResult();
+        if (!in_array($arguments['format'], array_keys($formats), true)) {
+            $output->writeln([
+                '',
+                sprintf(
+                    ' [ERROR] Metadata format "%s" is not supported. ',
+                    $arguments['format']
+                ),
+                ''
+            ]);
+            return false;
+        }
+        if (!is_readable($arguments['file'])) {
+            $output->writeln([
+                '',
+                sprintf(
+                    ' [ERROR] File "%s" not found or not readable. ',
+                    $arguments['file']
+                ),
+                ''
+            ]);
+            return false;
+        }
+        return true;
     }
 }

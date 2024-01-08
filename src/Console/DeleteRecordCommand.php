@@ -22,10 +22,10 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
-use OCC\OaiPmh2\ConsoleCommand;
+use OCC\OaiPmh2\Console;
 use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Database\Format;
-use OCC\OaiPmh2\Database\Record;
+use OCC\OaiPmh2\Entity\Format;
+use OCC\OaiPmh2\Entity\Record;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -42,7 +42,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:delete',
     description: 'Delete a record from database'
 )]
-class DeleteRecordCommand extends ConsoleCommand
+class DeleteRecordCommand extends Console
 {
     /**
      * Configures the current command.

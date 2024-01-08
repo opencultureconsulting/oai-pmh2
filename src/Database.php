@@ -34,11 +34,11 @@ use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Proxy\ProxyFactory;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use OCC\Basics\Traits\Singleton;
-use OCC\OaiPmh2\Database\Format;
-use OCC\OaiPmh2\Database\Record;
-use OCC\OaiPmh2\Database\Result;
-use OCC\OaiPmh2\Database\Set;
-use OCC\OaiPmh2\Database\Token;
+use OCC\OaiPmh2\Entity\Format;
+use OCC\OaiPmh2\Entity\Record;
+use OCC\OaiPmh2\Entity\Set;
+use OCC\OaiPmh2\Entity\Token;
+use OCC\OaiPmh2\Result;
 use Symfony\Component\Cache\Adapter\PhpFilesAdapter;
 use Symfony\Component\Filesystem\Path;
 
@@ -485,10 +485,10 @@ class Database
             )
         );
         $configuration->setMetadataDriverImpl(
-            new AttributeDriver([__DIR__ . '/Database'])
+            new AttributeDriver([__DIR__ . '/Entity'])
         );
         $configuration->setProxyDir(__DIR__ . '/../var/generated');
-        $configuration->setProxyNamespace('OCC\OaiPmh2\Database\Proxy');
+        $configuration->setProxyNamespace('OCC\OaiPmh2\Entity\Proxy');
         $configuration->setQueryCache(
             new PhpFilesAdapter(
                 'Query',

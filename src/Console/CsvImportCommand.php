@@ -23,10 +23,11 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use DateTime;
-use OCC\OaiPmh2\ConsoleCommand;
+use OCC\OaiPmh2\Console;
 use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Database\Format;
-use OCC\OaiPmh2\Database\Record;
+use OCC\OaiPmh2\Entity\Format;
+use OCC\OaiPmh2\Entity\Record;
+use OCC\OaiPmh2\Entity\Set;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressIndicator;
@@ -45,7 +46,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:import:csv',
     description: 'Import records from a CSV file'
 )]
-class CsvImportCommand extends ConsoleCommand
+class CsvImportCommand extends Console
 {
     /**
      * Configures the current command.
@@ -93,7 +94,7 @@ class CsvImportCommand extends ConsoleCommand
             'setColumn',
             's',
             InputOption::VALUE_OPTIONAL,
-            'Name of the CSV column which holds the records\' sets list.',
+            'Name of the CSV column which holds the comma-separated list of the records\' sets.',
             'sets'
         );
         $this->addOption(
@@ -148,7 +149,12 @@ class CsvImportCommand extends ConsoleCommand
             if (strlen(trim($row[$columns['contentColumn']])) > 0) {
                 $record->setContent($row[$columns['contentColumn']], !$noValidation);
             }
-            // TODO: Complete support for sets.
+            $sets = $row[$columns['setColumn']] ?? '';
+            foreach (explode(',', trim($sets)) as $set) {
+                /** @var Set */
+                $setSpec = Database::getInstance()->getEntityManager()->getReference(Set::class, $set);
+                $record->addSet($setSpec);
+            }
             Database::getInstance()->addOrUpdateRecord($record, true);
 
             ++$count;
@@ -229,44 +235,5 @@ class CsvImportCommand extends ConsoleCommand
             return [];
         }
         return $columns;
-    }
-
-    /**
-     * Validate input arguments.
-     *
-     * @param InputInterface $input The inputs
-     * @param OutputInterface $output The output interface
-     *
-     * @return bool Whether the inputs validate
-     */
-    protected function validateInput(InputInterface $input, OutputInterface $output): bool
-    {
-        /** @var array<string, string> */
-        $arguments = $input->getArguments();
-
-        $formats = Database::getInstance()->getMetadataFormats()->getQueryResult();
-        if (!in_array($arguments['format'], array_keys($formats), true)) {
-            $output->writeln([
-                '',
-                sprintf(
-                    ' [ERROR] Metadata format "%s" is not supported. ',
-                    $arguments['format']
-                ),
-                ''
-            ]);
-            return false;
-        }
-        if (!is_readable($arguments['file'])) {
-            $output->writeln([
-                '',
-                sprintf(
-                    ' [ERROR] File "%s" not found or not readable. ',
-                    $arguments['file']
-                ),
-                ''
-            ]);
-            return false;
-        }
-        return true;
     }
 }

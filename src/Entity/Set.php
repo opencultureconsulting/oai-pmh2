@@ -20,14 +20,13 @@
 
 declare(strict_types=1);
 
-namespace OCC\OaiPmh2\Database;
+namespace OCC\OaiPmh2\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use OCC\OaiPmh2\Entity;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
-use Symfony\Component\Validator\Validation;
 
 /**
  * Doctrine/ORM Entity for sets.
@@ -37,7 +36,7 @@ use Symfony\Component\Validator\Validation;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'sets')]
-class Set
+class Set extends Entity
 {
     /**
      * The unique set spec.
@@ -152,40 +151,16 @@ class Set
      * @param string $description The description
      *
      * @return void
-     */
-    public function setDescription(string $description): void
-    {
-        $this->description =  trim($description);
-    }
-
-    /**
-     * Validate set spec.
-     *
-     * @param string $spec The set spec
-     *
-     * @return string The validated spec
      *
      * @throws ValidationFailedException
      */
-    protected function validate(string $spec): string
+    public function setDescription(string $description): void
     {
-        $spec = trim($spec);
-        $validator = Validation::createValidator();
-        $violations = $validator->validate(
-            $spec,
-            [
-                new Assert\Regex([
-                    'pattern' => '/\s/',
-                    'match' => false,
-                    'message' => 'This value contains whitespaces.'
-                ]),
-                new Assert\NotBlank()
-            ]
-        );
-        if ($violations->count() > 0) {
-            throw new ValidationFailedException(null, $violations);
+        try {
+            $this->description = $this->validateXml($description);
+        } catch (ValidationFailedException $exception) {
+            throw $exception;
         }
-        return $spec;
     }
 
     /**
@@ -200,7 +175,7 @@ class Set
     public function __construct(string $spec, string $name, string $description = '')
     {
         try {
-            $this->spec = $this->validate($spec);
+            $this->spec = $this->validateNoWhitespace($spec);
             $this->name = trim($name);
             $this->setDescription($description);
             $this->records = new ArrayCollection();

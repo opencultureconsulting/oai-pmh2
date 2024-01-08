@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
-use OCC\OaiPmh2\ConsoleCommand;
+use OCC\OaiPmh2\Console;
 use OCC\OaiPmh2\Database;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -39,7 +39,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:tokens:prune',
     description: 'Prune expired resumption tokens from database'
 )]
-class PruneResumptionTokensCommand extends ConsoleCommand
+class PruneResumptionTokensCommand extends Console
 {
     /**
      * Executes the current command.

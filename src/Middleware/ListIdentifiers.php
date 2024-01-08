@@ -25,8 +25,8 @@ namespace OCC\OaiPmh2\Middleware;
 use DateTime;
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Database\Record;
 use OCC\OaiPmh2\Document;
+use OCC\OaiPmh2\Entity\Record;
 use OCC\OaiPmh2\Middleware;
 use Psr\Http\Message\ServerRequestInterface;
 

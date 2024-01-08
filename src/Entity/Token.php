@@ -20,12 +20,13 @@
 
 declare(strict_types=1);
 
-namespace OCC\OaiPmh2\Database;
+namespace OCC\OaiPmh2\Entity;
 
 use DateInterval;
 use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use OCC\OaiPmh2\Configuration;
+use OCC\OaiPmh2\Entity;
 
 /**
  * Doctrine/ORM Entity for resumption tokens.
@@ -35,7 +36,7 @@ use OCC\OaiPmh2\Configuration;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'tokens')]
-class Token
+class Token extends Entity
 {
     /**
      * The resumption token.

@@ -22,10 +22,11 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
-use OCC\OaiPmh2\ConsoleCommand;
+use OCC\OaiPmh2\Console;
 use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Database\Format;
-use OCC\OaiPmh2\Database\Record;
+use OCC\OaiPmh2\Entity\Format;
+use OCC\OaiPmh2\Entity\Record;
+use OCC\OaiPmh2\Entity\Set;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -42,7 +43,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:add',
     description: 'Add or update a record in the database'
 )]
-class AddRecordCommand extends ConsoleCommand
+class AddRecordCommand extends Console
 {
     /**
      * Configures the current command.
@@ -84,29 +85,29 @@ class AddRecordCommand extends ConsoleCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var array<string, string> */
-        $arguments = $input->getArguments();
-        /** @var Format */
-        $format = Database::getInstance()->getEntityManager()->getReference(Format::class, $arguments['format']);
-
-        $content = file_get_contents($arguments['file']);
-        if ($content === false) {
-            $output->writeln([
-                '',
-                sprintf(
-                    ' [ERROR] File "%s" not found or not readable. ',
-                    $arguments['file']
-                ),
-                ''
-            ]);
+        if (!$this->validateInput($input, $output)) {
             return Command::INVALID;
         }
+        /** @var string */
+        $identifier = $input->getArgument('identifier');
+        /** @var Format */
+        $format = Database::getInstance()->getEntityManager()->getReference(Format::class, $input->getArgument('format'));
+        /** @var string */
+        $file = $input->getArgument('file');
+        /** @var string[] */
+        $sets = $input->getArgument('sets');
+        /** @var string */
+        $content = file_get_contents($file);
 
-        $record = new Record($arguments['identifier'], $format);
+        $record = new Record($identifier, $format);
         if (trim($content) !== '') {
             $record->setContent($content);
         }
-        // TODO: Add full set support.
+        foreach ($sets as $set) {
+            /** @var Set */
+            $setSpec = Database::getInstance()->getEntityManager()->getReference(Set::class, $set);
+            $record->addSet($setSpec);
+        }
 
         Database::getInstance()->addOrUpdateRecord($record);
         Database::getInstance()->pruneOrphanSets();
@@ -117,8 +118,8 @@ class AddRecordCommand extends ConsoleCommand
             '',
             sprintf(
                 ' [OK] Record "%s" with metadata prefix "%s" added or updated successfully! ',
-                $arguments['identifier'],
-                $arguments['format']
+                $identifier,
+                $format->getPrefix()
             ),
             ''
         ]);

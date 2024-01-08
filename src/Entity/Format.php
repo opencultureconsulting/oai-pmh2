@@ -20,12 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OCC\OaiPmh2\Database;
+namespace OCC\OaiPmh2\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use OCC\OaiPmh2\Entity;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
-use Symfony\Component\Validator\Validation;
 
 /**
  * Doctrine/ORM Entity for formats.
@@ -35,7 +34,7 @@ use Symfony\Component\Validator\Validation;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'formats')]
-class Format
+class Format extends Entity
 {
     /**
      * The unique metadata prefix.
@@ -98,7 +97,7 @@ class Format
     public function setNamespace(string $namespace): void
     {
         try {
-            $this->namespace = $this->validateUrl($namespace);
+            $this->namespace = $this->validateUri($namespace);
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }
@@ -116,60 +115,10 @@ class Format
     public function setSchema(string $schema): void
     {
         try {
-            $this->xmlSchema = $this->validateUrl($schema);
+            $this->xmlSchema = $this->validateUri($schema);
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }
-    }
-
-    /**
-     * Validate metadata prefix.
-     *
-     * @param string $prefix The metadata prefix
-     *
-     * @return string The validated prefix
-     *
-     * @throws ValidationFailedException
-     */
-    protected function validatePrefix(string $prefix): string
-    {
-        $prefix = trim($prefix);
-        $validator = Validation::createValidator();
-        $violations = $validator->validate(
-            $prefix,
-            [
-                new Assert\Regex([
-                    'pattern' => '/\s/',
-                    'match' => false,
-                    'message' => 'This value contains whitespaces.'
-                ]),
-                new Assert\NotBlank()
-            ]
-        );
-        if ($violations->count() > 0) {
-            throw new ValidationFailedException(null, $violations);
-        }
-        return $prefix;
-    }
-
-    /**
-     * Validate namespace and schema URLs.
-     *
-     * @param string $url The namespace or schema URL
-     *
-     * @return string The validated URL
-     *
-     * @throws ValidationFailedException
-     */
-    protected function validateUrl(string $url): string
-    {
-        $url = trim($url);
-        $validator = Validation::createValidator();
-        $violations = $validator->validate($url, new Assert\Url());
-        if ($violations->count() > 0) {
-            throw new ValidationFailedException(null, $violations);
-        }
-        return $url;
     }
 
     /**
@@ -184,7 +133,7 @@ class Format
     public function __construct(string $prefix, string $namespace, string $schema)
     {
         try {
-            $this->prefix = $this->validatePrefix($prefix);
+            $this->prefix = $this->validateNoWhitespace($prefix);
             $this->setNamespace($namespace);
             $this->setSchema($schema);
         } catch (ValidationFailedException $exception) {

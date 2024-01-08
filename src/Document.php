@@ -28,7 +28,6 @@ use DOMException;
 use DOMNode;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 
 /**
  * An OAI-PMH XML response object.

@@ -20,12 +20,16 @@
 
 declare(strict_types=1);
 
-namespace OCC\OaiPmh2\Database;
+namespace OCC\OaiPmh2;
 
 use Countable;
 use Iterator;
 use OCC\Basics\InterfaceTraits\Countable as CountableTrait;
 use OCC\Basics\InterfaceTraits\Iterator as IteratorTrait;
+use OCC\OaiPmh2\Entity\Format;
+use OCC\OaiPmh2\Entity\Record;
+use OCC\OaiPmh2\Entity\Set;
+use OCC\OaiPmh2\Entity\Token;
 
 /**
  * A database result set with optional resumption token.

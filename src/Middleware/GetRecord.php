@@ -23,8 +23,8 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Middleware;
 
 use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Database\Format;
 use OCC\OaiPmh2\Document;
+use OCC\OaiPmh2\Entity\Format;
 use OCC\OaiPmh2\Middleware;
 use Psr\Http\Message\ServerRequestInterface;
 

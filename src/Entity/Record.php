@@ -20,15 +20,14 @@
 
 declare(strict_types=1);
 
-namespace OCC\OaiPmh2\Database;
+namespace OCC\OaiPmh2\Entity;
 
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
+use OCC\OaiPmh2\Entity;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
-use Symfony\Component\Validator\Validation;
 
 /**
  * Doctrine/ORM Entity for records.
@@ -38,7 +37,7 @@ use Symfony\Component\Validator\Validation;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'records')]
-class Record
+class Record extends Entity
 {
     /**
      * The record identifier.
@@ -197,7 +196,7 @@ class Record
             $data = trim($data);
             if ($validate) {
                 try {
-                    $data = $this->validate($data);
+                    $data = $this->validateXml($data);
                 } catch (ValidationFailedException $exception) {
                     throw $exception;
                 }
@@ -234,32 +233,6 @@ class Record
     }
 
     /**
-     * Validate XML content.
-     *
-     * @param string $xml The XML string
-     *
-     * @return string The validated XML string
-     *
-     * @throws ValidationFailedException
-     */
-    protected function validate(string $xml): string
-    {
-        $validator = Validation::createValidator();
-        $violations = $validator->validate(
-            $xml,
-            [
-                new Assert\Type('string'),
-                new Assert\NotBlank()
-            ]
-        );
-        if ($violations->count() > 0
-            or simplexml_load_string($xml) === false) {
-            throw new ValidationFailedException(null, $violations);
-        }
-        return $xml;
-    }
-
-    /**
      * Get new entity of record.
      *
      * @param string $identifier The record identifier
@@ -272,7 +245,7 @@ class Record
     public function __construct(string $identifier, Format $format, ?string $data = null, ?DateTime $lastChanged = null)
     {
         try {
-            $this->identifier = $identifier;
+            $this->identifier = $this->validateNoWhitespace($identifier);
             $this->setFormat($format);
             $this->setContent($data);
             $this->setLastChanged($lastChanged);
