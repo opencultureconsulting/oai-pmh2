@@ -101,7 +101,7 @@ class CsvImportCommand extends Console
             'noValidation',
             null,
             InputOption::VALUE_NONE,
-            'Omit content validation (improves performance for large record sets).'
+            'Skip content validation (improves performance for large record sets).'
         );
         parent::configure();
     }
@@ -140,20 +140,20 @@ class CsvImportCommand extends Console
         $progressIndicator->start('Importing...');
 
         while ($row = fgetcsv($file)) {
-            $record = new Record(
-                $row[$columns['idColumn']],
-                $format,
-                null,
-                new DateTime($row[$columns['dateColumn']] ?? 'now')
-            );
+            $record = new Record($row[$columns['idColumn']], $format);
             if (strlen(trim($row[$columns['contentColumn']])) > 0) {
                 $record->setContent($row[$columns['contentColumn']], !$noValidation);
             }
-            $sets = $row[$columns['setColumn']] ?? '';
-            foreach (explode(',', trim($sets)) as $set) {
-                /** @var Set */
-                $setSpec = Database::getInstance()->getEntityManager()->getReference(Set::class, $set);
-                $record->addSet($setSpec);
+            if (isset($columns['dateColumn'])) {
+                $record->setLastChanged(new DateTime($row[$columns['dateColumn']]));
+            }
+            if (isset($columns['setColumn'])) {
+                $sets = $row[$columns['setColumn']];
+                foreach (explode(',', trim($sets)) as $set) {
+                    /** @var Set */
+                    $setSpec = Database::getInstance()->getEntityManager()->getReference(Set::class, $set);
+                    $record->addSet($setSpec);
+                }
             }
             Database::getInstance()->addOrUpdateRecord($record, true);
 
@@ -194,7 +194,7 @@ class CsvImportCommand extends Console
      * @param OutputInterface $output The output interface
      * @param resource $file The handle for the CSV file
      *
-     * @return array<string, int|string> The mapped column names
+     * @return array<string, int|string|null> The mapped column names
      */
     protected function getColumnNames(InputInterface $input, OutputInterface $output, $file): array
     {
@@ -218,9 +218,7 @@ class CsvImportCommand extends Console
             $headers = array_flip($headers);
         }
         foreach ($options as $option => $value) {
-            if (isset($headers[$value])) {
-                $columns[$option] = $headers[$value];
-            }
+            $columns[$option] = $headers[$value] ?? null;
         }
 
         if (!isset($columns['idColumn']) || !isset($columns['contentColumn'])) {
