@@ -97,7 +97,7 @@ class Format extends Entity
     public function setNamespace(string $namespace): void
     {
         try {
-            $this->namespace = $this->validateUri($namespace);
+            $this->namespace = $this->validateUrl($namespace);
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }
@@ -115,7 +115,7 @@ class Format extends Entity
     public function setSchema(string $schema): void
     {
         try {
-            $this->xmlSchema = $this->validateUri($schema);
+            $this->xmlSchema = $this->validateUrl($schema);
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }
@@ -133,7 +133,7 @@ class Format extends Entity
     public function __construct(string $prefix, string $namespace, string $schema)
     {
         try {
-            $this->prefix = $this->validateNoWhitespace($prefix);
+            $this->prefix = $this->validateRegEx($prefix, '/^[A-Za-z0-9\-_\.!~\*\'\(\)]+$/');
             $this->setNamespace($namespace);
             $this->setSchema($schema);
         } catch (ValidationFailedException $exception) {

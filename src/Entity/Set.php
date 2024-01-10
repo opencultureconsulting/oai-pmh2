@@ -164,6 +164,18 @@ class Set extends Entity
     }
 
     /**
+     * Set the name for this set.
+     *
+     * @param string $name The name
+     *
+     * @return void
+     */
+    public function setName(string $name): void
+    {
+        $this->name = trim($name);
+    }
+
+    /**
      * Get new entity of set.
      *
      * @param string $spec The set spec
@@ -175,8 +187,8 @@ class Set extends Entity
     public function __construct(string $spec, string $name, string $description = '')
     {
         try {
-            $this->spec = $this->validateNoWhitespace($spec);
-            $this->name = trim($name);
+            $this->spec = $this->validateRegEx($spec, '/^([A-Za-z0-9\-_\.!~\*\'\(\)])+(:[A-Za-z0-9\-_\.!~\*\'\(\)]+)*$/');
+            $this->setName($name);
             $this->setDescription($description);
             $this->records = new ArrayCollection();
         } catch (ValidationFailedException $exception) {

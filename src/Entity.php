@@ -35,25 +35,44 @@ use Symfony\Component\Validator\Validation;
 abstract class Entity
 {
     /**
-     * Check if a string does not contain any whitespaces.
+     * Check if a string is a valid URL.
+     *
+     * @param string $url The URL
+     *
+     * @return string The validated URL
+     *
+     * @throws ValidationFailedException
+     */
+    protected function validateUrl(string $url): string
+    {
+        $url = trim($url);
+        $validator = Validation::createValidator();
+        $violations = $validator->validate($url, new Assert\Url());
+        if ($violations->count() > 0) {
+            throw new ValidationFailedException(null, $violations);
+        }
+        return $url;
+    }
+
+    /**
+     * Check if a string matches a given regular expression.
      *
      * @param string $string The string
+     * @param string $regEx The regular expression
      *
      * @return string The validated string
      *
      * @throws ValidationFailedException
      */
-    protected function validateNoWhitespace(string $string): string
+    protected function validateRegEx(string $string, string $regEx): string
     {
-        $string = trim($string);
         $validator = Validation::createValidator();
         $violations = $validator->validate(
             $string,
             [
                 new Assert\Regex([
-                    'pattern' => '/\s/',
-                    'match' => false,
-                    'message' => 'This value contains whitespaces.'
+                    'pattern' => $regEx,
+                    'message' => 'This value does not match the regular expression "{{ pattern }}".'
                 ]),
                 new Assert\NotBlank()
             ]
@@ -62,26 +81,6 @@ abstract class Entity
             throw new ValidationFailedException(null, $violations);
         }
         return $string;
-    }
-
-    /**
-     * Check if a string is a valid URI.
-     *
-     * @param string $uri The URI
-     *
-     * @return string The validated URI
-     *
-     * @throws ValidationFailedException
-     */
-    protected function validateUri(string $uri): string
-    {
-        $uri = trim($uri);
-        $validator = Validation::createValidator();
-        $violations = $validator->validate($uri, new Assert\Url());
-        if ($violations->count() > 0) {
-            throw new ValidationFailedException(null, $violations);
-        }
-        return $uri;
     }
 
     /**

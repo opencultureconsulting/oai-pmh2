@@ -245,7 +245,11 @@ class Record extends Entity
     public function __construct(string $identifier, Format $format, ?string $data = null, ?DateTime $lastChanged = null)
     {
         try {
-            $this->identifier = $this->validateNoWhitespace($identifier);
+            $this->identifier = $this->validateRegEx(
+                $identifier,
+                // xs:anyURI
+                '/^(([a-zA-Z][0-9a-zA-Z+\\-\\.]*:)?\/{0,2}[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?(#[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?$/'
+            );
             $this->setFormat($format);
             $this->setContent($data);
             $this->setLastChanged($lastChanged);
