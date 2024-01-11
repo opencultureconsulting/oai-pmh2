@@ -64,6 +64,9 @@ abstract class Console extends Command
     {
         $ini = trim(ini_get('memory_limit'));
         $limit = (int) $ini;
+        if ($limit < 0) {
+            return -1;
+        }
         $unit = strtolower($ini[strlen($ini)-1]);
         switch($unit) {
             case 'g':
@@ -72,9 +75,6 @@ abstract class Console extends Command
                 $limit *= 1024;
             case 'k':
                 $limit *= 1024;
-        }
-        if ($limit < 0) {
-            return -1;
         }
         return $limit;
     }
