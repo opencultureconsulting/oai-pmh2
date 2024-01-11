@@ -149,9 +149,9 @@ class CsvImportCommand extends Console
             }
             if (isset($columns['setColumn'])) {
                 $sets = $row[$columns['setColumn']];
-                foreach (explode(',', trim($sets)) as $set) {
+                foreach (explode(',', $sets) as $set) {
                     /** @var Set */
-                    $setSpec = Database::getInstance()->getEntityManager()->getReference(Set::class, $set);
+                    $setSpec = Database::getInstance()->getEntityManager()->getReference(Set::class, trim($set));
                     $record->addSet($setSpec);
                 }
             }

@@ -166,25 +166,25 @@ class Set extends Entity
     /**
      * Set the name for this set.
      *
-     * @param string $name The name
+     * @param ?string $name The name (defaults to spec)
      *
      * @return void
      */
-    public function setName(string $name): void
+    public function setName(?string $name): void
     {
-        $this->name = trim($name);
+        $this->name = $name ?? $this->getSpec();
     }
 
     /**
      * Get new entity of set.
      *
      * @param string $spec The set spec
-     * @param string $name The name of the set
+     * @param ?string $name The name of the set (defaults to spec)
      * @param string $description The description of the set
      *
      * @throws ValidationFailedException
      */
-    public function __construct(string $spec, string $name, string $description = '')
+    public function __construct(string $spec, ?string $name = null, string $description = '')
     {
         try {
             $this->spec = $this->validateRegEx($spec, '/^([A-Za-z0-9\-_\.!~\*\'\(\)])+(:[A-Za-z0-9\-_\.!~\*\'\(\)]+)*$/');
