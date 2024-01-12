@@ -32,6 +32,7 @@ use Doctrine\ORM\Configuration as DoctrineConfiguration;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Proxy\ProxyFactory;
+use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use OCC\Basics\Traits\Singleton;
 use OCC\OaiPmh2\Entity\Format;
@@ -313,8 +314,17 @@ class Database
             $until = $until->format('Y-m-d\TH:i:s\Z');
         }
         if (isset($set)) {
-            $dql->andWhere($dql->expr()->in('record.sets', ':set'));
-            $dql->setParameter('set', $set);
+            $dql->innerJoin(
+                Set::class,
+                'sets',
+                Join::WITH,
+                $dql->expr()->orX(
+                    $dql->expr()->eq('sets.spec', ':setSpec'),
+                    $dql->expr()->like('sets.spec', ':setLike')
+                )
+            );
+            $dql->setParameter('setSpec', $set->getSpec());
+            $dql->setParameter('setLike', $set->getSpec() . ':%');
             $set = $set->getSpec();
         }
         $query = $dql->getQuery();
