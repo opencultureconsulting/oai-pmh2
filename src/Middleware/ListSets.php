@@ -90,7 +90,7 @@ class ListSets extends Middleware
             $setName = $document->createElement('setName', $oaiSet->getName());
             $set->appendChild($setName);
 
-            if ($oaiSet->getDescription() !== '') {
+            if ($oaiSet->hasDescription()) {
                 $setDescription = $document->createElement('setDescription');
                 $set->appendChild($setDescription);
 

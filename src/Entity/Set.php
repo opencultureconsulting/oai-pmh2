@@ -54,8 +54,8 @@ class Set extends Entity
     /**
      * A description of the set.
      */
-    #[ORM\Column(type: 'text')]
-    private string $description = '';
+    #[ORM\Column(type: 'text', nullable: true)]
+    private ?string $description = null;
 
     /**
      * Collection of associated records.
@@ -83,9 +83,9 @@ class Set extends Entity
     /**
      * Get the description of this set.
      *
-     * @return string The set description
+     * @return ?string The set description or NULL
      */
-    public function getDescription(): string
+    public function getDescription(): ?string
     {
         return $this->description;
     }
@@ -121,6 +121,16 @@ class Set extends Entity
     }
 
     /**
+     * Whether this set has a description.
+     *
+     * @return bool TRUE if description exists, FALSE otherwise
+     */
+    public function hasDescription(): bool
+    {
+        return isset($this->description);
+    }
+
+    /**
      * Whether this set contains any records.
      *
      * @return bool TRUE if empty or FALSE otherwise
@@ -148,19 +158,23 @@ class Set extends Entity
     /**
      * Set the description for this set.
      *
-     * @param string $description The description
+     * @param ?string $description The description
      *
      * @return void
      *
      * @throws ValidationFailedException
      */
-    public function setDescription(string $description): void
+    public function setDescription(?string $description): void
     {
-        try {
-            $this->description = $this->validateXml($description);
-        } catch (ValidationFailedException $exception) {
-            throw $exception;
+        if (isset($description)) {
+            $description = trim($description);
+            try {
+                $description = $this->validateXml($description);
+            } catch (ValidationFailedException $exception) {
+                throw $exception;
+            }
         }
+        $this->description = $description;
     }
 
     /**
@@ -180,11 +194,11 @@ class Set extends Entity
      *
      * @param string $spec The set spec
      * @param ?string $name The name of the set (defaults to spec)
-     * @param string $description The description of the set
+     * @param ?string $description The description of the set
      *
      * @throws ValidationFailedException
      */
-    public function __construct(string $spec, ?string $name = null, string $description = '')
+    public function __construct(string $spec, ?string $name = null, string $description = null)
     {
         try {
             $this->spec = $this->validateRegEx($spec, '/^([A-Za-z0-9\-_\.!~\*\'\(\)])+(:[A-Za-z0-9\-_\.!~\*\'\(\)]+)*$/');

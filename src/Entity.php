@@ -47,7 +47,13 @@ abstract class Entity
     {
         $url = trim($url);
         $validator = Validation::createValidator();
-        $violations = $validator->validate($url, new Assert\Url());
+        $violations = $validator->validate(
+            $url,
+            [
+                new Assert\Url(),
+                new Assert\NotBlank()
+            ]
+        );
         if ($violations->count() > 0) {
             throw new ValidationFailedException(null, $violations);
         }
@@ -73,8 +79,7 @@ abstract class Entity
                 new Assert\Regex([
                     'pattern' => $regEx,
                     'message' => 'This value does not match the regular expression "{{ pattern }}".'
-                ]),
-                new Assert\NotBlank()
+                ])
             ]
         );
         if ($violations->count() > 0) {
