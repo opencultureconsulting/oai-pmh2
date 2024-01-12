@@ -209,4 +209,14 @@ class Set extends Entity
             throw $exception;
         }
     }
+
+    /**
+     * Get the set's string representation for comparison.
+     *
+     * @return string The set's unique spec
+     */
+    public function __toString(): string
+    {
+        return $this->getSpec();
+    }
 }

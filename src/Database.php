@@ -109,7 +109,14 @@ class Database
             if ($newRecord->hasContent() || Configuration::getInstance()->deletedRecords !== 'no') {
                 $oldRecord->setContent($newRecord->getContent(), false);
                 $oldRecord->setLastChanged($newRecord->getLastChanged());
-                // TODO: Add full set support.
+                // Add new sets.
+                foreach (array_diff($newRecord->getSets(), $oldRecord->getSets()) as $newSet) {
+                    $oldRecord->addSet($newSet);
+                }
+                // Remove old sets.
+                foreach (array_diff($oldRecord->getSets(), $newRecord->getSets()) as $oldSet) {
+                    $oldRecord->removeSet($oldSet);
+                }
             } else {
                 $this->entityManager->remove($oldRecord);
             }
