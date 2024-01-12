@@ -121,7 +121,7 @@ class ListIdentifiers extends Middleware
             }
 
             $header = $document->createElement('header');
-            if ($oaiRecord->getContent() === null) {
+            if (!$oaiRecord->hasContent()) {
                 $header->setAttribute('status', 'deleted');
             }
             $baseNode->appendChild($header);
@@ -137,11 +137,13 @@ class ListIdentifiers extends Middleware
                 $header->appendChild($setSpec);
             }
 
-            if ($verb === 'ListRecords' && $oaiRecord->getContent() !== null) {
+            if ($verb === 'ListRecords' && $oaiRecord->hasContent()) {
                 $metadata = $document->createElement('metadata');
                 $baseNode->appendChild($metadata);
 
-                $data = $document->importData($oaiRecord->getContent());
+                /** @var string */
+                $content = $oaiRecord->getContent();
+                $data = $document->importData($content);
                 $metadata->appendChild($data);
             }
         }

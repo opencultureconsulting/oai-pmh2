@@ -94,8 +94,10 @@ class ListSets extends Middleware
                 $setDescription = $document->createElement('setDescription');
                 $set->appendChild($setDescription);
 
-                $description = $document->importData($oaiSet->getDescription());
-                $setDescription->appendChild($description);
+                /** @var string */
+                $description = $oaiSet->getDescription();
+                $data = $document->importData($description);
+                $setDescription->appendChild($data);
             }
         }
 
