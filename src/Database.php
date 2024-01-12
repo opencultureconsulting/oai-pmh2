@@ -132,6 +132,25 @@ class Database
     }
 
     /**
+     * Add or update set.
+     *
+     * @param Set $newSet The set
+     *
+     * @return void
+     */
+    public function addOrUpdateSet(Set $newSet): void
+    {
+        $oldSet = $this->entityManager->find(Set::class, $newSet->getSpec());
+        if (isset($oldSet)) {
+            $oldSet->setName($newSet->getName());
+            $oldSet->setDescription($newSet->getDescription());
+        } else {
+            $this->entityManager->persist($newSet);
+        }
+        $this->entityManager->flush();
+    }
+
+    /**
      * Delete metadata format and all associated records.
      *
      * @param Format $format The metadata format
@@ -189,6 +208,23 @@ class Database
         foreach ($entities as $entity) {
             $this->entityManager->clear($entity);
         }
+    }
+
+    /**
+     * Get all sets without pagination.
+     *
+     * @return Result<Sets> The sets
+     */
+    public function getAllSets(): Result
+    {
+        $dql = $this->entityManager->createQueryBuilder();
+        $dql->select('sets')
+            ->from(Set::class, 'sets', 'sets.spec');
+        $query = $dql->getQuery();
+        $query->enableResultCache();
+        /** @var Sets */
+        $resultQuery = $query->getResult();
+        return new Result($resultQuery);
     }
 
     /**

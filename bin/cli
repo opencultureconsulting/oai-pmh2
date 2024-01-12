@@ -27,6 +27,7 @@ use Doctrine\ORM\Tools\Console\ConsoleRunner;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Exception;
 use OCC\OaiPmh2\Console\AddRecordCommand;
+use OCC\OaiPmh2\Console\AddSetCommand;
 use OCC\OaiPmh2\Console\CsvImportCommand;
 use OCC\OaiPmh2\Console\DeleteRecordCommand;
 use OCC\OaiPmh2\Console\PruneDeletedRecordsCommand;
@@ -37,6 +38,7 @@ require __DIR__ . '/../vendor/autoload.php';
 
 $commands = [
     new AddRecordCommand(),
+    new AddSetCommand(),
     new CsvImportCommand(),
     new DeleteRecordCommand(),
     new PruneDeletedRecordsCommand(),
