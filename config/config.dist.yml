@@ -15,7 +15,6 @@ repositoryName: 'OAI-PMH 2.0 Data Provider'
 # Email address for contacting the repository owner
 #
 # This has to be a valid email according to RFC 822 Address Specification.
-# See https://www.w3.org/Protocols/rfc822/#z8 for further explanation.
 #
 adminEmail: admin@example.org
 
@@ -31,14 +30,12 @@ adminEmail: admin@example.org
 # directory.
 # Any optional query parameters are used as additional connection parameters.
 # Since the scheme determines the database driver, it also specifies if the PDO
-# abstraction ("mariadb", "mssql", "mysql", "oracle", "postgres", "sqlite") or
-# native drivers ("ibm-db2", "mysqli", "oci8", "pgsql", "sqlite3", "sqlsrv")
+# abstraction ("mariadb", "mssql", "mysql", "oracle", "postgresql", "sqlite")
+# or native drivers ("ibm-db2", "mysqli", "oci8", "pgsql", "sqlite3", "sqlsrv")
 # should be used to handle the connection. Make sure the corresponding PHP
 # extensions are installed.
-# See https://www.doctrine-project.org/projects/doctrine-dbal/en/3.7/reference/configuration.html#connecting-using-a-url
-# for further explanation.
 #
-# %DRIVER%://[%USER%[:%PASSWORD%]@]%HOST%[:%PORT%]/%DBNAME%[?%OPTIONS%]
+# %DRIVER%://[[%USER%[:%PASSWORD%]@]%HOST%[:%PORT%]]/%DBNAME%[?%OPTIONS%]
 #
 # Examples:
 # database: 'mssql://oaipmh:secret@127.0.0.1/oaipmh'
@@ -79,9 +76,10 @@ metadataPrefix: {
 # delete records by importing empty records with the same identifiers and
 # metadata prefixes. Depending on the deleted records policy those records will
 # be either marked as deleted or completely removed from the database.
-# "no" means the repository does not provide any information about deletions.
-# "persistent" means the repository consistently provides information about
-# deletions.
+# "no" - The repository does not provide any information about deletions and
+# deleted records are completely removed from the database.
+# "persistent" - The repository provides consistent information about deletions
+# and placeholders for deleted records are kept in the database.
 # "transient" - The repository may provide information about deletions. This is
 # handled exactly the same as "persistent", but you are allowed to manually
 # prune deleted records from the database (see below).
