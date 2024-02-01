@@ -60,7 +60,7 @@ database: 'sqlite3:///%BASEDIR%/data/sqlite3.db'
 #
 # [0.2 - 0.8]
 #
-memoryLimit: 0.4
+memoryLimit: 0.5
 
 #
 # Metadata formats, namespaces and schemas of your records
