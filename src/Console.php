@@ -60,7 +60,7 @@ abstract class Console extends Command
      *
      * @return int The memory limit in bytes or -1 if unlimited
      */
-    protected function getMemoryLimit(): int
+    protected function getPhpMemoryLimit(): int
     {
         $ini = trim(ini_get('memory_limit'));
         $limit = (int) $ini;

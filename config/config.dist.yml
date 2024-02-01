@@ -16,7 +16,7 @@ repositoryName: 'OAI-PMH 2.0 Data Provider'
 #
 # This has to be a valid email according to RFC 822 Address Specification.
 #
-adminEmail: admin@example.org
+adminEmail: 'admin@example.org'
 
 #
 # Database connection details
@@ -41,12 +41,26 @@ adminEmail: admin@example.org
 # database: 'mssql://oaipmh:secret@127.0.0.1/oaipmh'
 # database: 'mysql://root@localhost/oai?charset=utf8mb4'
 # database: 'pgsql://oaipmh:secret@localhost:5432/oai_data_provider'
-# database: 'sqlite3:////home/oaipmh/database.db'
+# database: 'sqlite3:////opt/oaipmh/database.db'
 #
 # Run "composer doctrine:initialize-database" after switching to a new DB to
 # test the settings and initialize the database!
 #
 database: 'sqlite3:///%BASEDIR%/data/sqlite3.db'
+
+#
+# Memory Limit
+#
+# This defines the maximum amount of memory the indexing process should use per
+# run before it persists changes to the database, flushes it's internal storage
+# and starts over with the next batch of records. Higher settings result in
+# better performance, but depending on the size of your records even smaller
+# values may be needed to prevent running out of memory.
+# The value is interpreted as a percentage of the PHP "memory_limit".
+#
+# [0.2 - 0.8]
+#
+memoryLimit: 0.4
 
 #
 # Metadata formats, namespaces and schemas of your records

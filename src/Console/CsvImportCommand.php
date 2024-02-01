@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use DateTime;
+use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
 use OCC\OaiPmh2\Database;
 use OCC\OaiPmh2\Entity\Format;
@@ -119,7 +120,8 @@ class CsvImportCommand extends Console
         if (!$this->validateInput($input, $output)) {
             return Command::INVALID;
         }
-        $memoryLimit = $this->getMemoryLimit();
+        $phpMemoryLimit = $this->getPhpMemoryLimit();
+        $memoryLimit = Configuration::getInstance()->memoryLimit;
 
         /** @var array<string, string> */
         $arguments = $input->getArguments();
@@ -161,8 +163,8 @@ class CsvImportCommand extends Console
             $progressIndicator->advance();
             $progressIndicator->setMessage('Importing... ' . (string) $count . ' records done.');
 
-            // Flush to database if memory usage reaches 30% of available limit.
-            if ((memory_get_usage() / $memoryLimit) > 0.3) {
+            // Flush to database if memory usage reaches limit.
+            if ((memory_get_usage() / $phpMemoryLimit) > $memoryLimit) {
                 Database::getInstance()->flush([Record::class]);
             }
         }
