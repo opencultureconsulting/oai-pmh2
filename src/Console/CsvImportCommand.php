@@ -161,10 +161,11 @@ class CsvImportCommand extends Console
 
             ++$count;
             $progressIndicator->advance();
-            $progressIndicator->setMessage('Importing... ' . (string) $count . ' records done.');
+            $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed.');
 
             // Flush to database if memory usage reaches limit or every 50.000 records.
             if ((memory_get_usage() / $phpMemoryLimit) > $memoryLimit || ($count % 50000) === 0) {
+                $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing to database...');
                 Database::getInstance()->flush([Record::class]);
             }
         }
