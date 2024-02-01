@@ -36,6 +36,7 @@ use OCC\OaiPmh2\Entity;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'tokens')]
+#[ORM\Index(name: 'valid_until_idx', columns: ['valid_until'])]
 class Token extends Entity
 {
     /**

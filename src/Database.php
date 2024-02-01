@@ -222,7 +222,7 @@ class Database
             ->from(Set::class, 'sets', 'sets.spec');
         $query = $dql->getQuery();
         $query->enableResultCache();
-        /** @var Sets */
+        /** @var Sets $resultQuery */
         $resultQuery = $query->getResult();
         return new Result($resultQuery);
     }
@@ -236,18 +236,13 @@ class Database
     {
         $timestamp = '0000-00-00T00:00:00Z';
         $dql = $this->entityManager->createQueryBuilder();
-        $dql->select('record')
-            ->from(Record::class, 'record')
-            ->orderBy('record.lastChanged', 'ASC')
-            ->setMaxResults(1);
+        $dql->select($dql->expr()->min('record.lastChanged'))
+            ->from(Record::class, 'record');
         $query = $dql->getQuery();
         $query->enableResultCache();
-        /** @var ?array<string, \DateTime> */
-        $result = $query->getOneOrNullResult(AbstractQuery::HYDRATE_ARRAY);
-        if (isset($result)) {
-            $timestamp = $result['lastChanged']->format('Y-m-d\TH:i:s\Z');
-        }
-        return $timestamp;
+        /** @var ?string $result */
+        $result = $query->getOneOrNullResult(AbstractQuery::HYDRATE_SCALAR_COLUMN);
+        return $result ?? $timestamp;
     }
 
     /**
@@ -284,7 +279,7 @@ class Database
         }
         $query = $dql->getQuery();
         $query->enableResultCache();
-        /** @var Formats */
+        /** @var Formats $queryResult */
         $queryResult = $query->getResult();
         return new Result($queryResult);
     }
@@ -364,7 +359,7 @@ class Database
             $set = $set->getSpec();
         }
         $query = $dql->getQuery();
-        /** @var Records */
+        /** @var Records $queryResult */
         $queryResult = $query->getResult();
         $result = new Result($queryResult);
         $paginator = new Paginator($query, true);
@@ -429,9 +424,9 @@ class Database
             ->setMaxResults($maxRecords);
         $query = $dql->getQuery();
         $query->enableResultCache();
-        /** @var Sets */
-        $resultQuery = $query->getResult();
-        $result = new Result($resultQuery);
+        /** @var Sets $queryResult */
+        $queryResult = $query->getResult();
+        $result = new Result($queryResult);
         $paginator = new Paginator($query, false);
         if (count($paginator) > ($cursor + count($result))) {
             $token = new Token('ListSets', [
@@ -455,13 +450,12 @@ class Database
     public function idDoesExist(string $identifier): bool
     {
         $dql = $this->entityManager->createQueryBuilder();
-        $dql->select('COUNT(record.identifier)')
+        $dql->select($dql->expr()->count('record.identifier'))
             ->from(Record::class, 'record')
             ->where($dql->expr()->eq('record.identifier', ':identifier'))
-            ->setParameter('identifier', $identifier)
-            ->setMaxResults(1);
+            ->setParameter('identifier', $identifier);
         $query = $dql->getQuery();
-        return (bool) $query->getOneOrNullResult(AbstractQuery::HYDRATE_SINGLE_SCALAR);
+        return (bool) $query->getOneOrNullResult(AbstractQuery::HYDRATE_SCALAR_COLUMN);
     }
 
     /**

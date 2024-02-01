@@ -37,6 +37,10 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'records')]
+#[ORM\Index(name: 'identifier_idx', columns: ['identifier'])]
+#[ORM\Index(name: 'format_idx', columns: ['format'])]
+#[ORM\Index(name: 'last_changed_idx', columns: ['last_changed'])]
+#[ORM\Index(name: 'format_last_changed_idx', columns: ['format', 'last_changed'])]
 class Record extends Entity
 {
     /**
