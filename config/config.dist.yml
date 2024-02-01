@@ -49,20 +49,6 @@ adminEmail: 'admin@example.org'
 database: 'sqlite3:///%BASEDIR%/data/sqlite3.db'
 
 #
-# Memory Limit
-#
-# This defines the maximum amount of memory the indexing process should use per
-# run before it persists changes to the database, flushes it's internal storage
-# and starts over with the next batch of records. Higher settings result in
-# better performance, but depending on the size of your records even smaller
-# values may be needed to prevent running out of memory.
-# The value is interpreted as a percentage of the PHP "memory_limit".
-#
-# [0.2 - 0.8]
-#
-memoryLimit: 0.5
-
-#
 # Metadata formats, namespaces and schemas of your records
 #
 # The default is 'oai_dc' which is also required by the OAI-PMH specification,

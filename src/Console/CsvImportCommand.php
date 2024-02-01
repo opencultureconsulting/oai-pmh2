@@ -121,7 +121,6 @@ class CsvImportCommand extends Console
             return Command::INVALID;
         }
         $phpMemoryLimit = $this->getPhpMemoryLimit();
-        $memoryLimit = Configuration::getInstance()->memoryLimit;
 
         /** @var array<string, string> */
         $arguments = $input->getArguments();
@@ -163,8 +162,8 @@ class CsvImportCommand extends Console
             $progressIndicator->advance();
             $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed.');
 
-            // Flush to database if memory usage reaches limit or every 10.000 records.
-            if ((memory_get_usage() / $phpMemoryLimit) > $memoryLimit || ($count % 10000) === 0) {
+            // Flush to database if memory usage reaches 50% or every 10.000 records.
+            if ((memory_get_usage() / $phpMemoryLimit) > 0.5 || ($count % 10000) === 0) {
                 $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing to database...');
                 Database::getInstance()->flush([Record::class]);
             }

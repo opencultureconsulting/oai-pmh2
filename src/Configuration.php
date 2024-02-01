@@ -39,7 +39,6 @@ use Symfony\Component\Yaml\Yaml;
  * @property-read string $repositoryName
  * @property-read string $adminEmail
  * @property-read string $database
- * @property-read float $memoryLimit
  * @property-read array $metadataPrefix
  * @property-read string $deletedRecords
  * @property-read int $maxRecords
@@ -86,13 +85,6 @@ class Configuration
             'database' => [
                 new Assert\Type('string'),
                 new Assert\NotBlank()
-            ],
-            'memoryLimit' => [
-                new Assert\Type('float'),
-                new Assert\Range([
-                    'min' => 0.2,
-                    'max' => 0.8
-                ])
             ],
             'metadataPrefix' => [
                 new Assert\Type('array'),
