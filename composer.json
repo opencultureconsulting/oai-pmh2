@@ -32,7 +32,7 @@
         "ext-libxml": "*",
         "ext-sqlite3": "*",
         "doctrine/dbal": "^3.8",
-        "doctrine/orm": "^2.17",
+        "doctrine/orm": "^3.0",
         "opencultureconsulting/basics": "^1.1",
         "opencultureconsulting/psr15": "^1.0",
         "symfony/cache": "^6.4",
