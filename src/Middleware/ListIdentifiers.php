@@ -72,7 +72,7 @@ class ListIdentifiers extends Middleware
             }
         }
         $prefixes = Database::getInstance()->getMetadataFormats()->getQueryResult();
-        if (!in_array($metadataPrefix, array_keys($prefixes), true)) {
+        if (!array_key_exists($metadataPrefix, $prefixes)) {
             ErrorHandler::getInstance()->withError('cannotDisseminateFormat');
             return;
         }
@@ -84,7 +84,7 @@ class ListIdentifiers extends Middleware
         }
         if (isset($set)) {
             $sets = Database::getInstance()->getSets()->getQueryResult();
-            if (!in_array($set, array_keys($sets), true)) {
+            if (!array_key_exists($set, $sets)) {
                 ErrorHandler::getInstance()->withError('noSetHierarchy');
                 return;
             }

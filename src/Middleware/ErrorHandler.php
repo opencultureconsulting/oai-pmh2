@@ -113,7 +113,7 @@ class ErrorHandler extends AbstractMiddleware
      */
     public function withError(string $errorCode): ErrorHandler
     {
-        if (in_array($errorCode, array_keys(self::OAI_ERRORS), true)) {
+        if (array_key_exists($errorCode, self::OAI_ERRORS)) {
             $this->errors[] = $errorCode;
         } else {
             throw new DomainException(

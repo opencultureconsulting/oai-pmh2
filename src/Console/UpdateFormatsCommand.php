@@ -61,7 +61,7 @@ class UpdateFormatsCommand extends Console
         $deleted = 0;
         $failure = false;
         foreach ($formats as $prefix => $format) {
-            if (in_array($prefix, array_keys($inDatabase), true)) {
+            if (array_key_exists($prefix, $inDatabase)) {
                 if (
                     $format['namespace'] === $inDatabase[$prefix]->getNamespace()
                     and $format['schema'] === $inDatabase[$prefix]->getSchema()
@@ -91,7 +91,7 @@ class UpdateFormatsCommand extends Console
             }
         }
         foreach (array_keys($inDatabase) as $prefix) {
-            if (!in_array($prefix, array_keys($formats), true)) {
+            if (!array_key_exists($prefix, $formats)) {
                 Database::getInstance()->deleteMetadataFormat($inDatabase[$prefix]);
                 ++$deleted;
                 $output->writeln([

@@ -93,7 +93,7 @@ abstract class Console extends Command
         $arguments = $input->getArguments();
 
         $formats = Database::getInstance()->getMetadataFormats()->getQueryResult();
-        if (!in_array($arguments['format'], array_keys($formats), true)) {
+        if (!array_key_exists($arguments['format'], $formats)) {
             $output->writeln([
                 '',
                 sprintf(
