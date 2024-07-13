@@ -35,7 +35,7 @@ use OCC\OaiPmh2\Entity\Token;
  * A database result set with optional resumption token.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  *
  * @template QueryResult of array<string, Format|Record|Set>
  * @implements Iterator<QueryResult>

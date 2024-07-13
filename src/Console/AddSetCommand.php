@@ -35,7 +35,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Add or update a set in the database.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 #[AsCommand(
     name: 'oai:sets:add',

@@ -34,7 +34,7 @@ use Psr\Http\Message\StreamInterface;
  * Handles OAI-PMH errors.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 class ErrorHandler extends AbstractMiddleware
 {

@@ -34,7 +34,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @see https://openarchives.org/OAI/openarchivesprotocol.html#ListSets
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  *
  * @template Sets of array<string, Set>
  */

@@ -27,7 +27,7 @@ namespace OCC\OaiPmh2\Middleware;
  * @see https://www.openarchives.org/OAI/openarchivesprotocol.html#ListRecords
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 class ListRecords extends ListIdentifiers
 {

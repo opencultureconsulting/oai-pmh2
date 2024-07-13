@@ -35,7 +35,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @see https://www.openarchives.org/OAI/openarchivesprotocol.html#ListIdentifiers
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 class ListIdentifiers extends Middleware
 {

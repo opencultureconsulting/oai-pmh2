@@ -34,7 +34,7 @@ use Symfony\Component\Yaml\Yaml;
  * Reads, validates and provides configuration settings.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  *
  * @property-read string $repositoryName
  * @property-read string $adminEmail

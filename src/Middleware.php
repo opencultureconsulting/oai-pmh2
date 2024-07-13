@@ -32,7 +32,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * Base class for all OAI-PMH requests.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 abstract class Middleware extends AbstractMiddleware
 {

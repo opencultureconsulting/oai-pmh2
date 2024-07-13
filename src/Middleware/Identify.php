@@ -34,7 +34,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @see https://www.openarchives.org/OAI/openarchivesprotocol.html#Identify
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 class Identify extends Middleware
 {

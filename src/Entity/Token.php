@@ -32,7 +32,7 @@ use OCC\OaiPmh2\Entity;
  * Doctrine/ORM Entity for resumption tokens.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'tokens')]

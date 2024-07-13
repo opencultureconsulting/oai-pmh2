@@ -47,7 +47,7 @@ use Symfony\Component\Filesystem\Path;
  * Handles all database shenanigans.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  *
  * @template Formats of array<string, Format>
  * @template Records of array<string, Record>

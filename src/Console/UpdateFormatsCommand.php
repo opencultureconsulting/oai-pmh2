@@ -36,7 +36,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  * Synchronize metadata formats in database with configuration.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 #[AsCommand(
     name: 'oai:formats:update',

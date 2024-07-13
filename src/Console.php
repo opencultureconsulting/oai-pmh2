@@ -33,7 +33,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Base class for all OAI-PMH console commands.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 abstract class Console extends Command
 {

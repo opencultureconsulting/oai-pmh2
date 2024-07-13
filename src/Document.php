@@ -33,7 +33,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * An OAI-PMH XML response object.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 class Document
 {

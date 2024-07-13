@@ -37,7 +37,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Add or update a record in the database.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 #[AsCommand(
     name: 'oai:records:add',

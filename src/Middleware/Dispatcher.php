@@ -31,7 +31,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * Validate and dispatch a OAI-PMH server request.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 class Dispatcher extends AbstractMiddleware
 {

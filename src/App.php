@@ -29,7 +29,7 @@ use OCC\PSR15\QueueRequestHandler;
  * Main application of the OAI-PMH 2.0 Data Provider.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 class App
 {

@@ -32,7 +32,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  * Doctrine/ORM Entity for sets.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'sets')]

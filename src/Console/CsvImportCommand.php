@@ -41,7 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Import records into database from a CSV file.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 #[AsCommand(
     name: 'oai:records:import:csv',

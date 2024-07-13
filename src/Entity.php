@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Validation;
  * Base class for all Doctrine/ORM entities.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 abstract class Entity
 {

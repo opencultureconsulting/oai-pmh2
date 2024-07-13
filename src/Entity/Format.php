@@ -30,7 +30,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  * Doctrine/ORM Entity for formats.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 #[ORM\Entity]
 #[ORM\Table(name: 'formats')]

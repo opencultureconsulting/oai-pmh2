@@ -33,7 +33,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Prune expired resumption tokens from database.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
- * @package opencultureconsulting/oai-pmh2
+ * @package OAIPMH2
  */
 #[AsCommand(
     name: 'oai:tokens:prune',
