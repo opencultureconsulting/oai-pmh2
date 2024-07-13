@@ -56,5 +56,5 @@ try {
 } catch (Exception $exception) {
     echo '[ERROR] Exception ' . $exception->getCode() . ' thrown:' . PHP_EOL;
     echo $exception->getMessage() . PHP_EOL;
-    return 1;
+    exit(1);
 }

@@ -125,7 +125,9 @@ class CsvImportCommand extends Console
         /** @var array<string, string> */
         $arguments = $input->getArguments();
         /** @var Format */
-        $format = Database::getInstance()->getEntityManager()->getReference(Format::class, $arguments['format']);
+        $format = Database::getInstance()
+            ->getEntityManager()
+            ->getReference(Format::class, $arguments['format']);
         /** @var bool */
         $noValidation = $input->getOption('noValidation');
         /** @var resource */
@@ -152,7 +154,9 @@ class CsvImportCommand extends Console
                 $sets = $row[$columns['setColumn']];
                 foreach (explode(',', $sets) as $set) {
                     /** @var Set */
-                    $setSpec = Database::getInstance()->getEntityManager()->getReference(Set::class, trim($set));
+                    $setSpec = Database::getInstance()
+                        ->getEntityManager()
+                        ->getReference(Set::class, trim($set));
                     $record->addSet($setSpec);
                 }
             }
@@ -164,7 +168,9 @@ class CsvImportCommand extends Console
 
             // Flush to database if memory usage reaches 50% or every 10.000 records.
             if ((memory_get_usage() / $phpMemoryLimit) > 0.5 || ($count % 10000) === 0) {
-                $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing to database...');
+                $progressIndicator->setMessage(
+                    'Importing... ' . (string) $count . ' records processed. Flushing to database...'
+                );
                 Database::getInstance()->flush([Record::class]);
             }
         }
@@ -211,7 +217,7 @@ class CsvImportCommand extends Console
                 '',
                 sprintf(
                     ' [ERROR] File "%s" does not contain valid CSV. ',
-                    stream_get_meta_data($file)['uri']
+                    stream_get_meta_data($file)['uri'] ?? 'unknown'
                 ),
                 ''
             ]);
@@ -228,7 +234,7 @@ class CsvImportCommand extends Console
                 '',
                 sprintf(
                     ' [ERROR] File "%s" does not contain valid CSV. ',
-                    stream_get_meta_data($file)['uri']
+                    stream_get_meta_data($file)['uri'] ?? 'unknown'
                 ),
                 ''
             ]);

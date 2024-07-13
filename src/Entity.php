@@ -107,8 +107,10 @@ abstract class Entity
                 new Assert\NotBlank()
             ]
         );
-        if ($violations->count() > 0
-            or simplexml_load_string($xml) === false) {
+        if (
+            $violations->count() > 0
+            or simplexml_load_string($xml) === false
+        ) {
             throw new ValidationFailedException(null, $violations);
         }
         return $xml;

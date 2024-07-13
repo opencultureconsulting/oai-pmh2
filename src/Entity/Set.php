@@ -201,7 +201,10 @@ class Set extends Entity
     public function __construct(string $spec, ?string $name = null, string $description = null)
     {
         try {
-            $this->spec = $this->validateRegEx($spec, '/^([A-Za-z0-9\-_\.!~\*\'\(\)])+(:[A-Za-z0-9\-_\.!~\*\'\(\)]+)*$/');
+            $this->spec = $this->validateRegEx(
+                $spec,
+                '/^([A-Za-z0-9\-_\.!~\*\'\(\)])+(:[A-Za-z0-9\-_\.!~\*\'\(\)]+)*$/'
+            );
             $this->setName($name);
             $this->setDescription($description);
             $this->records = new ArrayCollection();

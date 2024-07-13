@@ -159,13 +159,13 @@ class Configuration
     /**
      * Load and validate configuration settings from YAML file.
      *
-     * @throws FileNotFoundException|ValidationFailedException
+     * @throws FileNotFoundException | ValidationFailedException
      */
     private function __construct()
     {
         try {
             $this->settings = $this->loadConfigFile();
-        } catch (FileNotFoundException|ValidationFailedException $exception) {
+        } catch (FileNotFoundException | ValidationFailedException $exception) {
             throw $exception;
         }
     }

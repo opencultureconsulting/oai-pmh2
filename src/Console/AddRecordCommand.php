@@ -91,7 +91,9 @@ class AddRecordCommand extends Console
         /** @var string */
         $identifier = $input->getArgument('identifier');
         /** @var Format */
-        $format = Database::getInstance()->getEntityManager()->getReference(Format::class, $input->getArgument('format'));
+        $format = Database::getInstance()
+            ->getEntityManager()
+            ->getReference(Format::class, $input->getArgument('format'));
         /** @var string */
         $file = $input->getArgument('file');
         /** @var string[] */
@@ -105,7 +107,9 @@ class AddRecordCommand extends Console
         }
         foreach ($sets as $set) {
             /** @var Set */
-            $setSpec = Database::getInstance()->getEntityManager()->getReference(Set::class, $set);
+            $setSpec = Database::getInstance()
+                ->getEntityManager()
+                ->getReference(Set::class, $set);
             $record->addSet($setSpec);
         }
 

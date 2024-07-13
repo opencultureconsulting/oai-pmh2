@@ -67,12 +67,14 @@ abstract class Console extends Command
         if ($limit < 0) {
             return -1;
         }
-        $unit = strtolower($ini[strlen($ini)-1]);
-        switch($unit) {
+        $unit = strtolower($ini[strlen($ini) - 1]);
+        switch ($unit) {
             case 'g':
                 $limit *= 1024;
+                // no break
             case 'm':
                 $limit *= 1024;
+                // no break
             case 'k':
                 $limit *= 1024;
         }

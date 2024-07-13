@@ -56,7 +56,9 @@ class UpdateFormatsCommand extends Console
     {
         $formats = Configuration::getInstance()->metadataPrefix;
         $this->clearResultCache();
-        $inDatabase = Database::getInstance()->getMetadataFormats()->getQueryResult();
+        $inDatabase = Database::getInstance()
+            ->getMetadataFormats()
+            ->getQueryResult();
         $added = 0;
         $deleted = 0;
         $failure = false;

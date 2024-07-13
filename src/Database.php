@@ -322,8 +322,7 @@ class Database
         ?DateTime $from = null,
         ?DateTime $until = null,
         ?Set $set = null
-    ): Result
-    {
+    ): Result {
         $maxRecords = Configuration::getInstance()->maxRecords;
         $cursor = $counter * $maxRecords;
 
@@ -551,7 +550,7 @@ class Database
             )
         );
         $configuration->setSchemaAssetsFilter(
-            static function(string|AbstractAsset $assetName): bool {
+            static function (string|AbstractAsset $assetName): bool {
                 if ($assetName instanceof AbstractAsset) {
                     $assetName = $assetName->getName();
                 }
