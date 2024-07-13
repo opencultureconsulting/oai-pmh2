@@ -4,6 +4,7 @@
     <file>./src</file>
     <arg name="extensions" value="php"/>
     <rule ref="PSR12">
+        <exclude name="Generic.Files.LineLength"/>
         <exclude name="PSR2.Classes.PropertyDeclaration.Underscore"/>
         <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
     </rule>
