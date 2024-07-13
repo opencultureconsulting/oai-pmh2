@@ -68,11 +68,11 @@ class ListSets extends Middleware
         }
 
         $sets = Database::getInstance()->getSets($counter);
+        $newToken = $sets->getResumptionToken();
         if (count($sets) === 0) {
             ErrorHandler::getInstance()->withError('noSetHierarchy');
             return;
-        } elseif ($sets->getResumptionToken() !== null) {
-            $newToken = $sets->getResumptionToken();
+        } elseif (isset($newToken)) {
             $completeListSize = $newToken->getParameters()['completeListSize'];
         }
 

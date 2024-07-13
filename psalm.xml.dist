@@ -10,11 +10,35 @@
     findUnusedVariablesAndParams="true"
 >
     <issueHandlers>
+        <!--
+            Psalm doesn't recognize $columns['idColumn'] and $columns['contentColumn'] always being set in execute().
+        -->
+        <PossiblyNullArrayOffset>
+            <errorLevel type="suppress">
+                <file name="src/Console/CsvImportCommand.php"/>
+            </errorLevel>
+        </PossiblyNullArrayOffset>
+        <PossiblyUnusedMethod errorLevel="suppress"/>
+        <PossiblyUnusedReturnValue errorLevel="suppress"/>
+        <PropertyNotSetInConstructor errorLevel="suppress"/>
         <RedundantCastGivenDocblockType errorLevel="suppress"/>
         <RedundantConditionGivenDocblockType errorLevel="suppress"/>
         <RedundantFunctionCallGivenDocblockType errorLevel="suppress"/>
+        <RedundantPropertyInitializationCheck errorLevel="suppress"/>
+        <UnusedClass>
+            <errorLevel type="suppress">
+                <referencedClass name="OCC\OaiPmh2\Middleware\GetRecord"/>
+                <referencedClass name="OCC\OaiPmh2\Middleware\Identify"/>
+                <referencedClass name="OCC\OaiPmh2\Middleware\ListIdentifiers"/>
+                <referencedClass name="OCC\OaiPmh2\Middleware\ListMetadataFormats"/>
+                <referencedClass name="OCC\OaiPmh2\Middleware\ListRecords"/>
+                <referencedClass name="OCC\OaiPmh2\Middleware\ListSets"/>
+            </errorLevel>
+        </UnusedClass>
     </issueHandlers>
     <projectFiles>
+        <file name="bin/cli"/>
+        <directory name="public"/>
         <directory name="src"/>
         <ignoreFiles>
             <directory name="vendor"/>

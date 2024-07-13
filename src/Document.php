@@ -98,7 +98,9 @@ class Document
         );
         $request = $this->dom->createElement('request', $baseUrl);
         $this->rootNode->appendChild($request);
-        foreach ($this->serverRequest->getAttributes() as $param => $value) {
+        /** @var array<string, string> */
+        $params = $this->serverRequest->getAttributes();
+        foreach ($params as $param => $value) {
             $request->setAttribute(
                 $param,
                 htmlspecialchars($value, ENT_XML1 | ENT_COMPAT, 'UTF-8')

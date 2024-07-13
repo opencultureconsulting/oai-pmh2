@@ -32,7 +32,7 @@
         "ext-libxml": "*",
         "ext-sqlite3": "*",
         "doctrine/dbal": "^3.8",
-        "doctrine/orm": "^2.19",
+        "doctrine/orm": "^3.2",
         "opencultureconsulting/basics": "^1.1",
         "opencultureconsulting/psr15": "^1.0",
         "symfony/cache": "^6.4",
@@ -97,6 +97,9 @@
         ],
         "psalm:check": [
             "@php vendor/bin/psalm"
+        ],
+        "psalm:check-security": [
+            "@php vendor/bin/psalm --taint-analysis"
         ]
     },
     "scripts-descriptions": {
@@ -107,6 +110,7 @@
         "phpcs:check": "Runs a code check with PHP_CodeSniffer and reports problems. If a custom configuration file '.phpcs.xml' exists, it will be used instead of the default settings in '.phpcs.xml.dist'.",
         "phpdoc:build": "Builds the documentation from source files in ./src and additional templates in .phpdoc/. If a custom configuration file 'phpdoc.xml' exists, it will be used instead of the default settings in 'phpdoc.dist.xml'.",
         "phpstan:check": "Runs a code check with PHPStan static code analyzer and reports problems. If a custom configuration file 'phpstan.neon' exists, it will be used instead of the default settings in 'phpstan.dist.neon'.",
-        "psalm:check": "Runs a code check with Psalm static code analyzer and reports problems. If a custom configuration file 'psalm.xml' exists, it will be used instead of the default settings in 'psalm.xml.dist'."
+        "psalm:check": "Runs a code check with Psalm static code analyzer and reports problems. If a custom configuration file 'psalm.xml' exists, it will be used instead of the default settings in 'psalm.xml.dist'.",
+        "psalm:check-security": "Runs a code check with Psalm static code analyzer and reports security issues. If a custom configuration file 'psalm.xml' exists, it will be used instead of the default settings in 'psalm.xml.dist'."
     }
 }

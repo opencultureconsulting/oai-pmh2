@@ -198,15 +198,14 @@ class Database
     /**
      * Flush all changes to the database.
      *
-     * @param string[] $entities Optional array of entity types to clear from entity manager
-     *
+     * @param bool $clear Should the entity manager get cleared as well?
      * @return void
      */
-    public function flush(array $entities = []): void
+    public function flush(bool $clear = false): void
     {
         $this->entityManager->flush();
-        foreach ($entities as $entity) {
-            $this->entityManager->clear($entity);
+        if ($clear) {
+            $this->entityManager->clear();
         }
     }
 
@@ -412,7 +411,6 @@ class Database
      */
     public function getSets(int $counter = 0): Result
     {
-        $result = [];
         $maxRecords = Configuration::getInstance()->maxRecords;
         $cursor = $counter * $maxRecords;
 

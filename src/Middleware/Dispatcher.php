@@ -59,9 +59,11 @@ class Dispatcher extends AbstractMiddleware
     {
         $arguments = [];
         if ($request->getMethod() === 'GET') {
+            /** @var array<string, string> */
             $arguments = $request->getQueryParams();
         } elseif ($request->getMethod() === 'POST') {
             if ($request->getHeaderLine('Content-Type') === 'application/x-www-form-urlencoded') {
+                /** @var array<string, string> */
                 $arguments = (array) $request->getParsedBody();
             }
         }
@@ -84,8 +86,10 @@ class Dispatcher extends AbstractMiddleware
     {
         $request = $this->getRequestWithAttributes($request);
         if (!ErrorHandler::getInstance()->hasErrors()) {
+            /** @var string */
+            $verb = $request->getAttribute('verb');
             /** @var Middleware $middleware */
-            $middleware = __NAMESPACE__ . '\\' . $request->getAttribute('verb');
+            $middleware = __NAMESPACE__ . '\\' . $verb;
             $this->requestHandler->queue->enqueue(new $middleware());
         }
         $this->requestHandler->queue->enqueue(ErrorHandler::getInstance());

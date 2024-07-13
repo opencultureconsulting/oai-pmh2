@@ -50,12 +50,12 @@ class Result implements Countable, Iterator
      *
      * @var QueryResult
      */
-    private array $data = [];
+    private array $data;
 
     /**
      * This holds the optional resumption token.
      */
-    protected ?Token $resumptionToken;
+    protected ?Token $resumptionToken = null;
 
     /**
      * Get the query result.

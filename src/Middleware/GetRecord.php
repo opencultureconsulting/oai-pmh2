@@ -46,6 +46,7 @@ class GetRecord extends Middleware
      */
     protected function prepareResponse(ServerRequestInterface $request): void
     {
+        /** @var array<string, string> */
         $params = $request->getAttributes();
         /** @var Format */
         $format = Database::getInstance()->getEntityManager()->getReference(Format::class, $params['metadataPrefix']);
@@ -58,6 +59,8 @@ class GetRecord extends Middleware
                 ErrorHandler::getInstance()->withError('idDoesNotExist');
             }
             return;
+        } else {
+            $oaiRecordContent = $oaiRecord->getContent();
         }
 
         $document = new Document($request);
@@ -67,7 +70,7 @@ class GetRecord extends Middleware
         $getRecord->appendChild($record);
 
         $header = $document->createElement('header');
-        if ($oaiRecord->getContent() === null) {
+        if (!isset($oaiRecordContent)) {
             $header->setAttribute('status', 'deleted');
         }
         $record->appendChild($header);
@@ -83,11 +86,11 @@ class GetRecord extends Middleware
             $header->appendChild($setSpec);
         }
 
-        if ($oaiRecord->getContent() !== null) {
+        if (isset($oaiRecordContent)) {
             $metadata = $document->createElement('metadata');
             $record->appendChild($metadata);
 
-            $data = $document->importData($oaiRecord->getContent());
+            $data = $document->importData($oaiRecordContent);
             $metadata->appendChild($data);
         }
 

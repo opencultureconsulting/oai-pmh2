@@ -52,6 +52,7 @@ class ListIdentifiers extends Middleware
         $completeListSize = 0;
         $maxRecords = Configuration::getInstance()->maxRecords;
 
+        /** @var array<string, string> */
         $params = $request->getAttributes();
         $verb = $params['verb'];
         $metadataPrefix = $params['metadataPrefix'] ?? '';
@@ -99,11 +100,11 @@ class ListIdentifiers extends Middleware
             $until,
             $set
         );
+        $newToken = $records->getResumptionToken();
         if (count($records) === 0) {
             ErrorHandler::getInstance()->withError('noRecordsMatch');
             return;
-        } elseif ($records->getResumptionToken() !== null) {
-            $newToken = $records->getResumptionToken();
+        } elseif (isset($newToken)) {
             $completeListSize = $newToken->getParameters()['completeListSize'];
         }
 

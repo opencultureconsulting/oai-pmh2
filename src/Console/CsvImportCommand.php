@@ -124,10 +124,6 @@ class CsvImportCommand extends Console
 
         /** @var array<string, string> */
         $arguments = $input->getArguments();
-        /** @var Format */
-        $format = Database::getInstance()
-            ->getEntityManager()
-            ->getReference(Format::class, $arguments['format']);
         /** @var bool */
         $noValidation = $input->getOption('noValidation');
         /** @var resource */
@@ -143,6 +139,10 @@ class CsvImportCommand extends Console
         $progressIndicator->start('Importing...');
 
         while ($row = fgetcsv($file)) {
+            /** @var Format */
+            $format = Database::getInstance()
+                ->getEntityManager()
+                ->getReference(Format::class, $arguments['format']);
             $record = new Record($row[$columns['idColumn']], $format);
             if (strlen(trim($row[$columns['contentColumn']])) > 0) {
                 $record->setContent($row[$columns['contentColumn']], !$noValidation);
@@ -171,10 +171,10 @@ class CsvImportCommand extends Console
                 $progressIndicator->setMessage(
                     'Importing... ' . (string) $count . ' records processed. Flushing to database...'
                 );
-                Database::getInstance()->flush([Record::class]);
+                Database::getInstance()->flush(true);
             }
         }
-        Database::getInstance()->flush();
+        Database::getInstance()->flush(true);
         Database::getInstance()->pruneOrphanSets();
 
         $progressIndicator->finish('All done!');

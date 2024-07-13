@@ -54,6 +54,7 @@ class UpdateFormatsCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        /** @var array<string, array<string, string>> */
         $formats = Configuration::getInstance()->metadataPrefix;
         $this->clearResultCache();
         $inDatabase = Database::getInstance()

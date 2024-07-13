@@ -146,13 +146,13 @@ class Configuration
                 $configPath
             );
         }
+        /** @var array<TKey, TValue> */
         $config = Yaml::parseFile($configPath);
         $validator = Validation::createValidator();
         $violations = $validator->validate($config, $this->getValidationConstraints());
         if ($violations->count() > 0) {
             throw new ValidationFailedException(null, $violations);
         }
-        /** @var array<TKey, TValue> */
         return $config;
     }
 
