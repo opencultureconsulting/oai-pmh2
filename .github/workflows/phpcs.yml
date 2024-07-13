@@ -1,0 +1,35 @@
+name: PHP Code Sniffer
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  PHPCS:
+    name: PHPCS Scanner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: php-actions/composer@v6
+        with:
+          command: update
+          php_version: "8.1"
+
+      - name: Run PHPCS
+        uses: php-actions/phpcs@v1
+        with:
+          php_version: "8.1"
+          path: src/
+          standard: phpcs.xml.dist

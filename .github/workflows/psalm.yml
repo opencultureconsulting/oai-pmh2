@@ -1,0 +1,35 @@
+name: Psalm Static Analyzer
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  Psalm:
+    name: Psalm Scanner
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Run Psalm
+        uses: docker://ghcr.io/psalm/psalm-github-actions
+        with:
+          security_analysis: true
+          report_file: psalm-results.sarif
+
+      - name: Upload Analysis Results
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: psalm-results.sarif
+          wait-for-processing: true
