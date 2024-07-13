@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<ruleset name="OCC Standard Ruleset">
+    <description>Open Culture Consulting strictly follows PSR standards.</description>
+    <file>./src</file>
+    <arg name="extensions" value="php"/>
+    <rule ref="PSR12">
+        <exclude name="PSR2.Classes.PropertyDeclaration.Underscore"/>
+        <exclude name="PSR2.Methods.MethodDeclaration.Underscore"/>
+    </rule>
+</ruleset>

@@ -42,13 +42,21 @@
         "symfony/yaml": "^6.4"
     },
     "require-dev": {
+        "phpdocumentor/shim": "^3.5",
         "phpstan/phpstan": "^1.10",
         "phpstan/phpstan-strict-rules": "^1.5",
-        "friendsofphp/php-cs-fixer": "^3.48"
+        "friendsofphp/php-cs-fixer": "^3.48",
+        "squizlabs/php_codesniffer": "^3.10",
+        "vimeo/psalm": "^5.25"
     },
     "autoload": {
         "psr-4": {
             "OCC\\OaiPmh2\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "phpdocumentor/shim": true
         }
     },
     "scripts": {
@@ -71,10 +79,34 @@
         "doctrine:initialize-database": [
             "@php bin/cli orm:schema-tool:update --complete --force",
             "@php bin/cli oai:formats:update --quiet"
+        ],
+        "php-cs-fixer:check": [
+            "@php vendor/bin/php-cs-fixer check"
+        ],
+        "php-cs-fixer:fix": [
+            "@php vendor/bin/php-cs-fixer fix"
+        ],
+        "phpcs:check": [
+            "@php vendor/bin/phpcs"
+        ],
+        "phpdoc:build": [
+            "@php vendor/bin/phpdoc"
+        ],
+        "phpstan:check": [
+            "@php vendor/bin/phpstan"
+        ],
+        "psalm:check": [
+            "@php vendor/bin/psalm"
         ]
     },
     "scripts-descriptions": {
         "doctrine:clear-cache": "Clears the Doctrine/ORM metadata, query and result caches",
-        "doctrine:initialize-database": "Initializes a new database (NOT RECOMMENDED IN PRODUCTION!)"
+        "doctrine:initialize-database": "Initializes a new database (NOT RECOMMENDED IN PRODUCTION!)",
+        "php-cs-fixer:check": "Runs a code check with PHP Coding Standards Fixer and reports problems. If a custom configuration file '.php-cs-fixer.php' exists, it will be used instead of the default settings in '.php-cs-fixer.dist.php'.",
+        "php-cs-fixer:fix": "Runs a code check with PHP Coding Standards Fixer and tries to fix all issues. If a custom configuration file '.php-cs-fixer.php' exists, it will be used instead of the default settings in '.php-cs-fixer.dist.php'.",
+        "phpcs:check": "Runs a code check with PHP_CodeSniffer and reports problems. If a custom configuration file '.phpcs.xml' exists, it will be used instead of the default settings in '.phpcs.xml.dist'.",
+        "phpdoc:build": "Builds the documentation from source files in ./src and additional templates in .phpdoc/. If a custom configuration file 'phpdoc.xml' exists, it will be used instead of the default settings in 'phpdoc.dist.xml'.",
+        "phpstan:check": "Runs a code check with PHPStan static code analyzer and reports problems. If a custom configuration file 'phpstan.neon' exists, it will be used instead of the default settings in 'phpstan.dist.neon'.",
+        "psalm:check": "Runs a code check with Psalm static code analyzer and reports problems. If a custom configuration file 'psalm.xml' exists, it will be used instead of the default settings in 'psalm.xml.dist'."
     }
 }

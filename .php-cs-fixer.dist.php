@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Useful PHP Basics
+ * PHP Basics
  * Copyright (C) 2024 Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  *
  * This program is free software: you can redistribute it and/or modify
@@ -24,15 +24,15 @@ namespace PhpCsFixer;
 
 /**
  * Configuration for PHP-CS-Fixer.
+ *
  * @see https://github.com/PHP-CS-Fixer/PHP-CS-Fixer/blob/master/doc/config.rst
  *
  * @return ConfigInterface
  */
-return (new Config())
+$config = new Config();
+$finder = new Finder();
+
+return $config
     ->setRiskyAllowed(true)
-    ->setRules([
-        '@PSR12' => true,
-    ])
-    ->setFinder(
-        (new Finder())->in(__DIR__)
-    );
+    ->setRules(['@PSR12' => true])
+    ->setFinder($finder->in([__DIR__ . '/src']));

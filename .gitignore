@@ -1,7 +1,13 @@
+/.phpdoc/cache/
 /.vscode/
 /config/config.yml
 /data/
 /var/
 /vendor/
+.php-cs-fixer.cache
 .php-cs-fixer.php
+phpcs.xml
+phpdoc.xml
 phpstan.neon
+psalm.xml
+TODO
