@@ -88,9 +88,10 @@ class Dispatcher extends AbstractMiddleware
         if (!ErrorHandler::getInstance()->hasErrors()) {
             /** @var string */
             $verb = $request->getAttribute('verb');
-            /** @var Middleware $middleware */
             $middleware = __NAMESPACE__ . '\\' . $verb;
-            $this->requestHandler->queue->enqueue(new $middleware());
+            if (is_a($middleware, Middleware::class, true)) {
+                $this->requestHandler->queue->enqueue(new $middleware());
+            }
         }
         $this->requestHandler->queue->enqueue(ErrorHandler::getInstance());
         return $request;

@@ -24,7 +24,7 @@
     "support": {
         "issues": "https://github.com/opencultureconsulting/oai-pmh2/issues",
         "source": "https://github.com/opencultureconsulting/oai-pmh2",
-        "docs": "https://github.com/opencultureconsulting/oai-pmh2/blob/main/README.md"
+        "docs": "https://opencultureconsulting.github.io/oai-pmh2/"
     },
     "require": {
         "php": "^8.1",
@@ -61,8 +61,8 @@
     },
     "scripts": {
         "pre-install-cmd": [
-            "@php -r \"!is_dir('./data') && mkdir('./data', 0775);\"",
-            "@php -r \"!file_exists('./config/config.yml') && copy('./config/config.dist.yml', './config/config.yml');\""
+            "@php -r \"if (!is_dir('./data')) { mkdir('./data', 0775); }\"",
+            "@php -r \"if (!file_exists('./config/config.yml')) { copy('./config/config.dist.yml', './config/config.yml'); }\""
         ],
         "post-install-cmd": [
             "@doctrine:clear-cache --quiet",

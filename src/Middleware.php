@@ -77,4 +77,11 @@ abstract class Middleware extends AbstractMiddleware
         }
         return $response;
     }
+
+    final public function __construct()
+    {
+        // Make constructor final to avoid issues in dispatcher.
+        // @see https://psalm.dev/229
+    }
+
 }

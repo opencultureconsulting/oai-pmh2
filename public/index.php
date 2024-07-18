@@ -24,5 +24,4 @@ namespace OCC\OaiPmh2;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$app = new App();
-$app->run();
+(new App())->run();
