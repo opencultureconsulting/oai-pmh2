@@ -31,7 +31,7 @@
         "ext-dom": "*",
         "ext-libxml": "*",
         "ext-sqlite3": "*",
-        "doctrine/dbal": "^3.8",
+        "doctrine/dbal": "^4.0",
         "doctrine/orm": "^3.2",
         "opencultureconsulting/basics": "^1.1",
         "opencultureconsulting/psr15": "^1.0",
