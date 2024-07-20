@@ -130,7 +130,8 @@ class Configuration
      *
      * @return array<TKey, TValue> The configuration array
      *
-     * @throws FileNotFoundException|ValidationFailedException
+     * @throws FileNotFoundException if configuration file does not exist
+     * @throws ValidationFailedException if configuration file is not valid
      */
     protected function loadConfigFile(): array
     {
@@ -159,7 +160,8 @@ class Configuration
     /**
      * Load and validate configuration settings from YAML file.
      *
-     * @throws FileNotFoundException | ValidationFailedException
+     * @throws FileNotFoundException if configuration file does not exist
+     * @throws ValidationFailedException if configuration file is not valid
      */
     private function __construct()
     {

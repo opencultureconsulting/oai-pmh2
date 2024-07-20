@@ -21,8 +21,8 @@ adminEmail: 'admin@example.org'
 #
 # Database connection details
 #
-# This has to be a valid data source name (DSN) URL. The scheme is used to
-# specify a driver, the user and password in the URL encode user and password
+# This has to be a valid data source name (DSN) URI. The scheme is used to
+# specify a driver, the user and password in the URI encode user and password
 # for the connection, followed by the host and port parts. The path after the
 # authority part represents the name of the database (the leading slash is
 # removed so add an extra slash to specify an absolute file path for SQLite).

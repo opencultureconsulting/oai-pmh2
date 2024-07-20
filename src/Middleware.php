@@ -78,6 +78,9 @@ abstract class Middleware extends AbstractMiddleware
         return $response;
     }
 
+    /**
+     * The constructor must have the same signature for all derived classes, thus make it final.
+     */
     final public function __construct()
     {
         // Make constructor final to avoid issues in dispatcher.

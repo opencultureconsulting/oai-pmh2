@@ -77,7 +77,7 @@
             "@php bin/cli orm:clear-cache:result --flush"
         ],
         "doctrine:initialize-database": [
-            "@php bin/cli orm:schema-tool:update --complete --force",
+            "@php bin/cli orm:schema-tool:update --force",
             "@php bin/cli oai:formats:update --quiet"
         ],
         "php-cs-fixer:check": [

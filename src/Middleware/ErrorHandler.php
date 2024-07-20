@@ -42,6 +42,7 @@ class ErrorHandler extends AbstractMiddleware
 
     /**
      * List of defined OAI-PMH errors.
+     *
      * @see https://openarchives.org/OAI/openarchivesprotocol.html#ErrorConditions
      */
     protected const OAI_ERRORS = [
@@ -109,7 +110,7 @@ class ErrorHandler extends AbstractMiddleware
      *
      * @return ErrorHandler The ErrorHandler instance
      *
-     * @throws DomainException
+     * @throws DomainException if error code is not a valid OAI-PMH error
      */
     public function withError(string $errorCode): ErrorHandler
     {

@@ -85,7 +85,8 @@ class Dispatcher extends AbstractMiddleware
     protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
     {
         $request = $this->getRequestWithAttributes($request);
-        if (!ErrorHandler::getInstance()->hasErrors()) {
+        $errorHandler = ErrorHandler::getInstance();
+        if (!$errorHandler->hasErrors()) {
             /** @var string */
             $verb = $request->getAttribute('verb');
             $middleware = __NAMESPACE__ . '\\' . $verb;
@@ -93,7 +94,7 @@ class Dispatcher extends AbstractMiddleware
                 $this->requestHandler->queue->enqueue(new $middleware());
             }
         }
-        $this->requestHandler->queue->enqueue(ErrorHandler::getInstance());
+        $this->requestHandler->queue->enqueue($errorHandler);
         return $request;
     }
 
@@ -114,6 +115,7 @@ class Dispatcher extends AbstractMiddleware
 
     /**
      * Validate the request parameters.
+     *
      * @see https://openarchives.org/OAI/openarchivesprotocol.html#ProtocolMessages
      *
      * @param string[] $arguments The request parameters
@@ -122,11 +124,12 @@ class Dispatcher extends AbstractMiddleware
      */
     protected function validateArguments(array $arguments): bool
     {
+        $errorHandler = ErrorHandler::getInstance();
         if (
             count(array_diff(array_keys($arguments), self::OAI_PARAMS)) !== 0
             or !isset($arguments['verb'])
         ) {
-            ErrorHandler::getInstance()->withError('badArgument');
+            $errorHandler->withError('badArgument');
         } else {
             switch ($arguments['verb']) {
                 case 'GetRecord':
@@ -135,12 +138,12 @@ class Dispatcher extends AbstractMiddleware
                         or !isset($arguments['identifier'])
                         or !isset($arguments['metadataPrefix'])
                     ) {
-                        ErrorHandler::getInstance()->withError('badArgument');
+                        $errorHandler->withError('badArgument');
                     }
                     break;
                 case 'Identify':
                     if (count($arguments) !== 1) {
-                        ErrorHandler::getInstance()->withError('badArgument');
+                        $errorHandler->withError('badArgument');
                     }
                     break;
                 case 'ListIdentifiers':
@@ -153,30 +156,30 @@ class Dispatcher extends AbstractMiddleware
                             (isset($arguments['resumptionToken']) && count($arguments) !== 2)
                             or isset($arguments['identifier'])
                         ) {
-                            ErrorHandler::getInstance()->withError('badArgument');
+                            $errorHandler->withError('badArgument');
                         }
                     } else {
-                        ErrorHandler::getInstance()->withError('badArgument');
+                        $errorHandler->withError('badArgument');
                     }
                     break;
                 case 'ListMetadataFormats':
                     if (count($arguments) !== 1) {
                         if (!isset($arguments['identifier']) || count($arguments) !== 2) {
-                            ErrorHandler::getInstance()->withError('badArgument');
+                            $errorHandler->withError('badArgument');
                         }
                     }
                     break;
                 case 'ListSets':
                     if (count($arguments) !== 1) {
                         if (!isset($arguments['resumptionToken']) || count($arguments) !== 2) {
-                            ErrorHandler::getInstance()->withError('badArgument');
+                            $errorHandler->withError('badArgument');
                         }
                     }
                     break;
                 default:
-                    ErrorHandler::getInstance()->withError('badVerb');
+                $errorHandler->withError('badVerb');
             }
         }
-        return !ErrorHandler::getInstance()->hasErrors();
+        return !$errorHandler->hasErrors();
     }
 }
