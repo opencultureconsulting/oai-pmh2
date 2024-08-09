@@ -11,4 +11,6 @@ parameters:
     strictRules:
         noVariableVariables: false
     paths:
+        - bin
+        - public
         - src

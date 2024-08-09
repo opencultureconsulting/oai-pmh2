@@ -43,6 +43,7 @@
     },
     "require-dev": {
         "phpdocumentor/shim": "^3.5",
+        "phpmd/phpmd": "^2.15",
         "phpstan/phpstan": "^1.11",
         "phpstan/phpstan-strict-rules": "^1.6",
         "friendsofphp/php-cs-fixer": "^3.59",
@@ -92,6 +93,10 @@
         "phpdoc:build": [
             "@php vendor/bin/phpdoc"
         ],
+        "phpmd:check": [
+            "@php -r \"if (!file_exists('./.phpmd.xml')) { copy('./.phpmd.dist.xml', './.phpmd.xml'); }\"",
+            "@php vendor/bin/phpmd ./bin,./public,./src ansi .phpmd.xml --cache"
+        ],
         "phpstan:check": [
             "@php vendor/bin/phpstan"
         ],
@@ -109,6 +114,7 @@
         "php-cs-fixer:fix": "Runs a code check with PHP Coding Standards Fixer and tries to fix all issues. If a custom configuration file '.php-cs-fixer.php' exists, it will be used instead of the default settings in '.php-cs-fixer.dist.php'.",
         "phpcs:check": "Runs a code check with PHP_CodeSniffer and reports problems. If a custom configuration file '.phpcs.xml' exists, it will be used instead of the default settings in '.phpcs.xml.dist'.",
         "phpdoc:build": "Builds the documentation from source files in ./src and additional templates in .phpdoc/. If a custom configuration file 'phpdoc.xml' exists, it will be used instead of the default settings in 'phpdoc.dist.xml'.",
+        "phpmd:check": "Runs a code check with PHP Mess Detector static code analyzer and reports problems. If a custom configuration file '.phpmd.xml' exists, it will be used instead of the default settings in '.phpmd.dist.xml'.",
         "phpstan:check": "Runs a code check with PHPStan static code analyzer and reports problems. If a custom configuration file 'phpstan.neon' exists, it will be used instead of the default settings in 'phpstan.dist.neon'.",
         "psalm:check": "Runs a code check with Psalm static code analyzer and reports problems. If a custom configuration file 'psalm.xml' exists, it will be used instead of the default settings in 'psalm.xml.dist'.",
         "psalm:check-security": "Runs a code check with Psalm static code analyzer and reports security issues. If a custom configuration file 'psalm.xml' exists, it will be used instead of the default settings in 'psalm.xml.dist'."

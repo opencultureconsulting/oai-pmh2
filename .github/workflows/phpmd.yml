@@ -23,15 +23,19 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Environment
-        uses: shivammathur/setup-php@v2
+        uses: php-actions/composer@v6
         with:
-          php-version: "8.1"
-          coverage: none
-          tools: phpmd
+          command: install
+          php_version: "8.1"
 
-      - name: Run PHPMD
-        run: phpmd . sarif codesize --reportfile phpmd-results.sarif
-        continue-on-error: true
+      - name: Run PHP Mess Detector
+        uses: php-actions/phpmd@v1
+        with:
+          path: bin/ public/ src/
+          php_version: "8.1"
+          ruleset: .phpmd.dist.xml
+          output: sarif
+          reportfile: phpmd-results.sarif
 
       - name: Upload Analysis Results
         uses: github/codeql-action/upload-sarif@v3

@@ -24,12 +24,12 @@ jobs:
       - name: Setup Environment
         uses: php-actions/composer@v6
         with:
-          command: update
+          command: install
           php_version: "8.1"
 
-      - name: Run PHPCS
+      - name: Run PHP_CodeSniffer
         uses: php-actions/phpcs@v1
         with:
+          path: bin/ public/ src/
           php_version: "8.1"
-          path: src/
           standard: phpcs.xml.dist

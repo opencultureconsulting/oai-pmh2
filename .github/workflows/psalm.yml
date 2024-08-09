@@ -22,6 +22,12 @@ jobs:
       - name: Checkout Source Code
         uses: actions/checkout@v4
 
+      - name: Setup Environment
+        uses: php-actions/composer@v6
+        with:
+          command: install
+          php_version: "8.1"
+
       - name: Run Psalm
         uses: docker://ghcr.io/psalm/psalm-github-actions
         with:

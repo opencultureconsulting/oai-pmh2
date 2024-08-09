@@ -6,6 +6,8 @@
 /vendor/
 .php-cs-fixer.cache
 .php-cs-fixer.php
+.phpmd.result-cache.php
+.phpmd.xml
 phpcs.xml
 phpdoc.xml
 phpstan.neon
