@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Console;
-use OCC\OaiPmh2\Database;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -51,12 +50,12 @@ class PruneResumptionTokensCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $expired = Database::getInstance()->pruneResumptionTokens();
+        $expired = $this->em->pruneExpiredTokens();
         $output->writeln([
             '',
             sprintf(
-                ' [OK] %d resumption tokens are expired and were successfully deleted! ',
-                $expired
+                format: ' [OK] %d expired resumption tokens were successfully deleted! ',
+                values: $expired
             ),
             ''
         ]);

@@ -35,22 +35,17 @@ use Psr\Http\Message\ServerRequestInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-class Document
+final class Response
 {
     /**
      * This holds the DOMDocument of the OAI-PMH XML response.
      */
-    protected DOMDocument $dom;
+    private DOMDocument $dom;
 
     /**
      * This holds the root node of the OAI-PMH XML response.
      */
-    protected DOMElement $rootNode;
-
-    /**
-     * This holds the current server request.
-     */
-    protected ServerRequestInterface $serverRequest;
+    private DOMElement $rootNode;
 
     /**
      * Add XSL processing instructions to XML response document.
@@ -61,24 +56,24 @@ class Document
     {
         $uri = $this->serverRequest->getUri();
         $basePath = $uri->getPath();
-        if (str_ends_with($basePath, 'index.php')) {
-            $basePath = pathinfo($basePath, PATHINFO_DIRNAME);
+        if (str_ends_with(haystack: $basePath, needle: 'index.php')) {
+            $basePath = pathinfo(path: $basePath, flags: PATHINFO_DIRNAME);
         }
         $stylesheet = Uri::composeComponents(
-            $uri->getScheme(),
-            $uri->getAuthority(),
-            rtrim($basePath, '/') . '/resources/stylesheet.xsl',
-            null,
-            null
+            scheme: $uri->getScheme(),
+            authority: $uri->getAuthority(),
+            path: rtrim(string: $basePath, characters: '/') . '/resources/stylesheet.xsl',
+            query: null,
+            fragment: null
         );
         $xslt = $this->dom->createProcessingInstruction(
-            'xml-stylesheet',
-            sprintf(
-                'type="text/xsl" href="%s"',
-                $stylesheet
+            target: 'xml-stylesheet',
+            data: sprintf(
+                format: 'type="text/xsl" href="%s"',
+                values: $stylesheet
             )
         );
-        $this->dom->appendChild($xslt);
+        $this->dom->appendChild(node: $xslt);
     }
 
     /**
@@ -90,20 +85,27 @@ class Document
     {
         $uri = $this->serverRequest->getUri();
         $baseUrl = Uri::composeComponents(
-            $uri->getScheme(),
-            $uri->getAuthority(),
-            $uri->getPath(),
-            null,
-            null
+            scheme: $uri->getScheme(),
+            authority: $uri->getAuthority(),
+            path: $uri->getPath(),
+            query: null,
+            fragment: null
         );
-        $request = $this->dom->createElement('request', $baseUrl);
-        $this->rootNode->appendChild($request);
+        $request = $this->createElement(
+            localName: 'request',
+            value: $baseUrl,
+            appendToRoot: true
+        );
         /** @var array<string, string> */
         $params = $this->serverRequest->getAttributes();
         foreach ($params as $param => $value) {
             $request->setAttribute(
-                $param,
-                htmlspecialchars($value, ENT_XML1 | ENT_COMPAT, 'UTF-8')
+                qualifiedName: $param,
+                value: htmlspecialchars(
+                    string: $value,
+                    flags: ENT_XML1 | ENT_COMPAT,
+                    encoding: 'UTF-8'
+                )
             );
         }
     }
@@ -115,8 +117,11 @@ class Document
      */
     protected function appendResponseDate(): void
     {
-        $responseDate = $this->dom->createElement('responseDate', gmdate('Y-m-d\TH:i:s\Z'));
-        $this->rootNode->appendChild($responseDate);
+        $this->createElement(
+            localName: 'responseDate',
+            value: gmdate(format: 'Y-m-d\TH:i:s\Z'),
+            appendToRoot: true
+        );
     }
 
     /**
@@ -126,20 +131,20 @@ class Document
      */
     protected function appendRootElement(): void
     {
-        $this->rootNode = $this->dom->createElement('OAI-PMH');
+        $this->rootNode = $this->dom->createElement(localName: 'OAI-PMH');
         $this->rootNode->setAttribute(
-            'xmlns',
-            'http://www.openarchives.org/OAI/2.0/'
+            qualifiedName: 'xmlns',
+            value: 'http://www.openarchives.org/OAI/2.0/'
         );
         $this->rootNode->setAttribute(
-            'xmlns:xsi',
-            'http://www.w3.org/2001/XMLSchema-instance'
+            qualifiedName: 'xmlns:xsi',
+            value: 'http://www.w3.org/2001/XMLSchema-instance'
         );
         $this->rootNode->setAttribute(
-            'xsi:schemaLocation',
-            'http://www.openarchives.org/OAI/2.0/ https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
+            qualifiedName: 'xsi:schemaLocation',
+            value: 'http://www.openarchives.org/OAI/2.0/ https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
         );
-        $this->dom->appendChild($this->rootNode);
+        $this->dom->appendChild(node: $this->rootNode);
     }
 
     /**
@@ -149,7 +154,7 @@ class Document
      */
     protected function createDocument(): void
     {
-        $this->dom = new DOMDocument('1.0', 'UTF-8');
+        $this->dom = new DOMDocument(version: '1.0', encoding: 'UTF-8');
         $this->dom->preserveWhiteSpace = false;
         $this->addProcessingInstructions();
     }
@@ -166,11 +171,15 @@ class Document
     public function createElement(string $localName, string $value = '', bool $appendToRoot = false): DOMElement
     {
         $node = $this->dom->createElement(
-            $localName,
-            htmlspecialchars($value, ENT_XML1, 'UTF-8')
+            localName: $localName,
+            value: htmlspecialchars(
+                string: $value,
+                flags: ENT_XML1,
+                encoding: 'UTF-8'
+            )
         );
         if ($appendToRoot) {
-            $this->rootNode->appendChild($node);
+            $this->rootNode->appendChild(node: $node);
         }
         return $node;
     }
@@ -182,21 +191,21 @@ class Document
      *
      * @return DOMNode The imported XML node
      *
-     * @throws DOMException
+     * @throws DOMException if the data cannot be imported
      */
     public function importData(string $data): DOMNode
     {
-        $document = new DOMDocument('1.0', 'UTF-8');
+        $document = new DOMDocument(version: '1.0', encoding: 'UTF-8');
         $document->preserveWhiteSpace = false;
-        if ($document->loadXML($data) === true) {
+        if ($document->loadXML(source: $data) === true) {
             /** @var DOMElement */
             $rootNode = $document->documentElement;
-            $node = $this->dom->importNode($rootNode, true);
+            $node = $this->dom->importNode(node: $rootNode, deep: true);
             return $node;
         } else {
             throw new DOMException(
-                'Could not import the XML data. Most likely it is not well-formed.',
-                500
+                message: 'Could not import the XML data. Most likely it is not well-formed.',
+                code: 500
             );
         }
     }
@@ -206,9 +215,8 @@ class Document
      *
      * @param ServerRequestInterface $serverRequest The PSR-7 HTTP Server Request
      */
-    public function __construct(ServerRequestInterface $serverRequest)
+    public function __construct(private ServerRequestInterface $serverRequest)
     {
-        $this->serverRequest = $serverRequest;
         $this->createDocument();
         $this->appendRootElement();
         $this->appendResponseDate();

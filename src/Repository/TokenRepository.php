@@ -20,21 +20,45 @@
 
 declare(strict_types=1);
 
-namespace OCC\OaiPmh2\Middleware;
+namespace OCC\OaiPmh2\Repository;
+
+use DateTime;
+use Doctrine\ORM\EntityRepository;
+use OCC\OaiPmh2\Entity\Token;
 
 /**
- * Process the "ListRecords" request.
- *
- * @see https://www.openarchives.org/OAI/openarchivesprotocol.html#ListRecords
+ * Doctrine/ORM Repository for resumption tokens.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @extends EntityRepository<Token>
  */
-class ListRecords extends ListIdentifiers
+final class TokenRepository extends EntityRepository
 {
     /**
-     * "ListIdentifiers" and "ListRecords" are practically identical except the
-     * former returns the header information only while the latter also returns
-     * the records' data. Hence this is just a class alias.
+     * Add resumption token.
+     *
+     * @param Token $entity The resumption token
+     *
+     * @return void
      */
+    public function addOrUpdate(Token $entity): void
+    {
+        $this->getEntityManager()->persist(object: $entity);
+    }
+
+    /**
+     * Delete resumption token.
+     *
+     * @param Token $entity The resumption token
+     *
+     * @return void
+     */
+    public function delete(Token $entity): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->remove(object: $entity);
+        $entityManager->flush();
+    }
 }

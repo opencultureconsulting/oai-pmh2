@@ -22,13 +22,7 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2;
 
-use Countable;
-use Iterator;
-use OCC\Basics\InterfaceTraits\Countable as CountableTrait;
-use OCC\Basics\InterfaceTraits\Iterator as IteratorTrait;
-use OCC\OaiPmh2\Entity\Format;
-use OCC\OaiPmh2\Entity\Record;
-use OCC\OaiPmh2\Entity\Set;
+use Doctrine\Common\Collections\ArrayCollection;
 use OCC\OaiPmh2\Entity\Token;
 
 /**
@@ -37,35 +31,15 @@ use OCC\OaiPmh2\Entity\Token;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @template QueryResult of array<string, Format|Record|Set>
- * @implements Iterator<QueryResult>
+ * @template TEntity of Entity
+ * @extends ArrayCollection<string, TEntity>
  */
-class Result implements Countable, Iterator
+final class ResultSet extends ArrayCollection
 {
-    use CountableTrait;
-    use IteratorTrait;
-
-    /**
-     * This holds the Doctrine result set.
-     *
-     * @var QueryResult
-     */
-    private array $data;
-
     /**
      * This holds the optional resumption token.
      */
-    protected ?Token $resumptionToken = null;
-
-    /**
-     * Get the query result.
-     *
-     * @return QueryResult The result set
-     */
-    public function getQueryResult(): array
-    {
-        return $this->data;
-    }
+    private ?Token $resumptionToken;
 
     /**
      * Get the resumption token.
@@ -92,10 +66,12 @@ class Result implements Countable, Iterator
     /**
      * Create new result set.
      *
-     * @param QueryResult $queryResult The Doctrine result set
+     * @param array<string, TEntity> $elements Array of entities
+     * @param Token $token Optional resumption token
      */
-    public function __construct(array $queryResult)
+    public function __construct(array $elements = [], Token $token = null)
     {
-        $this->data = $queryResult;
+        parent::__construct(elements: $elements);
+        $this->resumptionToken = $token;
     }
 }

@@ -22,7 +22,9 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2;
 
+use DOMElement;
 use GuzzleHttp\Psr7\Utils;
+use OCC\OaiPmh2\Entity\Token;
 use OCC\OaiPmh2\Middleware\ErrorHandler;
 use OCC\PSR15\AbstractMiddleware;
 use Psr\Http\Message\ResponseInterface;
@@ -33,13 +35,99 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @psalm-type OaiRequestMetadata = array{
+ *     verb: string,
+ *     identifier: ?string,
+ *     metadataPrefix: ?string,
+ *     from: ?string,
+ *     until: ?string,
+ *     set: ?string,
+ *     resumptionToken: ?string,
+ *     counter: int,
+ *     completeListSize: int
+ * }
  */
 abstract class Middleware extends AbstractMiddleware
 {
     /**
+     * This holds the request metadata.
+     *
+     * @var OaiRequestMetadata
+     */
+    protected array $arguments = [
+        'verb' => '',
+        'identifier' => null,
+        'metadataPrefix' => null,
+        'from' => null,
+        'until' => null,
+        'set' => null,
+        'resumptionToken' => null,
+        'counter' => 0,
+        'completeListSize' => 0
+    ];
+
+    /**
+     * This holds the entity manager singleton.
+     */
+    protected EntityManager $em;
+
+    /**
      * This holds the prepared response document.
      */
-    protected Document $preparedResponse;
+    protected Response $preparedResponse;
+
+    /**
+     * Add resumption token information to response document.
+     *
+     * @param DOMElement $node The DOM node to add the resumption token to
+     * @param ?Token $token The new resumption token or NULL if none
+     *
+     * @return void
+     */
+    protected function addResumptionToken(DOMElement $node, ?Token $token): void
+    {
+        if (isset($token) || isset($this->arguments['resumptionToken'])) {
+            $resumptionToken = $this->preparedResponse->createElement(localName: 'resumptionToken');
+            if (isset($token)) {
+                $resumptionToken->nodeValue = $token->getToken();
+                $resumptionToken->setAttribute(
+                    qualifiedName: 'expirationDate',
+                    value: $token->getValidUntil()->format(format: 'Y-m-d\TH:i:s\Z')
+                );
+                $this->arguments['completeListSize'] = $token->getParameters()['completeListSize'];
+            }
+            $resumptionToken->setAttribute(
+                qualifiedName: 'completeListSize',
+                value: (string) $this->arguments['completeListSize']
+            );
+            $resumptionToken->setAttribute(
+                qualifiedName: 'cursor',
+                value: (string) ($this->arguments['counter'] * Configuration::getInstance()->maxRecords)
+            );
+            $node->appendChild(node: $resumptionToken);
+        }
+    }
+
+    /**
+     * Check for resumption token and populate request arguments.
+     *
+     * @return void
+     */
+    protected function checkResumptionToken(): void
+    {
+        if (isset($this->arguments['resumptionToken'])) {
+            $token = $this->em->getResumptionToken(
+                token: $this->arguments['resumptionToken'],
+                verb: $this->arguments['verb']
+            );
+            if (isset($token)) {
+                $this->arguments = array_merge($this->arguments, $token->getParameters());
+            } else {
+                ErrorHandler::getInstance()->withError(errorCode: 'badResumptionToken');
+            }
+        }
+    }
 
     /**
      * Prepare response document.
@@ -59,7 +147,10 @@ abstract class Middleware extends AbstractMiddleware
      */
     protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        $this->prepareResponse($request);
+        /** @var OaiRequestMetadata */
+        $arguments = $request->getAttributes();
+        $this->arguments = array_merge($this->arguments, $arguments);
+        $this->prepareResponse(request: $request);
         return $request;
     }
 
@@ -73,18 +164,22 @@ abstract class Middleware extends AbstractMiddleware
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
         if (!ErrorHandler::getInstance()->hasErrors() && isset($this->preparedResponse)) {
-            $response = $response->withBody(Utils::streamFor((string) $this->preparedResponse));
+            $response = $response->withBody(
+                body: Utils::streamFor(
+                    resource: (string) $this->preparedResponse
+                )
+            );
         }
         return $response;
     }
 
     /**
      * The constructor must have the same signature for all derived classes, thus make it final.
+     *
+     * @see https://psalm.dev/229
      */
     final public function __construct()
     {
-        // Make constructor final to avoid issues in dispatcher.
-        // @see https://psalm.dev/229
+        $this->em = EntityManager::getInstance();
     }
-
 }

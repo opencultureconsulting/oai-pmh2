@@ -22,9 +22,10 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2;
 
-use Symfony\Component\Validator\Constraints as Assert;
+use OCC\OaiPmh2\Validator\RegExValidator;
+use OCC\OaiPmh2\Validator\UrlValidator;
+use OCC\OaiPmh2\Validator\XmlValidator;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
-use Symfony\Component\Validator\Validation;
 
 /**
  * Base class for all Doctrine/ORM entities.
@@ -45,17 +46,13 @@ abstract class Entity
      */
     protected function validateUrl(string $url): string
     {
-        $url = trim($url);
-        $validator = Validation::createValidator();
-        $violations = $validator->validate(
-            $url,
-            [
-                new Assert\Url(),
-                new Assert\NotBlank()
-            ]
-        );
+        $url = trim(string: $url);
+        $violations = UrlValidator::validate(url: $url);
         if ($violations->count() > 0) {
-            throw new ValidationFailedException(null, $violations);
+            throw new ValidationFailedException(
+                value: null,
+                violations: $violations
+            );
         }
         return $url;
     }
@@ -72,18 +69,12 @@ abstract class Entity
      */
     protected function validateRegEx(string $string, string $regEx): string
     {
-        $validator = Validation::createValidator();
-        $violations = $validator->validate(
-            $string,
-            [
-                new Assert\Regex([
-                    'pattern' => $regEx,
-                    'message' => 'This value does not match the regular expression "{{ pattern }}".'
-                ])
-            ]
-        );
+        $violations = RegExValidator::validate(string: $string, regEx: $regEx);
         if ($violations->count() > 0) {
-            throw new ValidationFailedException(null, $violations);
+            throw new ValidationFailedException(
+                value: null,
+                violations: $violations
+            );
         }
         return $string;
     }
@@ -99,19 +90,12 @@ abstract class Entity
      */
     protected function validateXml(string $xml): string
     {
-        $validator = Validation::createValidator();
-        $violations = $validator->validate(
-            $xml,
-            [
-                new Assert\Type('string'),
-                new Assert\NotBlank()
-            ]
-        );
-        if (
-            $violations->count() > 0
-            or simplexml_load_string($xml) === false
-        ) {
-            throw new ValidationFailedException(null, $violations);
+        $violations = XmlValidator::validate(xml: $xml);
+        if ($violations->count() > 0) {
+            throw new ValidationFailedException(
+                value: null,
+                violations: $violations
+            );
         }
         return $xml;
     }

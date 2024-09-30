@@ -23,9 +23,6 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Console;
-use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Entity\Format;
-use OCC\OaiPmh2\Entity\Record;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -40,7 +37,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[AsCommand(
     name: 'oai:records:delete',
-    description: 'Delete a record from database'
+    description: 'Delete a record while obeying deleted record policy'
 )]
 class DeleteRecordCommand extends Console
 {
@@ -74,28 +71,24 @@ class DeleteRecordCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var array<string, string> */
-        $arguments = $input->getArguments();
-        $entityManager = Database::getInstance()->getEntityManager();
+        if (!$this->validateInput(input: $input, output: $output)) {
+            return Command::INVALID;
+        }
 
-        $format = $entityManager->getReference(Format::class, $arguments['format']);
-        $record = $entityManager->find(
-            Record::class,
-            [
-                'identifier' => $arguments['identifier'],
-                'format' => $format
-            ]
+        $record = $this->em->getRecord(
+            identifier: $this->arguments['identifier'],
+            format: $this->arguments['format']
         );
 
         if (isset($record)) {
-            Database::getInstance()->deleteRecord($record);
+            $this->em->delete(entity: $record);
             $this->clearResultCache();
             $output->writeln([
                 '',
                 sprintf(
-                    ' [OK] Record "%s" with metadata prefix "%s" successfully deleted. ',
-                    $arguments['identifier'],
-                    $arguments['format']
+                    ' [OK] Record "%s" with metadata prefix "%s" successfully (marked as) deleted. ',
+                    $this->arguments['identifier'],
+                    $this->arguments['format']
                 ),
                 ''
             ]);
@@ -105,8 +98,8 @@ class DeleteRecordCommand extends Console
                 '',
                 sprintf(
                     ' [ERROR] Record "%s" with metadata prefix "%s" not found. ',
-                    $arguments['identifier'],
-                    $arguments['format']
+                    $this->arguments['identifier'],
+                    $this->arguments['format']
                 ),
                 ''
             ]);

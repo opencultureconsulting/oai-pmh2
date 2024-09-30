@@ -20,43 +20,46 @@
 
 declare(strict_types=1);
 
-namespace OCC\OaiPmh2;
+namespace OCC\OaiPmh2\Validator;
 
-use OCC\OaiPmh2\Middleware\Dispatcher;
-use OCC\PSR15\QueueRequestHandler;
+use Symfony\Component\Validator\Constraint;
+use Symfony\Component\Validator\Constraints as Assert;
+use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Validation;
 
 /**
- * Main application of the OAI-PMH 2.0 Data Provider.
+ * Validator for URLs.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-final class App
+class UrlValidator
 {
     /**
-     * The PSR-15 Server Request Handler.
+     * Get constraints for URLs.
+     *
+     * @return array<Constraint> The array of constraints
      */
-    private QueueRequestHandler $requestHandler;
-
-    /**
-     * Instantiate application.
-     */
-    public function __construct()
+    protected static function getValidationConstraints(): array
     {
-        $this->requestHandler = new QueueRequestHandler(middlewares: [new Dispatcher()]);
+        return [
+            new Assert\Url(),
+            new Assert\NotBlank()
+        ];
     }
 
     /**
-     * Run the application.
+     * Check if the given string is a valid URL.
      *
-     * @return void
+     * @param string $url The URL
+     *
+     * @return ConstraintViolationListInterface The list of violations
      */
-    public function run(): void
+    public static function validate(string $url): ConstraintViolationListInterface
     {
-        $this->requestHandler->handle();
-        if ($this->requestHandler->response->hasHeader('Warning')) {
-            // An exception occured. Maybe we don't want to output the response, but log an error instead?
-        }
-        $this->requestHandler->respond();
+        return Validation::createValidator()->validate(
+            value: $url,
+            constraints: self::getValidationConstraints()
+        );
     }
 }

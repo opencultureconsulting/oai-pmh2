@@ -24,13 +24,13 @@ namespace OCC\OaiPmh2\Middleware;
 
 use GuzzleHttp\Psr7\Uri;
 use OCC\OaiPmh2\Configuration;
-use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Document;
 use OCC\OaiPmh2\Middleware;
+use OCC\OaiPmh2\Response;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Process the "Identify" request.
+ *
  * @see https://www.openarchives.org/OAI/openarchivesprotocol.html#Identify
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
@@ -47,47 +47,75 @@ class Identify extends Middleware
      */
     protected function prepareResponse(ServerRequestInterface $request): void
     {
-        $document = new Document($request);
-        $identify = $document->createElement('Identify', '', true);
+        $response = new Response(serverRequest: $request);
+        $identify = $response->createElement(
+            localName: 'Identify',
+            value: '',
+            appendToRoot: true
+        );
 
-        $name = Configuration::getInstance()->repositoryName;
-        $repositoryName = $document->createElement('repositoryName', $name);
-        $identify->appendChild($repositoryName);
+        $repositoryName = $response->createElement(
+            localName: 'repositoryName',
+            value: Configuration::getInstance()->repositoryName
+        );
+        $identify->appendChild(node: $repositoryName);
 
         $uri = Uri::composeComponents(
-            $request->getUri()->getScheme(),
-            $request->getUri()->getAuthority(),
-            $request->getUri()->getPath(),
-            null,
-            null
+            scheme: $request->getUri()->getScheme(),
+            authority: $request->getUri()->getAuthority(),
+            path: $request->getUri()->getPath(),
+            query: null,
+            fragment: null
         );
-        $baseURL = $document->createElement('baseURL', $uri);
-        $identify->appendChild($baseURL);
+        $baseURL = $response->createElement(
+            localName: 'baseURL',
+            value: $uri
+        );
+        $identify->appendChild(node: $baseURL);
 
-        $protocolVersion = $document->createElement('protocolVersion', '2.0');
-        $identify->appendChild($protocolVersion);
+        $protocolVersion = $response->createElement(
+            localName: 'protocolVersion',
+            value: '2.0'
+        );
+        $identify->appendChild(node: $protocolVersion);
 
-        $email = Configuration::getInstance()->adminEmail;
-        $adminEmail = $document->createElement('adminEmail', $email);
-        $identify->appendChild($adminEmail);
+        $adminEmail = $response->createElement(
+            localName: 'adminEmail',
+            value: Configuration::getInstance()->adminEmail
+        );
+        $identify->appendChild(node: $adminEmail);
 
-        $datestamp = Database::getInstance()->getEarliestDatestamp();
-        $earliestDatestamp = $document->createElement('earliestDatestamp', $datestamp);
-        $identify->appendChild($earliestDatestamp);
+        $earliestDatestamp = $response->createElement(
+            localName: 'earliestDatestamp',
+            value: $this->em->getEarliestDatestamp()
+        );
+        $identify->appendChild(node: $earliestDatestamp);
 
-        $deletedRecord = $document->createElement('deletedRecord', 'transient');
-        $identify->appendChild($deletedRecord);
+        $deletedRecord = $response->createElement(
+            localName: 'deletedRecord',
+            value: Configuration::getInstance()->deletedRecords
+        );
+        $identify->appendChild(node: $deletedRecord);
 
-        $granularity = $document->createElement('granularity', 'YYYY-MM-DDThh:mm:ssZ');
-        $identify->appendChild($granularity);
+        $granularity = $response->createElement(
+            localName: 'granularity',
+            value: 'YYYY-MM-DDThh:mm:ssZ'
+        );
+        $identify->appendChild(node: $granularity);
 
         // TODO: Implement explicit content compression support.
-        // $compressionDeflate = $document->createElement('compression', 'deflate');
-        // $identify->appendChild($compressionDeflate);
+        // $compressionDeflate = $response->createElement(
+        //     localName: 'compression',
+        //     value: 'deflate'
+        // );
+        // $identify->appendChild(node: $compressionDeflate);
 
-        // $compressionGzip = $document->createElement('compression', 'gzip');
-        // $identify->appendChild($compressionGzip);
+        // $compressionGzip = $response->createElement(
+        //     localName: 'compression',
+        //     value: 'gzip'
+        // );
+        // $identify->appendChild(node: $compressionGzip);
 
-        $this->preparedResponse = $document;
+        $this->preparedResponse = $response;
     }
 }

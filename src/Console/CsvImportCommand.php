@@ -23,9 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use DateTime;
-use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
-use OCC\OaiPmh2\Database;
 use OCC\OaiPmh2\Entity\Format;
 use OCC\OaiPmh2\Entity\Record;
 use OCC\OaiPmh2\Entity\Set;
@@ -42,6 +40,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @psalm-type ColumnMapping = array{
+ *     idColumn: int,
+ *     contentColumn: int,
+ *     dateColumn: ?int,
+ *     setColumn: ?int
+ * }
  */
 #[AsCommand(
     name: 'oai:records:import:csv',
@@ -62,7 +67,7 @@ class CsvImportCommand extends Console
             'The format (metadata prefix) of the records.',
             null,
             function (): array {
-                return array_keys(Database::getInstance()->getMetadataFormats()->getQueryResult());
+                return $this->em->getMetadataFormats()->getKeys();
             }
         );
         $this->addArgument(
@@ -88,21 +93,21 @@ class CsvImportCommand extends Console
             'dateColumn',
             'd',
             InputOption::VALUE_OPTIONAL,
-            'Name of the CSV column which holds the records\' datetime of last change.',
+            'Optional: Name of the CSV column which holds the records\' datetime of last change.',
             'lastChanged'
         );
         $this->addOption(
             'setColumn',
             's',
             InputOption::VALUE_OPTIONAL,
-            'Name of the CSV column which holds the comma-separated list of the records\' sets.',
+            'Optional: Name of the CSV column which holds the comma-separated list of the records\' sets.',
             'sets'
         );
         $this->addOption(
             'noValidation',
             null,
             InputOption::VALUE_NONE,
-            'Skip content validation (improves performance for large record sets).'
+            'Optional: Skip content validation (improves ingest performance for large record sets).'
         );
         parent::configure();
     }
@@ -117,69 +122,60 @@ class CsvImportCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->validateInput($input, $output)) {
+        if (!$this->validateInput(input: $input, output: $output)) {
             return Command::INVALID;
         }
-        $phpMemoryLimit = $this->getPhpMemoryLimit();
 
-        /** @var array<string, string> */
-        $arguments = $input->getArguments();
-        /** @var bool */
-        $noValidation = $input->getOption('noValidation');
         /** @var resource */
-        $file = fopen($arguments['file'], 'r');
+        $file = fopen(filename: $this->arguments['file'], mode: 'r');
 
-        $columns = $this->getColumnNames($input, $output, $file);
-        if (count($columns) === 0) {
-            return Command::INVALID;
+        $columnMapping = $this->getColumnNames(input: $input, output: $output, file: $file);
+
+        if (!isset($columnMapping)) {
+            return Command::FAILURE;
         }
 
         $count = 0;
         $progressIndicator = new ProgressIndicator($output, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
         $progressIndicator->start('Importing...');
 
-        while ($row = fgetcsv($file)) {
+        while ($row = fgetcsv(stream: $file)) {
             /** @var Format */
-            $format = Database::getInstance()
-                ->getEntityManager()
-                ->getReference(Format::class, $arguments['format']);
-            $record = new Record($row[$columns['idColumn']], $format);
-            if (strlen(trim($row[$columns['contentColumn']])) > 0) {
-                $record->setContent($row[$columns['contentColumn']], !$noValidation);
+            $format = $this->em->getMetadataFormat(prefix: $this->arguments['format']);
+            $record = new Record(
+                identifier: $row[$columnMapping['idColumn']],
+                format: $format
+            );
+            if (strlen(trim($row[$columnMapping['contentColumn']])) > 0) {
+                $record->setContent(
+                    data: $row[$columnMapping['contentColumn']],
+                    validate: !$this->arguments['noValidation']
+                );
             }
-            if (isset($columns['dateColumn'])) {
-                $record->setLastChanged(new DateTime($row[$columns['dateColumn']]));
+            if (isset($columnMapping['dateColumn'])) {
+                $record->setLastChanged(dateTime: new DateTime($row[$columnMapping['dateColumn']]));
             }
-            if (isset($columns['setColumn'])) {
-                $sets = $row[$columns['setColumn']];
+            if (isset($columnMapping['setColumn'])) {
+                $sets = $row[$columnMapping['setColumn']];
                 foreach (explode(',', $sets) as $set) {
                     /** @var Set */
-                    $setSpec = Database::getInstance()
-                        ->getEntityManager()
-                        ->getReference(Set::class, trim($set));
-                    $record->addSet($setSpec);
+                    $setSpec = $this->em->getSet(spec: trim($set));
+                    $record->addSet(set: $setSpec);
                 }
             }
-            Database::getInstance()->addOrUpdateRecord($record, true);
+            $this->em->addOrUpdate(entity: $record, bulkMode: true);
 
             ++$count;
             $progressIndicator->advance();
             $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed.');
-
-            // Flush to database if memory usage reaches 50% or every 10.000 records.
-            if ((memory_get_usage() / $phpMemoryLimit) > 0.5 || ($count % 10000) === 0) {
-                $progressIndicator->setMessage(
-                    'Importing... ' . (string) $count . ' records processed. Flushing to database...'
-                );
-                Database::getInstance()->flush(true);
-            }
+            $this->checkMemoryUsage();
         }
-        Database::getInstance()->flush(true);
-        Database::getInstance()->pruneOrphanSets();
+        $this->em->flush();
+        $this->em->pruneOrphanedSets();
 
         $progressIndicator->finish('All done!');
 
-        fclose($file);
+        fclose(stream: $file);
 
         $this->clearResultCache();
 
@@ -188,7 +184,7 @@ class CsvImportCommand extends Console
             sprintf(
                 ' [OK] %d records with metadata prefix "%s" were imported successfully! ',
                 $count,
-                $arguments['format']
+                $this->arguments['format']
             ),
             ''
         ]);
@@ -196,49 +192,57 @@ class CsvImportCommand extends Console
     }
 
     /**
-     * Get the column names of CSV.
+     * Get the column numbers of CSV.
      *
-     * @param InputInterface $input The inputs
-     * @param OutputInterface $output The output interface
+     * @param InputInterface $input The input
+     * @param OutputInterface $output The output
      * @param resource $file The handle for the CSV file
      *
-     * @return array<string, int|string|null> The mapped column names
+     * @return ?ColumnMapping The mapped columns or NULL in case of an error
      */
-    protected function getColumnNames(InputInterface $input, OutputInterface $output, $file): array
+    protected function getColumnNames(InputInterface $input, OutputInterface $output, $file): ?array
     {
-        /** @var array<string, string> */
-        $options = $input->getOptions();
-
-        $columns = [];
+        /** @var array{idColumn: string, contentColumn: string, dateColumn: string, setColumn: string} */
+        $columns = [
+            'idColumn' => $input->getOption('idColumn'),
+            'contentColumn' => $input->getOption('contentColumn'),
+            'dateColumn' => $input->getOption('dateColumn'),
+            'setColumn' => $input->getOption('setColumn')
+        ];
 
         $headers = fgetcsv($file);
-        if (!is_array($headers)) {
+        if (!is_array($headers) || !isset($headers[0])) {
             $output->writeln([
                 '',
                 sprintf(
-                    ' [ERROR] File "%s" does not contain valid CSV. ',
-                    stream_get_meta_data($file)['uri'] ?? 'unknown'
+                    format: ' [ERROR] File "%s" does not contain valid CSV. ',
+                    /** @phpstan-ignore-next-line - URI is always set for fopen() resources. */
+                    values: stream_get_meta_data(stream: $file)['uri'] ?: 'unknown'
                 ),
                 ''
             ]);
-            return [];
-        } else {
-            $headers = array_flip($headers);
+            return null;
         }
-        foreach ($options as $option => $value) {
-            $columns[$option] = $headers[$value] ?? null;
-        }
+        /** @var array<string, int> */
+        $headers = array_flip($headers);
+
+        $callback = function (string $column) use ($headers): ?int {
+            return array_key_exists($column, $headers) ? $headers[$column] : null;
+        };
+
+        $columns = array_map($callback, $columns);
 
         if (!isset($columns['idColumn']) || !isset($columns['contentColumn'])) {
             $output->writeln([
                 '',
                 sprintf(
-                    ' [ERROR] File "%s" does not contain valid CSV. ',
-                    stream_get_meta_data($file)['uri'] ?? 'unknown'
+                    format: ' [ERROR] File "%s" does not contain mandatory columns. ',
+                    /** @phpstan-ignore-next-line - URI is always set for fopen() resources. */
+                    values: stream_get_meta_data($file)['uri'] ?: 'unknown'
                 ),
                 ''
             ]);
-            return [];
+            return null;
         }
         return $columns;
     }

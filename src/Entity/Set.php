@@ -26,6 +26,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use OCC\OaiPmh2\Entity;
+use OCC\OaiPmh2\Repository\SetRepository;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
@@ -34,9 +35,9 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: SetRepository::class)]
 #[ORM\Table(name: 'sets')]
-class Set extends Entity
+final class Set extends Entity
 {
     /**
      * The unique set spec.
@@ -60,9 +61,14 @@ class Set extends Entity
     /**
      * Collection of associated records.
      *
-     * @var Collection<int, Record>
+     * @var Collection<string, Record>
      */
-    #[ORM\ManyToMany(targetEntity: Record::class, mappedBy: 'sets', fetch: 'EXTRA_LAZY')]
+    #[ORM\ManyToMany(
+        targetEntity: Record::class,
+        mappedBy: 'sets',
+        fetch: 'EXTRA_LAZY',
+        indexBy: 'identifier'
+    )]
     private Collection $records;
 
     /**
@@ -74,9 +80,9 @@ class Set extends Entity
      */
     public function addRecord(Record $record): void
     {
-        if (!$this->records->contains($record)) {
-            $this->records->add($record);
-            $record->addSet($this);
+        if (!$this->records->contains(element: $record)) {
+            $this->records->add(element: $record);
+            $record->addSet(set: $this);
         }
     }
 
@@ -113,17 +119,20 @@ class Set extends Entity
     /**
      * Get a collection of associated records.
      *
-     * @return array<int, Record> The associated records
+     * @return Collection<string, Record> The associated records
      */
-    public function getRecords(): array
+    public function getRecords(): Collection
     {
-        return $this->records->toArray();
+        return $this->records;
     }
 
     /**
      * Whether this set has a description.
      *
      * @return bool TRUE if description exists, FALSE otherwise
+     *
+     * @psalm-assert-if-true string $this->description
+     * @psalm-assert-if-true string $this->getDescription()
      */
     public function hasDescription(): bool
     {
@@ -149,16 +158,16 @@ class Set extends Entity
      */
     public function removeRecord(Record $record): void
     {
-        if ($this->records->contains($record)) {
-            $this->records->removeElement($record);
-            $record->removeSet($this);
+        if ($this->records->contains(element: $record)) {
+            $this->records->removeElement(element: $record);
+            $record->removeSet(set: $this);
         }
     }
 
     /**
      * Set the description for this set.
      *
-     * @param ?string $description The description
+     * @param ?string $description The description XML or NULL to unset
      *
      * @return void
      *
@@ -169,7 +178,7 @@ class Set extends Entity
         if (isset($description)) {
             $description = trim($description);
             try {
-                $description = $this->validateXml($description);
+                $description = $this->validateXml(xml: $description);
             } catch (ValidationFailedException $exception) {
                 throw $exception;
             }
@@ -198,15 +207,15 @@ class Set extends Entity
      *
      * @throws ValidationFailedException
      */
-    public function __construct(string $spec, ?string $name = null, string $description = null)
+    public function __construct(string $spec, ?string $name = null, ?string $description = null)
     {
         try {
             $this->spec = $this->validateRegEx(
-                $spec,
-                '/^([A-Za-z0-9\-_\.!~\*\'\(\)])+(:[A-Za-z0-9\-_\.!~\*\'\(\)]+)*$/'
+                string: $spec,
+                regEx: '/^([A-Za-z0-9\-_\.!~\*\'\(\)])+(:[A-Za-z0-9\-_\.!~\*\'\(\)]+)*$/'
             );
-            $this->setName($name);
-            $this->setDescription($description);
+            $this->setName(name: $name);
+            $this->setDescription(description: $description);
             $this->records = new ArrayCollection();
         } catch (ValidationFailedException $exception) {
             throw $exception;

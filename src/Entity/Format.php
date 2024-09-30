@@ -22,8 +22,11 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use OCC\OaiPmh2\Entity;
+use OCC\OaiPmh2\Repository\FormatRepository;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
@@ -32,9 +35,9 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: FormatRepository::class)]
 #[ORM\Table(name: 'formats')]
-class Format extends Entity
+final class Format extends Entity
 {
     /**
      * The unique metadata prefix.
@@ -56,7 +59,21 @@ class Format extends Entity
     private string $xmlSchema;
 
     /**
-     * Get the format's namespace URI.
+     * The format's associated records.
+     *
+     * @var Collection<string, Record>
+     */
+    #[ORM\OneToMany(
+        targetEntity: Record::class,
+        mappedBy: 'format',
+        fetch: 'EXTRA_LAZY',
+        orphanRemoval: true,
+        indexBy: 'identifier'
+    )]
+    private Collection $records;
+
+    /**
+     * Get the namespace URI for this format.
      *
      * @return string The namespace URI
      */
@@ -76,7 +93,17 @@ class Format extends Entity
     }
 
     /**
-     * Get the format's schema URL.
+     * Get the associated records for this format.
+     *
+     * @return Collection<string, Record> The collection of records
+     */
+    public function getRecords(): Collection
+    {
+        return $this->records;
+    }
+
+    /**
+     * Get the schema URL for this format.
      *
      * @return string The schema URL
      */
@@ -86,7 +113,7 @@ class Format extends Entity
     }
 
     /**
-     * Set the format's namespace URI.
+     * Set the namespace URI for this format.
      *
      * @param string $namespace The namespace URI
      *
@@ -97,14 +124,14 @@ class Format extends Entity
     public function setNamespace(string $namespace): void
     {
         try {
-            $this->namespace = $this->validateUrl($namespace);
+            $this->namespace = $this->validateUrl(url: $namespace);
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }
     }
 
     /**
-     * Set the format's schema URL.
+     * Set the schema URL for this format.
      *
      * @param string $schema The schema URL
      *
@@ -115,7 +142,7 @@ class Format extends Entity
     public function setSchema(string $schema): void
     {
         try {
-            $this->xmlSchema = $this->validateUrl($schema);
+            $this->xmlSchema = $this->validateUrl(url: $schema);
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }
@@ -133,9 +160,13 @@ class Format extends Entity
     public function __construct(string $prefix, string $namespace, string $schema)
     {
         try {
-            $this->prefix = $this->validateRegEx($prefix, '/^[A-Za-z0-9\-_\.!~\*\'\(\)]+$/');
-            $this->setNamespace($namespace);
-            $this->setSchema($schema);
+            $this->prefix = $this->validateRegEx(
+                string: $prefix,
+                regEx: '/^[A-Za-z0-9\-_\.!~\*\'\(\)]+$/'
+            );
+            $this->setNamespace(namespace: $namespace);
+            $this->setSchema(schema: $schema);
+            $this->records = new ArrayCollection();
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }

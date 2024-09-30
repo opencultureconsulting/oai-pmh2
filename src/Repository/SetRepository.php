@@ -20,43 +20,52 @@
 
 declare(strict_types=1);
 
-namespace OCC\OaiPmh2;
+namespace OCC\OaiPmh2\Repository;
 
-use OCC\OaiPmh2\Middleware\Dispatcher;
-use OCC\PSR15\QueueRequestHandler;
+use Doctrine\ORM\EntityRepository;
+use OCC\OaiPmh2\Configuration;
+use OCC\OaiPmh2\Entity\Set;
+use OCC\OaiPmh2\ResultSet;
 
 /**
- * Main application of the OAI-PMH 2.0 Data Provider.
+ * Doctrine/ORM Repository for sets.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @extends EntityRepository<Set>
  */
-final class App
+final class SetRepository extends EntityRepository
 {
     /**
-     * The PSR-15 Server Request Handler.
-     */
-    private QueueRequestHandler $requestHandler;
-
-    /**
-     * Instantiate application.
-     */
-    public function __construct()
-    {
-        $this->requestHandler = new QueueRequestHandler(middlewares: [new Dispatcher()]);
-    }
-
-    /**
-     * Run the application.
+     * Add or update set.
+     *
+     * @param Set $entity The set
      *
      * @return void
      */
-    public function run(): void
+    public function addOrUpdate(Set $entity): void
     {
-        $this->requestHandler->handle();
-        if ($this->requestHandler->response->hasHeader('Warning')) {
-            // An exception occured. Maybe we don't want to output the response, but log an error instead?
+        $oldSet = $this->find(id: $entity->getSpec());
+        if (isset($oldSet)) {
+            $oldSet->setName(name: $entity->getName());
+            $oldSet->setDescription(description: $entity->getDescription());
+        } else {
+            $this->getEntityManager()->persist(object: $entity);
         }
-        $this->requestHandler->respond();
+    }
+
+    /**
+     * Delete set.
+     *
+     * @param Set $entity The set
+     *
+     * @return void
+     */
+    public function delete(Set $entity): void
+    {
+        $entityManager = $this->getEntityManager();
+        $entityManager->remove(object: $entity);
+        $entityManager->flush();
     }
 }

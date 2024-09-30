@@ -49,7 +49,7 @@ $commands = [
 try {
     ConsoleRunner::run(
         new SingleManagerProvider(
-            Database::getInstance()->getEntityManager()
+            EntityManager::getInstance()
         ),
         $commands
     );

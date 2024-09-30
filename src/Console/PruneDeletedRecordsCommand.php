@@ -24,7 +24,6 @@ namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
-use OCC\OaiPmh2\Database;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -54,7 +53,7 @@ class PruneDeletedRecordsCommand extends Console
             'force',
             'f',
             InputOption::VALUE_NONE,
-            'Deletes records even under "transient" policy.'
+            'Optional: Deletes records even under "transient" policy.'
         );
         parent::configure();
     }
@@ -75,13 +74,13 @@ class PruneDeletedRecordsCommand extends Console
             $policy === 'no'
             or ($policy === 'transient' && $forced)
         ) {
-            $deleted = Database::getInstance()->pruneDeletedRecords();
+            $deleted = $this->em->pruneDeletedRecords();
             $this->clearResultCache();
             $output->writeln([
                 '',
                 sprintf(
-                    ' [OK] %d records are deleted and were successfully removed! ',
-                    $deleted
+                    format: ' [OK] %d deleted records were successfully removed! ',
+                    values: $deleted
                 ),
                 ''
             ]);

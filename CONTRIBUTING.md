@@ -1,3 +1,9 @@
-Please read the excellent [GitHub Open Source Guide](https://opensource.guide/how-to-contribute/) on *How to Contribute on Open Source*.
+Please read the excellent [GitHub Open Source Guide][guide] on *How to
+Contribute on Open Source*.
 
-If you have any further questions just [open a new issue](https://github.com/opencultureconsulting/oai-pmh2/issues/new) and I'll be happy to assist!
+[guide]: <https://opensource.guide/how-to-contribute/>
+
+If you have any further questions just [open a new issue][issuetracker] and
+I'll be happy to assist!
+
+[issuetracker]: <https://github.com/opencultureconsulting/oai-pmh2/issues/new>

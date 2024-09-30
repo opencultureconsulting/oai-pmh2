@@ -25,7 +25,7 @@ namespace OCC\OaiPmh2\Middleware;
 use DomainException;
 use GuzzleHttp\Psr7\Utils;
 use OCC\Basics\Traits\Singleton;
-use OCC\OaiPmh2\Document;
+use OCC\OaiPmh2\Response;
 use OCC\PSR15\AbstractMiddleware;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
@@ -48,7 +48,7 @@ class ErrorHandler extends AbstractMiddleware
     protected const OAI_ERRORS = [
         'badArgument' => 'The request includes illegal arguments, is missing required arguments, includes a repeated argument, or values for arguments have an illegal syntax.',
         'badResumptionToken' => 'The value of the resumptionToken argument is invalid or expired.',
-        'badVerb' => 'Value of the verb argument is not a legal OAI-PMH verb, the verb argument is missing, or the verb argument is repeated.',
+        'badVerb' => 'The value of the verb argument is not a legal OAI-PMH verb, the verb argument is missing, or the verb argument is repeated.',
         'cannotDisseminateFormat' => 'The metadata format identified by the value given for the metadataPrefix argument is not supported by the item or by the repository.',
         'idDoesNotExist' => 'The value of the identifier argument is unknown or illegal in this repository.',
         'noRecordsMatch' => 'The combination of the values of the from, until, set and metadataPrefix arguments results in an empty list.',
@@ -70,12 +70,19 @@ class ErrorHandler extends AbstractMiddleware
      */
     protected function getResponseBody(): StreamInterface
     {
-        $document = new Document($this->requestHandler->request);
+        $response = new Response(serverRequest: $this->requestHandler->request);
         foreach (array_unique($this->errors) as $errorCode) {
-            $error = $document->createElement('error', self::OAI_ERRORS[$errorCode], true);
-            $error->setAttribute('code', $errorCode);
+            $error = $response->createElement(
+                localName: 'error',
+                value: self::OAI_ERRORS[$errorCode],
+                appendToRoot: true
+            );
+            $error->setAttribute(
+                qualifiedName: 'code',
+                value: $errorCode
+            );
         }
-        return Utils::streamFor((string) $document);
+        return Utils::streamFor(resource: (string) $response);
     }
 
     /**
@@ -98,7 +105,7 @@ class ErrorHandler extends AbstractMiddleware
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
         if ($this->hasErrors()) {
-            $response = $response->withBody($this->getResponseBody());
+            $response = $response->withBody(body: $this->getResponseBody());
         }
         return $response;
     }
@@ -118,11 +125,11 @@ class ErrorHandler extends AbstractMiddleware
             $this->errors[] = $errorCode;
         } else {
             throw new DomainException(
-                sprintf(
-                    'Valid OAI-PMH error code expected, "%s" given.',
-                    $errorCode
+                message: sprintf(
+                    format: 'Valid OAI-PMH error code expected, "%s" given.',
+                    values: $errorCode
                 ),
-                500
+                code: 500
             );
         }
         return $this;

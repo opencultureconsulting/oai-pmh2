@@ -5,11 +5,14 @@
 
 includes:
     - vendor/phpstan/phpstan-strict-rules/rules.neon
+    - vendor/phpstan/phpstan-doctrine/extension.neon
+    - vendor/phpstan/phpstan-symfony/extension.neon
 
 parameters:
     level: 9
-    strictRules:
-        noVariableVariables: false
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        - identifier: ternary.shortNotAllowed
     paths:
         - bin
         - public

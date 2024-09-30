@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Middleware;
 
+use OCC\OaiPmh2\EntityManager;
 use OCC\OaiPmh2\Middleware;
 use OCC\PSR15\AbstractMiddleware;
 use Psr\Http\Message\ResponseInterface;
@@ -37,6 +38,8 @@ class Dispatcher extends AbstractMiddleware
 {
     /**
      * List of defined OAI-PMH parameters.
+     *
+     * @var string[]
      */
     protected const OAI_PARAMS = [
         'verb',
@@ -62,14 +65,14 @@ class Dispatcher extends AbstractMiddleware
             /** @var array<string, string> */
             $arguments = $request->getQueryParams();
         } elseif ($request->getMethod() === 'POST') {
-            if ($request->getHeaderLine('Content-Type') === 'application/x-www-form-urlencoded') {
+            if ($request->getHeaderLine(name: 'Content-Type') === 'application/x-www-form-urlencoded') {
                 /** @var array<string, string> */
                 $arguments = (array) $request->getParsedBody();
             }
         }
-        if ($this->validateArguments($arguments)) {
+        if ($this->validateArguments(arguments: $arguments)) {
             foreach ($arguments as $param => $value) {
-                $request = $request->withAttribute($param, $value);
+                $request = $request->withAttribute(name: $param, value: $value);
             }
         }
         return $request;
@@ -84,17 +87,17 @@ class Dispatcher extends AbstractMiddleware
      */
     protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        $request = $this->getRequestWithAttributes($request);
+        $request = $this->getRequestWithAttributes(request: $request);
         $errorHandler = ErrorHandler::getInstance();
         if (!$errorHandler->hasErrors()) {
             /** @var string */
-            $verb = $request->getAttribute('verb');
+            $verb = $request->getAttribute(name: 'verb');
             $middleware = __NAMESPACE__ . '\\' . $verb;
-            if (is_a($middleware, Middleware::class, true)) {
-                $this->requestHandler->queue->enqueue(new $middleware());
+            if (is_a(object_or_class: $middleware, class: Middleware::class, allow_string: true)) {
+                $this->requestHandler->queue->enqueue(value: new $middleware());
             }
         }
-        $this->requestHandler->queue->enqueue($errorHandler);
+        $this->requestHandler->queue->enqueue(value: $errorHandler);
         return $request;
     }
 
@@ -110,7 +113,7 @@ class Dispatcher extends AbstractMiddleware
         // TODO: Add support for content compression
         // https://openarchives.org/OAI/openarchivesprotocol.html#ResponseCompression
         // https://github.com/middlewares/encoder
-        return $response->withHeader('Content-Type', 'text/xml');
+        return $response->withHeader(name: 'Content-Type', value: 'text/xml');
     }
 
     /**
@@ -124,62 +127,166 @@ class Dispatcher extends AbstractMiddleware
      */
     protected function validateArguments(array $arguments): bool
     {
-        $errorHandler = ErrorHandler::getInstance();
         if (
             count(array_diff(array_keys($arguments), self::OAI_PARAMS)) !== 0
             or !isset($arguments['verb'])
         ) {
-            $errorHandler->withError('badArgument');
+            ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
         } else {
-            switch ($arguments['verb']) {
-                case 'GetRecord':
-                    if (
-                        count($arguments) !== 3
-                        or !isset($arguments['identifier'])
-                        or !isset($arguments['metadataPrefix'])
-                    ) {
-                        $errorHandler->withError('badArgument');
-                    }
-                    break;
-                case 'Identify':
-                    if (count($arguments) !== 1) {
-                        $errorHandler->withError('badArgument');
-                    }
-                    break;
-                case 'ListIdentifiers':
-                case 'ListRecords':
-                    if (
-                        isset($arguments['metadataPrefix'])
-                        xor isset($arguments['resumptionToken'])
-                    ) {
-                        if (
-                            (isset($arguments['resumptionToken']) && count($arguments) !== 2)
-                            or isset($arguments['identifier'])
-                        ) {
-                            $errorHandler->withError('badArgument');
-                        }
-                    } else {
-                        $errorHandler->withError('badArgument');
-                    }
-                    break;
-                case 'ListMetadataFormats':
-                    if (count($arguments) !== 1) {
-                        if (!isset($arguments['identifier']) || count($arguments) !== 2) {
-                            $errorHandler->withError('badArgument');
-                        }
-                    }
-                    break;
-                case 'ListSets':
-                    if (count($arguments) !== 1) {
-                        if (!isset($arguments['resumptionToken']) || count($arguments) !== 2) {
-                            $errorHandler->withError('badArgument');
-                        }
-                    }
-                    break;
-                default:
-                $errorHandler->withError('badVerb');
+            match ($arguments['verb']) {
+                'GetRecord' => $this->validateGetRecord(arguments: $arguments),
+                'Identify' => $this->validateIdentify(arguments: $arguments),
+                'ListIdentifiers', 'ListRecords' => $this->validateListRecords(arguments: $arguments),
+                'ListMetadataFormats' => $this->validateListFormats(arguments: $arguments),
+                'ListSets' => $this->validateListSets(arguments: $arguments),
+                default => ErrorHandler::getInstance()->withError(errorCode: 'badVerb')
+            };
+            if (!ErrorHandler::getInstance()->hasErrors()) {
+                $this->validateMetadataPrefix(prefix: $arguments['metadataPrefix'] ?? null);
+                $this->validateDateTime(datetime: $arguments['from'] ?? null);
+                $this->validateDateTime(datetime: $arguments['until'] ?? null);
+                $this->validateSet($arguments['set'] ?? null);
             }
         }
-        return !$errorHandler->hasErrors();
+        return !ErrorHandler::getInstance()->hasErrors();
+    }
+
+    /**
+     * Validate "from" and "until" argument.
+     *
+     * @param ?string $datetime The datetime string to validate or NULL if none
+     *
+     * @return void
+     */
+    protected function validateDateTime(?string $datetime): void
+    {
+        if (isset($datetime)) {
+            $date = date_parse(datetime: $datetime);
+            if ($date['warning_count'] > 0 || $date['error_count'] > 0) {
+                ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+            }
+        }
+    }
+
+    /**
+     * Validate request arguments for verb GetRecord.
+     *
+     * @param string[] $arguments The request parameters
+     *
+     * @return void
+     */
+    protected function validateGetRecord(array $arguments): void
+    {
+        if (
+            count($arguments) !== 3
+            or !isset($arguments['identifier'])
+            or !isset($arguments['metadataPrefix'])
+        ) {
+            ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+        }
+    }
+
+    /**
+     * Validate request arguments for verb Identify.
+     *
+     * @param string[] $arguments The request parameters
+     *
+     * @return void
+     */
+    protected function validateIdentify(array $arguments): void
+    {
+        if (count($arguments) !== 1) {
+            ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+        }
+    }
+
+    /**
+     * Validate request arguments for verb ListMetadataFormats.
+     *
+     * @param string[] $arguments The request parameters
+     *
+     * @return void
+     */
+    protected function validateListFormats(array $arguments): void
+    {
+        if (count($arguments) !== 1) {
+            if (!isset($arguments['identifier']) || count($arguments) !== 2) {
+                ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+            }
+        }
+    }
+
+    /**
+     * Validate request arguments for verbs ListIdentifiers and ListRecords.
+     *
+     * @param string[] $arguments The request parameters
+     *
+     * @return void
+     */
+    protected function validateListRecords(array $arguments): void
+    {
+        if (
+            isset($arguments['metadataPrefix'])
+            xor isset($arguments['resumptionToken'])
+        ) {
+            if (
+                (isset($arguments['resumptionToken']) && count($arguments) !== 2)
+                or isset($arguments['identifier'])
+            ) {
+                ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+            }
+        } else {
+            ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+        }
+    }
+
+    /**
+     * Validate request arguments for verb ListSets.
+     *
+     * @param string[] $arguments The request parameters
+     *
+     * @return void
+     */
+    protected function validateListSets(array $arguments): void
+    {
+        if (count($arguments) !== 1) {
+            if (!isset($arguments['resumptionToken']) || count($arguments) !== 2) {
+                ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+            }
+        }
+    }
+
+    /**
+     * Validate "metadataPrefix" argument.
+     *
+     * @param ?string $prefix The metadata prefix
+     *
+     * @return void
+     */
+    protected function validateMetadataPrefix(?string $prefix): void
+    {
+        if (isset($prefix)) {
+            $formats = EntityManager::getInstance()->getMetadataFormats();
+            if (!$formats->containsKey(key: $prefix)) {
+                ErrorHandler::getInstance()->withError(errorCode: 'cannotDisseminateFormat');
+            }
+        }
+    }
+
+    /**
+     * Validate "set" argument.
+     *
+     * @param ?string $spec The set spec
+     *
+     * @return void
+     */
+    protected function validateSet(?string $spec): void
+    {
+        if (isset($spec)) {
+            $sets = EntityManager::getInstance()->getSets();
+            if (!$sets->containsKey(key: $spec)) {
+                ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+            }
+        }
     }
 }

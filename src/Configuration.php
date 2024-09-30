@@ -23,11 +23,10 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2;
 
 use OCC\Basics\Traits\Singleton;
+use OCC\OaiPmh2\Validator\ConfigurationValidator;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
-use Symfony\Component\Validator\Validation;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -36,18 +35,18 @@ use Symfony\Component\Yaml\Yaml;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @property-read string $repositoryName
- * @property-read string $adminEmail
- * @property-read string $database
- * @property-read array $metadataPrefix
- * @property-read string $deletedRecords
- * @property-read int $maxRecords
- * @property-read int $tokenValid
+ * @property-read string $repositoryName Common name of this repository
+ * @property-read string $adminEmail Repository contact's e-mail address
+ * @property-read string $database Database's data source name (DSN)
+ * @property-read array $metadataPrefix Array of served metadata prefixes
+ * @property-read string $deletedRecords Repository's deleted records policy
+ * @property-read int $maxRecords Maximum number of records served per request
+ * @property-read int $tokenValid Number of seconds resumption tokens are valid
  *
  * @template TKey of string
  * @template TValue of array|int|string
  */
-class Configuration
+final class Configuration
 {
     use Singleton;
 
@@ -66,98 +65,6 @@ class Configuration
     protected readonly array $settings;
 
     /**
-     * Get constraints for configuration array.
-     *
-     * @return Assert\Collection The collection of constraints
-     */
-    protected function getValidationConstraints(): Assert\Collection
-    {
-        return new Assert\Collection([
-            'repositoryName' => [
-                new Assert\Type('string'),
-                new Assert\NotBlank()
-            ],
-            'adminEmail' => [
-                new Assert\Type('string'),
-                new Assert\Email(['mode' => 'html5']),
-                new Assert\NotBlank()
-            ],
-            'database' => [
-                new Assert\Type('string'),
-                new Assert\NotBlank()
-            ],
-            'metadataPrefix' => [
-                new Assert\Type('array'),
-                new Assert\All([
-                    new Assert\Collection([
-                        'schema' => [
-                            new Assert\Type('string'),
-                            new Assert\Url(),
-                            new Assert\NotBlank()
-                        ],
-                        'namespace' => [
-                            new Assert\Type('string'),
-                            new Assert\Url(),
-                            new Assert\NotBlank()
-                        ]
-                    ])
-                ])
-            ],
-            'deletedRecords' => [
-                new Assert\Type('string'),
-                new Assert\Choice(['no', 'persistent', 'transient']),
-                new Assert\NotBlank()
-            ],
-            'maxRecords' => [
-                new Assert\Type('int'),
-                new Assert\Range([
-                    'min' => 1,
-                    'max' => 100
-                ])
-            ],
-            'tokenValid' => [
-                new Assert\Type('int'),
-                new Assert\Range([
-                    'min' => 300,
-                    'max' => 86400
-                ])
-            ]
-        ]);
-    }
-
-    /**
-     * Read and validate configuration file.
-     *
-     * @return array<TKey, TValue> The configuration array
-     *
-     * @throws FileNotFoundException if configuration file does not exist
-     * @throws ValidationFailedException if configuration file is not valid
-     */
-    protected function loadConfigFile(): array
-    {
-        $configPath = Path::canonicalize(self::CONFIG_FILE);
-        if (!is_readable($configPath)) {
-            throw new FileNotFoundException(
-                sprintf(
-                    'Configuration file "%s" not found or not readable.',
-                    $configPath
-                ),
-                500,
-                null,
-                $configPath
-            );
-        }
-        /** @var array<TKey, TValue> */
-        $config = Yaml::parseFile($configPath);
-        $validator = Validation::createValidator();
-        $violations = $validator->validate($config, $this->getValidationConstraints());
-        if ($violations->count() > 0) {
-            throw new ValidationFailedException(null, $violations);
-        }
-        return $config;
-    }
-
-    /**
      * Load and validate configuration settings from YAML file.
      *
      * @throws FileNotFoundException if configuration file does not exist
@@ -165,11 +72,24 @@ class Configuration
      */
     private function __construct()
     {
-        try {
-            $this->settings = $this->loadConfigFile();
-        } catch (FileNotFoundException | ValidationFailedException $exception) {
-            throw $exception;
+        $configPath = Path::canonicalize(path: self::CONFIG_FILE);
+        if (!is_readable(filename: $configPath)) {
+            throw new FileNotFoundException(
+                message: 'Configuration file not found or not readable.',
+                code: 500,
+                path: $configPath
+            );
         }
+        /** @var array<TKey, TValue> */
+        $config = Yaml::parseFile(filename: $configPath);
+        $violations = ConfigurationValidator::validate(config: $config);
+        if ($violations->count() > 0) {
+            throw new ValidationFailedException(
+                value: null,
+                violations: $violations
+            );
+        }
+        $this->settings = $config;
     }
 
     /**
@@ -177,7 +97,7 @@ class Configuration
      *
      * @param TKey $name The setting to retrieve
      *
-     * @return TValue|null The setting or NULL
+     * @return ?TValue The setting or NULL
      */
     public function __get(string $name): mixed
     {

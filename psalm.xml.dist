@@ -8,23 +8,40 @@
     findUnusedBaselineEntry="true"
     findUnusedCode="true"
     findUnusedVariablesAndParams="true"
+    reportMixedIssues="false"
 >
     <issueHandlers>
         <!--
-            Psalm doesn't recognize $columns['idColumn'] and $columns['contentColumn'] always being set in execute().
+            Psalm doesn't recognize some variables always being set because of prior validation.
         -->
-        <PossiblyNullArrayOffset>
+        <PossiblyNullReference>
             <errorLevel type="suppress">
-                <file name="src/Console/CsvImportCommand.php"/>
+                <file name="src/Console/UpdateFormatsCommand.php"/>
             </errorLevel>
-        </PossiblyNullArrayOffset>
+        </PossiblyNullReference>
+        <!--
+            DBAL entities require getter/setter methods even if they are never called directly.
+        -->
         <PossiblyUnusedMethod errorLevel="suppress"/>
         <PossiblyUnusedReturnValue errorLevel="suppress"/>
+        <!--
+            Some properties are not set in the constructor and hence checked for initialization.
+        -->
         <PropertyNotSetInConstructor errorLevel="suppress"/>
-        <RedundantCastGivenDocblockType errorLevel="suppress"/>
-        <RedundantConditionGivenDocblockType errorLevel="suppress"/>
-        <RedundantFunctionCallGivenDocblockType errorLevel="suppress"/>
         <RedundantPropertyInitializationCheck errorLevel="suppress"/>
+        <!--
+            We deliberately want to evaluate empty strings as FALSE in those files.
+        -->
+        <RiskyTruthyFalsyComparison>
+            <errorLevel type="suppress">
+                <file name="src/Console/AddRecordCommand.php"/>
+                <file name="src/Console/AddSetCommand.php"/>
+            </errorLevel>
+        </RiskyTruthyFalsyComparison>
+        <!--
+            Those classes are dynamically used depending on the given OAI verb.
+            @see src/Middleware/Dispatcher.php:95
+        -->
         <UnusedClass>
             <errorLevel type="suppress">
                 <referencedClass name="OCC\OaiPmh2\Middleware\GetRecord"/>

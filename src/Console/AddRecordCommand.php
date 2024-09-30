@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Console;
-use OCC\OaiPmh2\Database;
 use OCC\OaiPmh2\Entity\Format;
 use OCC\OaiPmh2\Entity\Record;
 use OCC\OaiPmh2\Entity\Set;
@@ -70,7 +69,7 @@ class AddRecordCommand extends Console
         $this->addArgument(
             'sets',
             InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
-            'The list of sets to associate the record with.'
+            'Optional: The list of sets to associate the record with.'
         );
         parent::configure();
     }
@@ -85,36 +84,31 @@ class AddRecordCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->validateInput($input, $output)) {
+        if (!$this->validateInput(input: $input, output: $output)) {
             return Command::INVALID;
         }
-        /** @var string */
-        $identifier = $input->getArgument('identifier');
+
         /** @var Format */
-        $format = Database::getInstance()
-            ->getEntityManager()
-            ->getReference(Format::class, $input->getArgument('format'));
-        /** @var string */
-        $file = $input->getArgument('file');
-        /** @var string[] */
-        $sets = $input->getArgument('sets');
-        /** @var string */
-        $content = file_get_contents($file);
+        $format = $this->em->getMetadataFormat(prefix: $this->arguments['format']);
+        $content = file_get_contents(filename: $this->arguments['file']) ?: '';
 
-        $record = new Record($identifier, $format);
+        $record = new Record(
+            identifier: $this->arguments['identifier'],
+            format: $format
+        );
         if (trim($content) !== '') {
-            $record->setContent($content);
+            $record->setContent(data: $content);
         }
-        foreach ($sets as $set) {
-            /** @var Set */
-            $setSpec = Database::getInstance()
-                ->getEntityManager()
-                ->getReference(Set::class, $set);
-            $record->addSet($setSpec);
+        if (array_key_exists('sets', $this->arguments)) {
+            foreach ($this->arguments['sets'] as $set) {
+                /** @var Set */
+                $setSpec = $this->em->getSet(spec: $set);
+                $record->addSet(set: $setSpec);
+            }
         }
 
-        Database::getInstance()->addOrUpdateRecord($record);
-        Database::getInstance()->pruneOrphanSets();
+        $this->em->addOrUpdate(entity: $record);
+        $this->em->pruneOrphanedSets();
 
         $this->clearResultCache();
 
@@ -122,7 +116,7 @@ class AddRecordCommand extends Console
             '',
             sprintf(
                 ' [OK] Record "%s" with metadata prefix "%s" added or updated successfully! ',
-                $identifier,
+                $this->arguments['identifier'],
                 $format->getPrefix()
             ),
             ''

@@ -27,17 +27,20 @@ use DateTime;
 use Doctrine\ORM\Mapping as ORM;
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Entity;
+use OCC\OaiPmh2\Repository\TokenRepository;
 
 /**
  * Doctrine/ORM Entity for resumption tokens.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @psalm-import-type OaiRequestMetadata from \OCC\OaiPmh2\Middleware
  */
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: TokenRepository::class)]
 #[ORM\Table(name: 'tokens')]
 #[ORM\Index(name: 'valid_until_idx', columns: ['valid_until'])]
-class Token extends Entity
+final class Token extends Entity
 {
     /**
      * The resumption token.
@@ -77,11 +80,11 @@ class Token extends Entity
     /**
      * Get the query parameters.
      *
-     * @return array<string, int|string|null> The query parameters
+     * @return OaiRequestMetadata The query parameters
      */
     public function getParameters(): array
     {
-        /** @var array<string, int|string|null> */
+        /** @var OaiRequestMetadata */
         return unserialize($this->parameters);
     }
 
@@ -109,15 +112,15 @@ class Token extends Entity
      * Get new entity of resumption token.
      *
      * @param string $verb The verb for which the token is issued
-     * @param array<string, int|string|null> $parameters The query parameters
+     * @param OaiRequestMetadata $parameters The query parameters
      */
     public function __construct(string $verb, array $parameters)
     {
         $this->token = substr(md5(microtime()), 0, 8);
         $this->verb = $verb;
         $this->parameters = serialize($parameters);
-        $validity = new DateTime();
-        $validity->add(new DateInterval('PT' . Configuration::getInstance()->tokenValid . 'S'));
-        $this->validUntil = $validity;
+        $validUntil = new DateTime();
+        $validUntil->add(interval: new DateInterval(duration: 'PT' . Configuration::getInstance()->tokenValid . 'S'));
+        $this->validUntil = $validUntil;
     }
 }

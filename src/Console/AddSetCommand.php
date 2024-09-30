@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Console;
-use OCC\OaiPmh2\Database;
 use OCC\OaiPmh2\Entity\Set;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -53,10 +52,10 @@ class AddSetCommand extends Console
         $this->addArgument(
             'setSpec',
             InputArgument::REQUIRED,
-            'The set (spec) to update.',
+            'The set (spec) to add or update.',
             null,
             function (): array {
-                return array_keys(Database::getInstance()->getAllSets()->getQueryResult());
+                return $this->em->getSets()->getKeys();
             }
         );
         $this->addArgument(
@@ -67,7 +66,7 @@ class AddSetCommand extends Console
         $this->addArgument(
             'file',
             InputArgument::OPTIONAL,
-            'The optional file containing the set description XML.'
+            'Optional: The file containing the set description XML.'
         );
         parent::configure();
     }
@@ -82,32 +81,20 @@ class AddSetCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var array<string, string> */
-        $arguments = $input->getArguments();
-        $description = null;
+        if (!$this->validateInput(input: $input, output: $output)) {
+            return Command::INVALID;
+        }
 
-        if (isset($arguments['file'])) {
-            if (!is_readable($arguments['file'])) {
-                $output->writeln([
-                    '',
-                    sprintf(
-                        ' [ERROR] File "%s" not found or not readable. ',
-                        $arguments['file']
-                    ),
-                    ''
-                ]);
-                return Command::INVALID;
-            } else {
-                $description = (string) file_get_contents($arguments['file']);
-            }
+        if (array_key_exists('file', $this->arguments)) {
+            $description = file_get_contents(filename: $this->arguments['file']) ?: null;
         }
 
         $set = new Set(
-            $arguments['setSpec'],
-            $arguments['setName'],
-            $description
+            spec: $this->arguments['setSpec'],
+            name: $this->arguments['setName'],
+            description: $description ?? null
         );
-        Database::getInstance()->addOrUpdateSet($set);
+        $this->em->addOrUpdate(entity: $set);
 
         return Command::SUCCESS;
     }

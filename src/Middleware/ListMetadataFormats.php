@@ -22,14 +22,13 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Middleware;
 
-use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Document;
-use OCC\OaiPmh2\Entity\Format;
 use OCC\OaiPmh2\Middleware;
+use OCC\OaiPmh2\Response;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Process the "ListMetadataFormats" request.
+ *
  * @see https://www.openarchives.org/OAI/openarchivesprotocol.html#ListMetadataFormats
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
@@ -46,37 +45,50 @@ class ListMetadataFormats extends Middleware
      */
     protected function prepareResponse(ServerRequestInterface $request): void
     {
-        /** @var ?string */
-        $identifier = $request->getAttribute('identifier');
-        $formats = Database::getInstance()->getMetadataFormats($identifier);
+        $formats = $this->em->getMetadataFormats(recordIdentifier: $this->arguments['identifier']);
 
         if (count($formats) === 0) {
-            if (!isset($identifier) || Database::getInstance()->idDoesExist($identifier)) {
-                ErrorHandler::getInstance()->withError('noMetadataFormats');
+            if (
+                !isset($this->arguments['identifier'])
+                || $this->em->isValidRecordIdentifier(identifier: $this->arguments['identifier'])
+            ) {
+                ErrorHandler::getInstance()->withError(errorCode: 'noMetadataFormats');
             } else {
-                ErrorHandler::getInstance()->withError('idDoesNotExist');
+                ErrorHandler::getInstance()->withError(errorCode: 'idDoesNotExist');
             }
             return;
         }
 
-        $document = new Document($request);
-        $listMetadataFormats = $document->createElement('ListMetadataFormats', '', true);
+        $response = new Response(serverRequest: $request);
+        $listMetadataFormats = $response->createElement(
+            localName: 'ListMetadataFormats',
+            value: '',
+            appendToRoot: true
+        );
 
-        /** @var Format $oaiFormat */
         foreach ($formats as $oaiFormat) {
-            $metadataFormat = $document->createElement('metadataFormat');
-            $listMetadataFormats->appendChild($metadataFormat);
+            $metadataFormat = $response->createElement(localName: 'metadataFormat');
+            $listMetadataFormats->appendChild(node: $metadataFormat);
 
-            $metadataPrefix = $document->createElement('metadataPrefix', $oaiFormat->getPrefix());
-            $metadataFormat->appendChild($metadataPrefix);
+            $metadataPrefix = $response->createElement(
+                localName: 'metadataPrefix',
+                value: $oaiFormat->getPrefix()
+            );
+            $metadataFormat->appendChild(node: $metadataPrefix);
 
-            $schema = $document->createElement('schema', $oaiFormat->getSchema());
-            $metadataFormat->appendChild($schema);
+            $schema = $response->createElement(
+                localName: 'schema',
+                value: $oaiFormat->getSchema()
+            );
+            $metadataFormat->appendChild(node: $schema);
 
-            $metadataNamespace = $document->createElement('metadataNamespace', $oaiFormat->getNamespace());
-            $metadataFormat->appendChild($metadataNamespace);
+            $metadataNamespace = $response->createElement(
+                localName: 'metadataNamespace',
+                value: $oaiFormat->getNamespace()
+            );
+            $metadataFormat->appendChild(node: $metadataNamespace);
         }
 
-        $this->preparedResponse = $document;
+        $this->preparedResponse = $response;
     }
 }

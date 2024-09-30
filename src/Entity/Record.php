@@ -27,6 +27,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use OCC\OaiPmh2\Entity;
+use OCC\OaiPmh2\Repository\RecordRepository;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
 /**
@@ -35,13 +36,13 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-#[ORM\Entity]
+#[ORM\Entity(repositoryClass: RecordRepository::class)]
 #[ORM\Table(name: 'records')]
 #[ORM\Index(name: 'identifier_idx', columns: ['identifier'])]
 #[ORM\Index(name: 'format_idx', columns: ['format'])]
 #[ORM\Index(name: 'last_changed_idx', columns: ['last_changed'])]
 #[ORM\Index(name: 'format_last_changed_idx', columns: ['format', 'last_changed'])]
-class Record extends Entity
+final class Record extends Entity
 {
     /**
      * The record identifier.
@@ -54,8 +55,16 @@ class Record extends Entity
      * The associated format.
      */
     #[ORM\Id]
-    #[ORM\ManyToOne(targetEntity: Format::class, fetch: 'EXTRA_LAZY')]
-    #[ORM\JoinColumn(name: 'format', referencedColumnName: 'prefix')]
+    #[ORM\ManyToOne(
+        targetEntity: Format::class,
+        fetch: 'EXTRA_LAZY',
+        inversedBy: 'records'
+    )]
+    #[ORM\JoinColumn(
+        name: 'format',
+        referencedColumnName: 'prefix',
+        onDelete: 'CASCADE'
+    )]
     private Format $format;
 
     /**
@@ -75,7 +84,13 @@ class Record extends Entity
      *
      * @var Collection<string, Set>
      */
-    #[ORM\ManyToMany(targetEntity: Set::class, inversedBy: 'records', indexBy: 'spec', fetch: 'EXTRA_LAZY', cascade: ['persist'])]
+    #[ORM\ManyToMany(
+        targetEntity: Set::class,
+        inversedBy: 'records',
+        cascade: ['persist'],
+        fetch: 'EXTRA_LAZY',
+        indexBy: 'spec'
+    )]
     #[ORM\JoinTable(name: 'records_sets')]
     #[ORM\JoinColumn(name: 'record_identifier', referencedColumnName: 'identifier')]
     #[ORM\JoinColumn(name: 'record_format', referencedColumnName: 'format')]
@@ -91,9 +106,9 @@ class Record extends Entity
      */
     public function addSet(Set $set): void
     {
-        if (!$this->sets->contains($set)) {
-            $this->sets->add($set);
-            $set->addRecord($this);
+        if (!$this->sets->contains(element: $set)) {
+            $this->sets->add(element: $set);
+            $set->addRecord(record: $this);
         }
     }
 
@@ -146,23 +161,26 @@ class Record extends Entity
      */
     public function getSet(string $setSpec): ?Set
     {
-        return $this->sets->get($setSpec);
+        return $this->sets->get(key: $setSpec);
     }
 
     /**
      * Get a collection of associated sets.
      *
-     * @return array<string, Set> The associated sets
+     * @return Collection<string, Set> The associated sets
      */
-    public function getSets(): array
+    public function getSets(): Collection
     {
-        return $this->sets->toArray();
+        return $this->sets;
     }
 
     /**
      * Whether this record has any content.
      *
      * @return bool TRUE if content exists, FALSE otherwise
+     *
+     * @psalm-assert-if-true string $this->content
+     * @psalm-assert-if-true string $this->getContent()
      */
     public function hasContent(): bool
     {
@@ -178,9 +196,9 @@ class Record extends Entity
      */
     public function removeSet(Set $set): void
     {
-        if ($this->sets->contains($set)) {
-            $this->sets->removeElement($set);
-            $set->removeRecord($this);
+        if ($this->sets->contains(element: $set)) {
+            $this->sets->removeElement(element: $set);
+            $set->removeRecord(record: $this);
         }
     }
 
@@ -200,7 +218,7 @@ class Record extends Entity
             $data = trim($data);
             if ($validate) {
                 try {
-                    $data = $this->validateXml($data);
+                    $data = $this->validateXml(xml: $data);
                 } catch (ValidationFailedException $exception) {
                     throw $exception;
                 }
@@ -250,13 +268,13 @@ class Record extends Entity
     {
         try {
             $this->identifier = $this->validateRegEx(
-                $identifier,
+                string: $identifier,
                 // xs:anyURI
-                '/^(([a-zA-Z][0-9a-zA-Z+\\-\\.]*:)?\/{0,2}[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?(#[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?$/'
+                regEx: '/^(([a-zA-Z][0-9a-zA-Z+\\-\\.]*:)?\/{0,2}[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?(#[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?$/'
             );
-            $this->setFormat($format);
-            $this->setContent($data);
-            $this->setLastChanged($lastChanged);
+            $this->setFormat(format: $format);
+            $this->setContent(data: $data);
+            $this->setLastChanged(dateTime: $lastChanged);
             $this->sets = new ArrayCollection();
         } catch (ValidationFailedException $exception) {
             throw $exception;

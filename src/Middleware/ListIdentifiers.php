@@ -22,16 +22,13 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Middleware;
 
-use DateTime;
-use OCC\OaiPmh2\Configuration;
-use OCC\OaiPmh2\Database;
-use OCC\OaiPmh2\Document;
-use OCC\OaiPmh2\Entity\Record;
 use OCC\OaiPmh2\Middleware;
+use OCC\OaiPmh2\Response;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
  * Process the "ListIdentifiers" request.
+ *
  * @see https://www.openarchives.org/OAI/openarchivesprotocol.html#ListIdentifiers
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
@@ -40,7 +37,7 @@ use Psr\Http\Message\ServerRequestInterface;
 class ListIdentifiers extends Middleware
 {
     /**
-     * Prepare the response body for verb "ListIdentifiers" and "ListRecords".
+     * Prepare the response body for verbs "ListIdentifiers" and "ListRecords".
      *
      * @param ServerRequestInterface $request The incoming request
      *
@@ -48,127 +45,78 @@ class ListIdentifiers extends Middleware
      */
     protected function prepareResponse(ServerRequestInterface $request): void
     {
-        $counter = 0;
-        $completeListSize = 0;
-        $maxRecords = Configuration::getInstance()->maxRecords;
+        $this->checkResumptionToken();
 
-        /** @var array<string, string> */
-        $params = $request->getAttributes();
-        $verb = $params['verb'];
-        $metadataPrefix = $params['metadataPrefix'] ?? '';
-        $from = $params['from'] ?? null;
-        $until = $params['until'] ?? null;
-        $set = $params['set'] ?? null;
-        $resumptionToken = $params['resumptionToken'] ?? null;
-
-        if (isset($resumptionToken)) {
-            $oldToken = Database::getInstance()->getResumptionToken($resumptionToken, $verb);
-            if (!isset($oldToken)) {
-                ErrorHandler::getInstance()->withError('badResumptionToken');
-                return;
-            } else {
-                foreach ($oldToken->getParameters() as $key => $value) {
-                    $$key = $value;
-                }
-            }
-        }
-        $prefixes = Database::getInstance()->getMetadataFormats()->getQueryResult();
-        if (!array_key_exists($metadataPrefix, $prefixes)) {
-            ErrorHandler::getInstance()->withError('cannotDisseminateFormat');
-            return;
-        }
-        if (isset($from)) {
-            $from = new DateTime($from);
-        }
-        if (isset($until)) {
-            $until = new DateTime($until);
-        }
-        if (isset($set)) {
-            $sets = Database::getInstance()->getSets()->getQueryResult();
-            if (!array_key_exists($set, $sets)) {
-                ErrorHandler::getInstance()->withError('noSetHierarchy');
-                return;
-            }
-            $set = $sets[$set];
-        }
-
-        $records = Database::getInstance()->getRecords(
-            $verb,
-            $prefixes[$metadataPrefix],
-            $counter,
-            $from,
-            $until,
-            $set
+        $records = $this->em->getRecords(
+            verb: $this->arguments['verb'],
+            metadataPrefix: (string) $this->arguments['metadataPrefix'],
+            counter: $this->arguments['counter'],
+            from: $this->arguments['from'],
+            until: $this->arguments['until'],
+            set: $this->arguments['set']
         );
-        $newToken = $records->getResumptionToken();
         if (count($records) === 0) {
-            ErrorHandler::getInstance()->withError('noRecordsMatch');
+            ErrorHandler::getInstance()->withError(errorCode: 'noRecordsMatch');
             return;
-        } elseif (isset($newToken)) {
-            $completeListSize = $newToken->getParameters()['completeListSize'];
         }
 
-        $document = new Document($request);
-        $list = $document->createElement($verb, '', true);
+        $response = new Response(serverRequest: $request);
+        $list = $response->createElement(
+            localName: $this->arguments['verb'],
+            value: '',
+            appendToRoot: true
+        );
+        $baseNode = $list;
 
-        /** @var Record $oaiRecord */
         foreach ($records as $oaiRecord) {
-            if ($verb === 'ListIdentifiers') {
-                $baseNode = $list;
-            } else {
-                $record = $document->createElement('record');
-                $list->appendChild($record);
+            if ($this->arguments['verb'] === 'ListRecords') {
+                $record = $response->createElement(localName: 'record');
+                $list->appendChild(node: $record);
                 $baseNode = $record;
             }
 
-            $header = $document->createElement('header');
-            if (!$oaiRecord->hasContent()) {
-                $header->setAttribute('status', 'deleted');
-            }
-            $baseNode->appendChild($header);
+            $header = $response->createElement(localName: 'header');
+            $baseNode->appendChild(node: $header);
 
-            $identifier = $document->createElement('identifier', $oaiRecord->getIdentifier());
-            $header->appendChild($identifier);
+            $identifier = $response->createElement(
+                localName: 'identifier',
+                value: $oaiRecord->getIdentifier()
+            );
+            $header->appendChild(node: $identifier);
 
-            $datestamp = $document->createElement('datestamp', $oaiRecord->getLastChanged()->format('Y-m-d\TH:i:s\Z'));
-            $header->appendChild($datestamp);
+            $datestamp = $response->createElement(
+                localName: 'datestamp',
+                value: $oaiRecord->getLastChanged()->format(format: 'Y-m-d\TH:i:s\Z')
+            );
+            $header->appendChild(node: $datestamp);
 
             foreach ($oaiRecord->getSets() as $oaiSet) {
-                $setSpec = $document->createElement('setSpec', $oaiSet->getName());
-                $header->appendChild($setSpec);
-            }
-
-            if ($verb === 'ListRecords' && $oaiRecord->hasContent()) {
-                $metadata = $document->createElement('metadata');
-                $baseNode->appendChild($metadata);
-
-                /** @var string */
-                $content = $oaiRecord->getContent();
-                $data = $document->importData($content);
-                $metadata->appendChild($data);
-            }
-        }
-
-        if (isset($oldToken) || isset($newToken)) {
-            $resumptionToken = $document->createElement('resumptionToken');
-            $list->appendChild($resumptionToken);
-            if (isset($newToken)) {
-                $resumptionToken->nodeValue = $newToken->getToken();
-                $resumptionToken->setAttribute(
-                    'expirationDate',
-                    $newToken->getValidUntil()->format('Y-m-d\TH:i:s\Z')
+                $setSpec = $response->createElement(
+                    localName: 'setSpec',
+                    value: $oaiSet->getName()
                 );
+                $header->appendChild(node: $setSpec);
             }
-            $resumptionToken->setAttribute(
-                'completeListSize',
-                (string) $completeListSize
-            );
-            $resumptionToken->setAttribute(
-                'cursor',
-                (string) ($counter * $maxRecords)
-            );
+
+            if (!$oaiRecord->hasContent()) {
+                $header->setAttribute(
+                    qualifiedName: 'status',
+                    value: 'deleted'
+                );
+            } elseif ($this->arguments['verb'] === 'ListRecords') {
+                $metadata = $response->createElement(localName: 'metadata');
+                $baseNode->appendChild(node: $metadata);
+
+                $data = $response->importData(data: $oaiRecord->getContent());
+                $metadata->appendChild(node: $data);
+            }
         }
 
-        $this->preparedResponse = $document;
+        $this->preparedResponse = $response;
+
+        $this->addResumptionToken(
+            node: $list,
+            token: $records->getResumptionToken() ?? null
+        );
     }
 }

@@ -24,7 +24,6 @@ namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
-use OCC\OaiPmh2\Database;
 use OCC\OaiPmh2\Entity\Format;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -57,56 +56,55 @@ class UpdateFormatsCommand extends Console
         /** @var array<string, array<string, string>> */
         $formats = Configuration::getInstance()->metadataPrefix;
         $this->clearResultCache();
-        $inDatabase = Database::getInstance()
-            ->getMetadataFormats()
-            ->getQueryResult();
-        $added = 0;
-        $deleted = 0;
+        $inDatabase = $this->em->getMetadataFormats();
         $failure = false;
         foreach ($formats as $prefix => $format) {
-            if (array_key_exists($prefix, $inDatabase)) {
-                if (
-                    $format['namespace'] === $inDatabase[$prefix]->getNamespace()
-                    and $format['schema'] === $inDatabase[$prefix]->getSchema()
-                ) {
-                    continue;
-                }
+            if (
+                $inDatabase->containsKey(key: $prefix)
+                /** @phpstan-ignore-next-line - $inDatabase[$prefix] is always of type Format. */
+                and $format['namespace'] === $inDatabase[$prefix]->getNamespace()
+                /** @phpstan-ignore-next-line - $inDatabase[$prefix] is always of type Format. */
+                and $format['schema'] === $inDatabase[$prefix]->getSchema()
+            ) {
+                continue;
             }
             try {
-                $format = new Format($prefix, $format['namespace'], $format['schema']);
-                Database::getInstance()->addOrUpdateMetadataFormat($format);
-                ++$added;
+                $format = new Format(
+                    prefix: $prefix,
+                    namespace: $format['namespace'],
+                    schema: $format['schema']
+                );
+                $this->em->addOrUpdate(entity: $format);
                 $output->writeln([
                     sprintf(
-                        ' [OK] Metadata format "%s" added or updated successfully! ',
-                        $prefix
+                        format: ' [OK] Metadata format "%s" added or updated successfully! ',
+                        values: $prefix
                     )
                 ]);
             } catch (ValidationFailedException $exception) {
                 $failure = true;
                 $output->writeln([
                     sprintf(
-                        ' [ERROR] Could not add or update metadata format "%s". ',
-                        $prefix
+                        format: ' [ERROR] Could not add or update metadata format "%s". ',
+                        values: $prefix
                     ),
                     $exception->getMessage()
                 ]);
             }
         }
-        foreach (array_keys($inDatabase) as $prefix) {
-            if (!array_key_exists($prefix, $formats)) {
-                Database::getInstance()->deleteMetadataFormat($inDatabase[$prefix]);
-                ++$deleted;
-                $output->writeln([
-                    sprintf(
-                        ' [OK] Metadata format "%s" and all associated records deleted successfully! ',
-                        $prefix
-                    )
-                ]);
-            }
+        foreach (array_diff($inDatabase->getKeys(), array_keys($formats)) as $prefix) {
+            /** @var Format */
+            $format = $inDatabase[$prefix];
+            $this->em->delete(entity: $format);
+            $output->writeln([
+                sprintf(
+                    format: ' [OK] Metadata format "%s" and all associated records deleted successfully! ',
+                    values: $prefix
+                )
+            ]);
         }
         $this->clearResultCache();
-        $currentFormats = array_keys(Database::getInstance()->getMetadataFormats()->getQueryResult());
+        $currentFormats = $this->em->getMetadataFormats()->getKeys();
         if (count($currentFormats) > 0) {
             $output->writeln(
                 [
@@ -118,7 +116,7 @@ class UpdateFormatsCommand extends Console
                     ' command "php bin/cli oai:formats:update" again! ',
                     ''
                 ],
-                1 | 16
+                OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_QUIET
             );
         } else {
             $output->writeln(
@@ -129,13 +127,9 @@ class UpdateFormatsCommand extends Console
                     ' command "php bin/cli oai:formats:update" again! ',
                     ''
                 ],
-                1 | 16
+                OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_QUIET
             );
         }
-        if (!$failure) {
-            return Command::SUCCESS;
-        } else {
-            return Command::FAILURE;
-        }
+        return $failure ? Command::FAILURE : Command::SUCCESS;
     }
 }
