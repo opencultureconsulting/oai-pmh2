@@ -69,24 +69,20 @@ class UpdateFormatsCommand extends Console
                 continue;
             }
             try {
-                $format = new Format(
-                    prefix: $prefix,
-                    namespace: $format['namespace'],
-                    schema: $format['schema']
-                );
-                $this->em->addOrUpdate(entity: $format);
+                $format = new Format($prefix, $format['namespace'], $format['schema']);
+                $this->em->addOrUpdate($format);
                 $output->writeln([
                     sprintf(
-                        format: ' [OK] Metadata format "%s" added or updated successfully! ',
-                        values: $prefix
+                        ' [OK] Metadata format "%s" added or updated successfully! ',
+                        $prefix
                     )
                 ]);
             } catch (ValidationFailedException $exception) {
                 $failure = true;
                 $output->writeln([
                     sprintf(
-                        format: ' [ERROR] Could not add or update metadata format "%s". ',
-                        values: $prefix
+                        ' [ERROR] Could not add or update metadata format "%s". ',
+                        $prefix
                     ),
                     $exception->getMessage()
                 ]);
@@ -95,11 +91,11 @@ class UpdateFormatsCommand extends Console
         foreach (array_diff($inDatabase->getKeys(), array_keys($formats)) as $prefix) {
             /** @var Format */
             $format = $inDatabase[$prefix];
-            $this->em->delete(entity: $format);
+            $this->em->delete($format);
             $output->writeln([
                 sprintf(
-                    format: ' [OK] Metadata format "%s" and all associated records deleted successfully! ',
-                    values: $prefix
+                    ' [OK] Metadata format "%s" and all associated records deleted successfully! ',
+                    $prefix
                 )
             ]);
         }

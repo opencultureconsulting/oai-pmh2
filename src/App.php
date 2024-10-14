@@ -43,7 +43,7 @@ final class App
      */
     public function __construct()
     {
-        $this->requestHandler = new QueueRequestHandler(middlewares: [new Dispatcher()]);
+        $this->requestHandler = new QueueRequestHandler([new Dispatcher()]);
     }
 
     /**

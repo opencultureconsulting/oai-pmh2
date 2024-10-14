@@ -56,24 +56,24 @@ final class Response
     {
         $uri = $this->serverRequest->getUri();
         $basePath = $uri->getPath();
-        if (str_ends_with(haystack: $basePath, needle: 'index.php')) {
-            $basePath = pathinfo(path: $basePath, flags: PATHINFO_DIRNAME);
+        if (str_ends_with($basePath, 'index.php')) {
+            $basePath = pathinfo($basePath, PATHINFO_DIRNAME);
         }
         $stylesheet = Uri::composeComponents(
-            scheme: $uri->getScheme(),
-            authority: $uri->getAuthority(),
-            path: rtrim(string: $basePath, characters: '/') . '/resources/stylesheet.xsl',
-            query: null,
-            fragment: null
+            $uri->getScheme(),
+            $uri->getAuthority(),
+            rtrim($basePath, '/') . '/resources/stylesheet.xsl',
+            null,
+            null
         );
         $xslt = $this->dom->createProcessingInstruction(
-            target: 'xml-stylesheet',
-            data: sprintf(
-                format: 'type="text/xsl" href="%s"',
-                values: $stylesheet
+            'xml-stylesheet',
+            sprintf(
+                'type="text/xsl" href="%s"',
+                $stylesheet
             )
         );
-        $this->dom->appendChild(node: $xslt);
+        $this->dom->appendChild($xslt);
     }
 
     /**
@@ -85,27 +85,19 @@ final class Response
     {
         $uri = $this->serverRequest->getUri();
         $baseUrl = Uri::composeComponents(
-            scheme: $uri->getScheme(),
-            authority: $uri->getAuthority(),
-            path: $uri->getPath(),
-            query: null,
-            fragment: null
+            $uri->getScheme(),
+            $uri->getAuthority(),
+            $uri->getPath(),
+            null,
+            null
         );
-        $request = $this->createElement(
-            localName: 'request',
-            value: $baseUrl,
-            appendToRoot: true
-        );
+        $request = $this->createElement('request', $baseUrl, true);
         /** @var array<string, string> */
         $params = $this->serverRequest->getAttributes();
         foreach ($params as $param => $value) {
             $request->setAttribute(
-                qualifiedName: $param,
-                value: htmlspecialchars(
-                    string: $value,
-                    flags: ENT_XML1 | ENT_COMPAT,
-                    encoding: 'UTF-8'
-                )
+                $param,
+                htmlspecialchars($value, ENT_XML1 | ENT_COMPAT, 'UTF-8')
             );
         }
     }
@@ -117,11 +109,7 @@ final class Response
      */
     protected function appendResponseDate(): void
     {
-        $this->createElement(
-            localName: 'responseDate',
-            value: gmdate(format: 'Y-m-d\TH:i:s\Z'),
-            appendToRoot: true
-        );
+        $this->createElement('responseDate', gmdate('Y-m-d\TH:i:s\Z'), true);
     }
 
     /**
@@ -131,20 +119,20 @@ final class Response
      */
     protected function appendRootElement(): void
     {
-        $this->rootNode = $this->dom->createElement(localName: 'OAI-PMH');
+        $this->rootNode = $this->dom->createElement('OAI-PMH');
         $this->rootNode->setAttribute(
-            qualifiedName: 'xmlns',
-            value: 'http://www.openarchives.org/OAI/2.0/'
+            'xmlns',
+            'http://www.openarchives.org/OAI/2.0/'
         );
         $this->rootNode->setAttribute(
-            qualifiedName: 'xmlns:xsi',
-            value: 'http://www.w3.org/2001/XMLSchema-instance'
+            'xmlns:xsi',
+            'http://www.w3.org/2001/XMLSchema-instance'
         );
         $this->rootNode->setAttribute(
-            qualifiedName: 'xsi:schemaLocation',
-            value: 'http://www.openarchives.org/OAI/2.0/ https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
+            'xsi:schemaLocation',
+            'http://www.openarchives.org/OAI/2.0/ https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
         );
-        $this->dom->appendChild(node: $this->rootNode);
+        $this->dom->appendChild($this->rootNode);
     }
 
     /**
@@ -154,7 +142,7 @@ final class Response
      */
     protected function createDocument(): void
     {
-        $this->dom = new DOMDocument(version: '1.0', encoding: 'UTF-8');
+        $this->dom = new DOMDocument('1.0', 'UTF-8');
         $this->dom->preserveWhiteSpace = false;
         $this->addProcessingInstructions();
     }
@@ -170,16 +158,9 @@ final class Response
      */
     public function createElement(string $localName, string $value = '', bool $appendToRoot = false): DOMElement
     {
-        $node = $this->dom->createElement(
-            localName: $localName,
-            value: htmlspecialchars(
-                string: $value,
-                flags: ENT_XML1,
-                encoding: 'UTF-8'
-            )
-        );
+        $node = $this->dom->createElement($localName, htmlspecialchars($value, ENT_XML1, 'UTF-8'));
         if ($appendToRoot) {
-            $this->rootNode->appendChild(node: $node);
+            $this->rootNode->appendChild($node);
         }
         return $node;
     }
@@ -195,17 +176,17 @@ final class Response
      */
     public function importData(string $data): DOMNode
     {
-        $document = new DOMDocument(version: '1.0', encoding: 'UTF-8');
+        $document = new DOMDocument('1.0', 'UTF-8');
         $document->preserveWhiteSpace = false;
-        if ($document->loadXML(source: $data) === true) {
+        if ($document->loadXML($data) === true) {
             /** @var DOMElement */
             $rootNode = $document->documentElement;
-            $node = $this->dom->importNode(node: $rootNode, deep: true);
+            $node = $this->dom->importNode($rootNode, true);
             return $node;
         } else {
             throw new DOMException(
-                message: 'Could not import the XML data. Most likely it is not well-formed.',
-                code: 500
+                'Could not import the XML data. Most likely it is not well-formed.',
+                500
             );
         }
     }

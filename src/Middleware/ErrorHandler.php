@@ -70,19 +70,16 @@ class ErrorHandler extends AbstractMiddleware
      */
     protected function getResponseBody(): StreamInterface
     {
-        $response = new Response(serverRequest: $this->requestHandler->request);
+        $response = new Response($this->requestHandler->request);
         foreach (array_unique($this->errors) as $errorCode) {
             $error = $response->createElement(
-                localName: 'error',
-                value: self::OAI_ERRORS[$errorCode],
-                appendToRoot: true
+                'error',
+                self::OAI_ERRORS[$errorCode],
+                true
             );
-            $error->setAttribute(
-                qualifiedName: 'code',
-                value: $errorCode
-            );
+            $error->setAttribute('code', $errorCode);
         }
-        return Utils::streamFor(resource: (string) $response);
+        return Utils::streamFor((string) $response);
     }
 
     /**
@@ -105,7 +102,7 @@ class ErrorHandler extends AbstractMiddleware
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
         if ($this->hasErrors()) {
-            $response = $response->withBody(body: $this->getResponseBody());
+            $response = $response->withBody($this->getResponseBody());
         }
         return $response;
     }
@@ -125,11 +122,11 @@ class ErrorHandler extends AbstractMiddleware
             $this->errors[] = $errorCode;
         } else {
             throw new DomainException(
-                message: sprintf(
-                    format: 'Valid OAI-PMH error code expected, "%s" given.',
-                    values: $errorCode
+                sprintf(
+                    'Valid OAI-PMH error code expected, "%s" given.',
+                    $errorCode
                 ),
-                code: 500
+                500
             );
         }
         return $this;

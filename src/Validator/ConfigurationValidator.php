@@ -43,57 +43,51 @@ class ConfigurationValidator
     protected static function getValidationConstraints(): array
     {
         return [
-            new Assert\Collection(
-                fields: [
-                    'repositoryName' => [
-                        new Assert\Type(type: 'string'),
-                        new Assert\NotBlank()
-                    ],
-                    'adminEmail' => [
-                        new Assert\Type(type: 'string'),
-                        new Assert\Email(options: ['mode' => 'html5']),
-                        new Assert\NotBlank()
-                    ],
-                    'database' => [
-                        new Assert\Type(type: 'string'),
-                        new Assert\NotBlank()
-                    ],
-                    'metadataPrefix' => [
-                        new Assert\Type(type: 'array'),
-                        new Assert\All(
-                            constraints: [
-                                new Assert\Collection(
-                                    fields: [
-                                        'schema' => [
-                                            new Assert\Type(type: 'string'),
-                                            new Assert\Url(),
-                                            new Assert\NotBlank()
-                                        ],
-                                        'namespace' => [
-                                            new Assert\Type(type: 'string'),
-                                            new Assert\Url(),
-                                            new Assert\NotBlank()
-                                        ]
-                                    ]
-                                )
+            new Assert\Collection([
+                'repositoryName' => [
+                    new Assert\Type('string'),
+                    new Assert\NotBlank()
+                ],
+                'adminEmail' => [
+                    new Assert\Type('string'),
+                    new Assert\Email(['mode' => 'html5']),
+                    new Assert\NotBlank()
+                ],
+                'database' => [
+                    new Assert\Type('string'),
+                    new Assert\NotBlank()
+                ],
+                'metadataPrefix' => [
+                    new Assert\Type('array'),
+                    new Assert\All([
+                        new Assert\Collection([
+                            'schema' => [
+                                new Assert\Type('string'),
+                                new Assert\Url(),
+                                new Assert\NotBlank()
+                            ],
+                            'namespace' => [
+                                new Assert\Type('string'),
+                                new Assert\Url(),
+                                new Assert\NotBlank()
                             ]
-                        )
-                    ],
-                    'deletedRecords' => [
-                        new Assert\Type(type: 'string'),
-                        new Assert\Choice(options: ['no', 'persistent', 'transient']),
-                        new Assert\NotBlank()
-                    ],
-                    'maxRecords' => [
-                        new Assert\Type(type: 'int'),
-                        new Assert\Range(options: ['min' => 1, 'max' => 100])
-                    ],
-                    'tokenValid' => [
-                        new Assert\Type(type: 'int'),
-                        new Assert\Range(options: ['min' => 300, 'max' => 86400])
-                    ]
+                        ])
+                    ])
+                ],
+                'deletedRecords' => [
+                    new Assert\Type('string'),
+                    new Assert\Choice(['no', 'persistent', 'transient']),
+                    new Assert\NotBlank()
+                ],
+                'maxRecords' => [
+                    new Assert\Type('int'),
+                    new Assert\Range(['min' => 1, 'max' => 100])
+                ],
+                'tokenValid' => [
+                    new Assert\Type('int'),
+                    new Assert\Range(['min' => 300, 'max' => 86400])
                 ]
-            )
+            ])
         ];
     }
 
@@ -107,8 +101,8 @@ class ConfigurationValidator
     public static function validate(array $config): ConstraintViolationListInterface
     {
         return Validation::createValidator()->validate(
-            value: $config,
-            constraints: self::getValidationConstraints()
+            $config,
+            self::getValidationConstraints()
         );
     }
 }

@@ -45,12 +45,12 @@ final class FormatRepository extends EntityRepository
      */
     public function addOrUpdate(Format $entity): void
     {
-        $oldFormat = $this->find(id: $entity->getPrefix());
+        $oldFormat = $this->find($entity->getPrefix());
         if (isset($oldFormat)) {
-            $oldFormat->setNamespace(namespace: $entity->getNamespace());
-            $oldFormat->setSchema(schema: $entity->getSchema());
+            $oldFormat->setNamespace($entity->getNamespace());
+            $oldFormat->setSchema($entity->getSchema());
         } else {
-            $this->getEntityManager()->persist(object: $entity);
+            $this->getEntityManager()->persist($entity);
         }
     }
 
@@ -65,7 +65,7 @@ final class FormatRepository extends EntityRepository
     {
         /** @var EntityManager */
         $entityManager = $this->getEntityManager();
-        $entityManager->remove(object: $entity);
+        $entityManager->remove($entity);
         $entityManager->flush();
         $entityManager->pruneOrphanedSets();
     }

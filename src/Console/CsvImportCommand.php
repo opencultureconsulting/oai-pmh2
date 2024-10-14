@@ -122,14 +122,14 @@ class CsvImportCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->validateInput(input: $input, output: $output)) {
+        if (!$this->validateInput($input, $output)) {
             return Command::INVALID;
         }
 
         /** @var resource */
-        $file = fopen(filename: $this->arguments['file'], mode: 'r');
+        $file = fopen($this->arguments['file'], 'r');
 
-        $columnMapping = $this->getColumnNames(input: $input, output: $output, file: $file);
+        $columnMapping = $this->getColumnNames($input, $output, $file);
 
         if (!isset($columnMapping)) {
             return Command::FAILURE;
@@ -139,31 +139,25 @@ class CsvImportCommand extends Console
         $progressIndicator = new ProgressIndicator($output, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
         $progressIndicator->start('Importing...');
 
-        while ($row = fgetcsv(stream: $file)) {
+        while ($row = fgetcsv($file)) {
             /** @var Format */
-            $format = $this->em->getMetadataFormat(prefix: $this->arguments['format']);
-            $record = new Record(
-                identifier: $row[$columnMapping['idColumn']],
-                format: $format
-            );
+            $format = $this->em->getMetadataFormat($this->arguments['format']);
+            $record = new Record($row[$columnMapping['idColumn']], $format);
             if (strlen(trim($row[$columnMapping['contentColumn']])) > 0) {
-                $record->setContent(
-                    data: $row[$columnMapping['contentColumn']],
-                    validate: !$this->arguments['noValidation']
-                );
+                $record->setContent($row[$columnMapping['contentColumn']], !$this->arguments['noValidation']);
             }
             if (isset($columnMapping['dateColumn'])) {
-                $record->setLastChanged(dateTime: new DateTime($row[$columnMapping['dateColumn']]));
+                $record->setLastChanged(new DateTime($row[$columnMapping['dateColumn']]));
             }
             if (isset($columnMapping['setColumn'])) {
                 $sets = $row[$columnMapping['setColumn']];
                 foreach (explode(',', $sets) as $set) {
                     /** @var Set */
-                    $setSpec = $this->em->getSet(spec: trim($set));
-                    $record->addSet(set: $setSpec);
+                    $setSpec = $this->em->getSet(trim($set));
+                    $record->addSet($setSpec);
                 }
             }
-            $this->em->addOrUpdate(entity: $record, bulkMode: true);
+            $this->em->addOrUpdate($record, true);
 
             ++$count;
             $progressIndicator->advance();
@@ -175,7 +169,7 @@ class CsvImportCommand extends Console
 
         $progressIndicator->finish('All done!');
 
-        fclose(stream: $file);
+        fclose($file);
 
         $this->clearResultCache();
 
@@ -215,9 +209,9 @@ class CsvImportCommand extends Console
             $output->writeln([
                 '',
                 sprintf(
-                    format: ' [ERROR] File "%s" does not contain valid CSV. ',
+                    ' [ERROR] File "%s" does not contain valid CSV. ',
                     /** @phpstan-ignore-next-line - URI is always set for fopen() resources. */
-                    values: stream_get_meta_data(stream: $file)['uri'] ?: 'unknown'
+                    stream_get_meta_data($file)['uri'] ?: 'unknown'
                 ),
                 ''
             ]);
@@ -236,9 +230,9 @@ class CsvImportCommand extends Console
             $output->writeln([
                 '',
                 sprintf(
-                    format: ' [ERROR] File "%s" does not contain mandatory columns. ',
+                    ' [ERROR] File "%s" does not contain mandatory columns. ',
                     /** @phpstan-ignore-next-line - URI is always set for fopen() resources. */
-                    values: stream_get_meta_data($file)['uri'] ?: 'unknown'
+                    stream_get_meta_data($file)['uri'] ?: 'unknown'
                 ),
                 ''
             ]);

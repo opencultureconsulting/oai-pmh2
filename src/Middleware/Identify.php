@@ -47,74 +47,55 @@ class Identify extends Middleware
      */
     protected function prepareResponse(ServerRequestInterface $request): void
     {
-        $response = new Response(serverRequest: $request);
-        $identify = $response->createElement(
-            localName: 'Identify',
-            value: '',
-            appendToRoot: true
-        );
+        $response = new Response($request);
+        $identify = $response->createElement('Identify', '', true);
 
         $repositoryName = $response->createElement(
-            localName: 'repositoryName',
-            value: Configuration::getInstance()->repositoryName
+            'repositoryName',
+            Configuration::getInstance()->repositoryName
         );
-        $identify->appendChild(node: $repositoryName);
+        $identify->appendChild($repositoryName);
 
         $uri = Uri::composeComponents(
-            scheme: $request->getUri()->getScheme(),
-            authority: $request->getUri()->getAuthority(),
-            path: $request->getUri()->getPath(),
-            query: null,
-            fragment: null
+            $request->getUri()->getScheme(),
+            $request->getUri()->getAuthority(),
+            $request->getUri()->getPath(),
+            null,
+            null
         );
-        $baseURL = $response->createElement(
-            localName: 'baseURL',
-            value: $uri
-        );
-        $identify->appendChild(node: $baseURL);
+        $baseURL = $response->createElement('baseURL', $uri);
+        $identify->appendChild($baseURL);
 
-        $protocolVersion = $response->createElement(
-            localName: 'protocolVersion',
-            value: '2.0'
-        );
-        $identify->appendChild(node: $protocolVersion);
+        $protocolVersion = $response->createElement('protocolVersion', '2.0');
+        $identify->appendChild($protocolVersion);
 
         $adminEmail = $response->createElement(
-            localName: 'adminEmail',
-            value: Configuration::getInstance()->adminEmail
+            'adminEmail',
+            Configuration::getInstance()->adminEmail
         );
-        $identify->appendChild(node: $adminEmail);
+        $identify->appendChild($adminEmail);
 
         $earliestDatestamp = $response->createElement(
-            localName: 'earliestDatestamp',
-            value: $this->em->getEarliestDatestamp()
+            'earliestDatestamp',
+            $this->em->getEarliestDatestamp()
         );
-        $identify->appendChild(node: $earliestDatestamp);
+        $identify->appendChild($earliestDatestamp);
 
         $deletedRecord = $response->createElement(
-            localName: 'deletedRecord',
-            value: Configuration::getInstance()->deletedRecords
+            'deletedRecord',
+            Configuration::getInstance()->deletedRecords
         );
-        $identify->appendChild(node: $deletedRecord);
+        $identify->appendChild($deletedRecord);
 
-        $granularity = $response->createElement(
-            localName: 'granularity',
-            value: 'YYYY-MM-DDThh:mm:ssZ'
-        );
-        $identify->appendChild(node: $granularity);
+        $granularity = $response->createElement('granularity', 'YYYY-MM-DDThh:mm:ssZ');
+        $identify->appendChild($granularity);
 
         // TODO: Implement explicit content compression support.
-        // $compressionDeflate = $response->createElement(
-        //     localName: 'compression',
-        //     value: 'deflate'
-        // );
-        // $identify->appendChild(node: $compressionDeflate);
+        // $compressionDeflate = $response->createElement('compression', 'deflate');
+        // $identify->appendChild($compressionDeflate);
 
-        // $compressionGzip = $response->createElement(
-        //     localName: 'compression',
-        //     value: 'gzip'
-        // );
-        // $identify->appendChild(node: $compressionGzip);
+        // $compressionGzip = $response->createElement('compression', 'gzip');
+        // $identify->appendChild($compressionGzip);
 
         $this->preparedResponse = $response;
     }

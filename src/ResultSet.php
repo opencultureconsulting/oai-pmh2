@@ -71,7 +71,7 @@ final class ResultSet extends ArrayCollection
      */
     public function __construct(array $elements = [], Token $token = null)
     {
-        parent::__construct(elements: $elements);
+        parent::__construct($elements);
         $this->resumptionToken = $token;
     }
 }

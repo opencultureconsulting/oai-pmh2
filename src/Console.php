@@ -91,13 +91,11 @@ abstract class Console extends Command
         /** @var Application */
         $app = $this->getApplication();
         $app->doRun(
-            input: new ArrayInput(
-                parameters: [
-                    'command' => 'orm:clear-cache:result',
-                    '--flush' => true
-                ]
-            ),
-            output: new NullOutput()
+            new ArrayInput([
+                'command' => 'orm:clear-cache:result',
+                '--flush' => true
+            ]),
+            new NullOutput()
         );
     }
 
@@ -109,7 +107,7 @@ abstract class Console extends Command
     protected function getPhpMemoryLimit(): int
     {
         if (!isset($this->memoryLimit)) {
-            $ini = trim(string: ini_get(option: 'memory_limit'));
+            $ini = trim(ini_get('memory_limit'));
             $limit = (int) $ini;
             if ($limit < 0) {
                 return -1;
@@ -146,47 +144,41 @@ abstract class Console extends Command
 
         if (array_key_exists('format', $this->arguments)) {
             $formats = $this->em->getMetadataFormats();
-            if (!$formats->containsKey(key: $this->arguments['format'])) {
-                $output->writeln(
-                    messages: [
-                        '',
-                        sprintf(
-                            format: ' [ERROR] Metadata format "%s" is not supported. ',
-                            values: $this->arguments['format']
-                        ),
-                        ''
-                    ]
-                );
+            if (!$formats->containsKey($this->arguments['format'])) {
+                $output->writeln([
+                    '',
+                    sprintf(
+                        ' [ERROR] Metadata format "%s" is not supported. ',
+                        $this->arguments['format']
+                    ),
+                    ''
+                ]);
                 return false;
             }
         }
-        if (array_key_exists('file', $this->arguments) && !is_readable(filename: $this->arguments['file'])) {
-            $output->writeln(
-                messages: [
-                    '',
-                    sprintf(
-                        format: ' [ERROR] File "%s" not found or not readable. ',
-                        values: $this->arguments['file']
-                    ),
-                    ''
-                ]
-            );
+        if (array_key_exists('file', $this->arguments) && !is_readable($this->arguments['file'])) {
+            $output->writeln([
+                '',
+                sprintf(
+                    ' [ERROR] File "%s" not found or not readable. ',
+                    $this->arguments['file']
+                ),
+                ''
+            ]);
             return false;
         }
         if (array_key_exists('sets', $this->arguments)) {
             $sets = $this->em->getSets();
             $invalidSets = array_diff($this->arguments['sets'], $sets->getKeys());
             if (count($invalidSets) !== 0) {
-                $output->writeln(
-                    messages: [
-                        '',
-                        sprintf(
-                            format: ' [ERROR] Sets "%s" are not supported. ',
-                            values: implode('", "', $invalidSets)
-                        ),
-                        ''
-                    ]
-                );
+                $output->writeln([
+                    '',
+                    sprintf(
+                        ' [ERROR] Sets "%s" are not supported. ',
+                        implode('", "', $invalidSets)
+                    ),
+                    ''
+                ]);
                 return false;
             }
         }

@@ -45,48 +45,44 @@ class ListMetadataFormats extends Middleware
      */
     protected function prepareResponse(ServerRequestInterface $request): void
     {
-        $formats = $this->em->getMetadataFormats(recordIdentifier: $this->arguments['identifier']);
+        $formats = $this->em->getMetadataFormats($this->arguments['identifier']);
 
         if (count($formats) === 0) {
             if (
                 !isset($this->arguments['identifier'])
-                || $this->em->isValidRecordIdentifier(identifier: $this->arguments['identifier'])
+                || $this->em->isValidRecordIdentifier($this->arguments['identifier'])
             ) {
-                ErrorHandler::getInstance()->withError(errorCode: 'noMetadataFormats');
+                ErrorHandler::getInstance()->withError('noMetadataFormats');
             } else {
-                ErrorHandler::getInstance()->withError(errorCode: 'idDoesNotExist');
+                ErrorHandler::getInstance()->withError('idDoesNotExist');
             }
             return;
         }
 
-        $response = new Response(serverRequest: $request);
-        $listMetadataFormats = $response->createElement(
-            localName: 'ListMetadataFormats',
-            value: '',
-            appendToRoot: true
-        );
+        $response = new Response($request);
+        $listMetadataFormats = $response->createElement('ListMetadataFormats', '', true);
 
         foreach ($formats as $oaiFormat) {
-            $metadataFormat = $response->createElement(localName: 'metadataFormat');
-            $listMetadataFormats->appendChild(node: $metadataFormat);
+            $metadataFormat = $response->createElement('metadataFormat');
+            $listMetadataFormats->appendChild($metadataFormat);
 
             $metadataPrefix = $response->createElement(
-                localName: 'metadataPrefix',
-                value: $oaiFormat->getPrefix()
+                'metadataPrefix',
+                $oaiFormat->getPrefix()
             );
-            $metadataFormat->appendChild(node: $metadataPrefix);
+            $metadataFormat->appendChild($metadataPrefix);
 
             $schema = $response->createElement(
-                localName: 'schema',
-                value: $oaiFormat->getSchema()
+                'schema',
+                $oaiFormat->getSchema()
             );
-            $metadataFormat->appendChild(node: $schema);
+            $metadataFormat->appendChild($schema);
 
             $metadataNamespace = $response->createElement(
-                localName: 'metadataNamespace',
-                value: $oaiFormat->getNamespace()
+                'metadataNamespace',
+                $oaiFormat->getNamespace()
             );
-            $metadataFormat->appendChild(node: $metadataNamespace);
+            $metadataFormat->appendChild($metadataNamespace);
         }
 
         $this->preparedResponse = $response;

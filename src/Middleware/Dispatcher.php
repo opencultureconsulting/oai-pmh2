@@ -65,14 +65,14 @@ class Dispatcher extends AbstractMiddleware
             /** @var array<string, string> */
             $arguments = $request->getQueryParams();
         } elseif ($request->getMethod() === 'POST') {
-            if ($request->getHeaderLine(name: 'Content-Type') === 'application/x-www-form-urlencoded') {
+            if ($request->getHeaderLine('Content-Type') === 'application/x-www-form-urlencoded') {
                 /** @var array<string, string> */
                 $arguments = (array) $request->getParsedBody();
             }
         }
-        if ($this->validateArguments(arguments: $arguments)) {
+        if ($this->validateArguments($arguments)) {
             foreach ($arguments as $param => $value) {
-                $request = $request->withAttribute(name: $param, value: $value);
+                $request = $request->withAttribute($param, $value);
             }
         }
         return $request;
@@ -87,17 +87,17 @@ class Dispatcher extends AbstractMiddleware
      */
     protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        $request = $this->getRequestWithAttributes(request: $request);
+        $request = $this->getRequestWithAttributes($request);
         $errorHandler = ErrorHandler::getInstance();
         if (!$errorHandler->hasErrors()) {
             /** @var string */
-            $verb = $request->getAttribute(name: 'verb');
+            $verb = $request->getAttribute('verb');
             $middleware = __NAMESPACE__ . '\\' . $verb;
-            if (is_a(object_or_class: $middleware, class: Middleware::class, allow_string: true)) {
-                $this->requestHandler->queue->enqueue(value: new $middleware());
+            if (is_a($middleware, Middleware::class, true)) {
+                $this->requestHandler->queue->enqueue(new $middleware());
             }
         }
-        $this->requestHandler->queue->enqueue(value: $errorHandler);
+        $this->requestHandler->queue->enqueue($errorHandler);
         return $request;
     }
 
@@ -113,7 +113,7 @@ class Dispatcher extends AbstractMiddleware
         // TODO: Add support for content compression
         // https://openarchives.org/OAI/openarchivesprotocol.html#ResponseCompression
         // https://github.com/middlewares/encoder
-        return $response->withHeader(name: 'Content-Type', value: 'text/xml');
+        return $response->withHeader('Content-Type', 'text/xml');
     }
 
     /**
@@ -131,20 +131,20 @@ class Dispatcher extends AbstractMiddleware
             count(array_diff(array_keys($arguments), self::OAI_PARAMS)) !== 0
             or !isset($arguments['verb'])
         ) {
-            ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+            ErrorHandler::getInstance()->withError('badArgument');
         } else {
             match ($arguments['verb']) {
-                'GetRecord' => $this->validateGetRecord(arguments: $arguments),
-                'Identify' => $this->validateIdentify(arguments: $arguments),
-                'ListIdentifiers', 'ListRecords' => $this->validateListRecords(arguments: $arguments),
-                'ListMetadataFormats' => $this->validateListFormats(arguments: $arguments),
-                'ListSets' => $this->validateListSets(arguments: $arguments),
-                default => ErrorHandler::getInstance()->withError(errorCode: 'badVerb')
+                'GetRecord' => $this->validateGetRecord($arguments),
+                'Identify' => $this->validateIdentify($arguments),
+                'ListIdentifiers', 'ListRecords' => $this->validateListRecords($arguments),
+                'ListMetadataFormats' => $this->validateListFormats($arguments),
+                'ListSets' => $this->validateListSets($arguments),
+                default => ErrorHandler::getInstance()->withError('badVerb')
             };
             if (!ErrorHandler::getInstance()->hasErrors()) {
-                $this->validateMetadataPrefix(prefix: $arguments['metadataPrefix'] ?? null);
-                $this->validateDateTime(datetime: $arguments['from'] ?? null);
-                $this->validateDateTime(datetime: $arguments['until'] ?? null);
+                $this->validateMetadataPrefix($arguments['metadataPrefix'] ?? null);
+                $this->validateDateTime($arguments['from'] ?? null);
+                $this->validateDateTime($arguments['until'] ?? null);
                 $this->validateSet($arguments['set'] ?? null);
             }
         }
@@ -161,9 +161,9 @@ class Dispatcher extends AbstractMiddleware
     protected function validateDateTime(?string $datetime): void
     {
         if (isset($datetime)) {
-            $date = date_parse(datetime: $datetime);
+            $date = date_parse($datetime);
             if ($date['warning_count'] > 0 || $date['error_count'] > 0) {
-                ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+                ErrorHandler::getInstance()->withError('badArgument');
             }
         }
     }
@@ -182,7 +182,7 @@ class Dispatcher extends AbstractMiddleware
             or !isset($arguments['identifier'])
             or !isset($arguments['metadataPrefix'])
         ) {
-            ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+            ErrorHandler::getInstance()->withError('badArgument');
         }
     }
 
@@ -196,7 +196,7 @@ class Dispatcher extends AbstractMiddleware
     protected function validateIdentify(array $arguments): void
     {
         if (count($arguments) !== 1) {
-            ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+            ErrorHandler::getInstance()->withError('badArgument');
         }
     }
 
@@ -211,7 +211,7 @@ class Dispatcher extends AbstractMiddleware
     {
         if (count($arguments) !== 1) {
             if (!isset($arguments['identifier']) || count($arguments) !== 2) {
-                ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+                ErrorHandler::getInstance()->withError('badArgument');
             }
         }
     }
@@ -233,10 +233,10 @@ class Dispatcher extends AbstractMiddleware
                 (isset($arguments['resumptionToken']) && count($arguments) !== 2)
                 or isset($arguments['identifier'])
             ) {
-                ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+                ErrorHandler::getInstance()->withError('badArgument');
             }
         } else {
-            ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+            ErrorHandler::getInstance()->withError('badArgument');
         }
     }
 
@@ -251,7 +251,7 @@ class Dispatcher extends AbstractMiddleware
     {
         if (count($arguments) !== 1) {
             if (!isset($arguments['resumptionToken']) || count($arguments) !== 2) {
-                ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+                ErrorHandler::getInstance()->withError('badArgument');
             }
         }
     }
@@ -267,8 +267,8 @@ class Dispatcher extends AbstractMiddleware
     {
         if (isset($prefix)) {
             $formats = EntityManager::getInstance()->getMetadataFormats();
-            if (!$formats->containsKey(key: $prefix)) {
-                ErrorHandler::getInstance()->withError(errorCode: 'cannotDisseminateFormat');
+            if (!$formats->containsKey($prefix)) {
+                ErrorHandler::getInstance()->withError('cannotDisseminateFormat');
             }
         }
     }
@@ -284,8 +284,8 @@ class Dispatcher extends AbstractMiddleware
     {
         if (isset($spec)) {
             $sets = EntityManager::getInstance()->getSets();
-            if (!$sets->containsKey(key: $spec)) {
-                ErrorHandler::getInstance()->withError(errorCode: 'badArgument');
+            if (!$sets->containsKey($spec)) {
+                ErrorHandler::getInstance()->withError('badArgument');
             }
         }
     }

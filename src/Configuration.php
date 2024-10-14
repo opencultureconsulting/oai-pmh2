@@ -72,22 +72,20 @@ final class Configuration
      */
     private function __construct()
     {
-        $configPath = Path::canonicalize(path: self::CONFIG_FILE);
-        if (!is_readable(filename: $configPath)) {
+        $configPath = Path::canonicalize(self::CONFIG_FILE);
+        if (!is_readable($configPath)) {
             throw new FileNotFoundException(
-                message: 'Configuration file not found or not readable.',
-                code: 500,
-                path: $configPath
+                'Configuration file not found or not readable.',
+                500,
+                null,
+                $configPath
             );
         }
         /** @var array<TKey, TValue> */
-        $config = Yaml::parseFile(filename: $configPath);
-        $violations = ConfigurationValidator::validate(config: $config);
+        $config = Yaml::parseFile($configPath);
+        $violations = ConfigurationValidator::validate($config);
         if ($violations->count() > 0) {
-            throw new ValidationFailedException(
-                value: null,
-                violations: $violations
-            );
+            throw new ValidationFailedException(null, $violations);
         }
         $this->settings = $config;
     }

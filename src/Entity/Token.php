@@ -120,7 +120,7 @@ final class Token extends Entity
         $this->verb = $verb;
         $this->parameters = serialize($parameters);
         $validUntil = new DateTime();
-        $validUntil->add(interval: new DateInterval(duration: 'PT' . Configuration::getInstance()->tokenValid . 'S'));
+        $validUntil->add(new DateInterval('PT' . Configuration::getInstance()->tokenValid . 'S'));
         $this->validUntil = $validUntil;
     }
 }

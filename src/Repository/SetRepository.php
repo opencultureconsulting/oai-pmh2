@@ -23,9 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Repository;
 
 use Doctrine\ORM\EntityRepository;
-use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Entity\Set;
-use OCC\OaiPmh2\ResultSet;
 
 /**
  * Doctrine/ORM Repository for sets.
@@ -46,12 +44,12 @@ final class SetRepository extends EntityRepository
      */
     public function addOrUpdate(Set $entity): void
     {
-        $oldSet = $this->find(id: $entity->getSpec());
+        $oldSet = $this->find($entity->getSpec());
         if (isset($oldSet)) {
-            $oldSet->setName(name: $entity->getName());
-            $oldSet->setDescription(description: $entity->getDescription());
+            $oldSet->setName($entity->getName());
+            $oldSet->setDescription($entity->getDescription());
         } else {
-            $this->getEntityManager()->persist(object: $entity);
+            $this->getEntityManager()->persist($entity);
         }
     }
 
@@ -65,7 +63,7 @@ final class SetRepository extends EntityRepository
     public function delete(Set $entity): void
     {
         $entityManager = $this->getEntityManager();
-        $entityManager->remove(object: $entity);
+        $entityManager->remove($entity);
         $entityManager->flush();
     }
 }

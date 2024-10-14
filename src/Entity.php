@@ -46,13 +46,10 @@ abstract class Entity
      */
     protected function validateUrl(string $url): string
     {
-        $url = trim(string: $url);
-        $violations = UrlValidator::validate(url: $url);
+        $url = trim($url);
+        $violations = UrlValidator::validate($url);
         if ($violations->count() > 0) {
-            throw new ValidationFailedException(
-                value: null,
-                violations: $violations
-            );
+            throw new ValidationFailedException(null, $violations);
         }
         return $url;
     }
@@ -69,12 +66,9 @@ abstract class Entity
      */
     protected function validateRegEx(string $string, string $regEx): string
     {
-        $violations = RegExValidator::validate(string: $string, regEx: $regEx);
+        $violations = RegExValidator::validate($string, $regEx);
         if ($violations->count() > 0) {
-            throw new ValidationFailedException(
-                value: null,
-                violations: $violations
-            );
+            throw new ValidationFailedException(null, $violations);
         }
         return $string;
     }
@@ -90,12 +84,9 @@ abstract class Entity
      */
     protected function validateXml(string $xml): string
     {
-        $violations = XmlValidator::validate(xml: $xml);
+        $violations = XmlValidator::validate($xml);
         if ($violations->count() > 0) {
-            throw new ValidationFailedException(
-                value: null,
-                violations: $violations
-            );
+            throw new ValidationFailedException(null, $violations);
         }
         return $xml;
     }

@@ -84,30 +84,27 @@ class AddRecordCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->validateInput(input: $input, output: $output)) {
+        if (!$this->validateInput($input, $output)) {
             return Command::INVALID;
         }
 
         /** @var Format */
-        $format = $this->em->getMetadataFormat(prefix: $this->arguments['format']);
-        $content = file_get_contents(filename: $this->arguments['file']) ?: '';
+        $format = $this->em->getMetadataFormat($this->arguments['format']);
+        $content = file_get_contents($this->arguments['file']) ?: '';
 
-        $record = new Record(
-            identifier: $this->arguments['identifier'],
-            format: $format
-        );
+        $record = new Record($this->arguments['identifier'], $format);
         if (trim($content) !== '') {
-            $record->setContent(data: $content);
+            $record->setContent($content);
         }
         if (array_key_exists('sets', $this->arguments)) {
             foreach ($this->arguments['sets'] as $set) {
                 /** @var Set */
-                $setSpec = $this->em->getSet(spec: $set);
-                $record->addSet(set: $setSpec);
+                $setSpec = $this->em->getSet($set);
+                $record->addSet($setSpec);
             }
         }
 
-        $this->em->addOrUpdate(entity: $record);
+        $this->em->addOrUpdate($record);
         $this->em->pruneOrphanedSets();
 
         $this->clearResultCache();

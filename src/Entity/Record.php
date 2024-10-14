@@ -106,9 +106,9 @@ final class Record extends Entity
      */
     public function addSet(Set $set): void
     {
-        if (!$this->sets->contains(element: $set)) {
-            $this->sets->add(element: $set);
-            $set->addRecord(record: $this);
+        if (!$this->sets->contains($set)) {
+            $this->sets->add($set);
+            $set->addRecord($this);
         }
     }
 
@@ -161,7 +161,7 @@ final class Record extends Entity
      */
     public function getSet(string $setSpec): ?Set
     {
-        return $this->sets->get(key: $setSpec);
+        return $this->sets->get($setSpec);
     }
 
     /**
@@ -196,9 +196,9 @@ final class Record extends Entity
      */
     public function removeSet(Set $set): void
     {
-        if ($this->sets->contains(element: $set)) {
-            $this->sets->removeElement(element: $set);
-            $set->removeRecord(record: $this);
+        if ($this->sets->contains($set)) {
+            $this->sets->removeElement($set);
+            $set->removeRecord($this);
         }
     }
 
@@ -218,7 +218,7 @@ final class Record extends Entity
             $data = trim($data);
             if ($validate) {
                 try {
-                    $data = $this->validateXml(xml: $data);
+                    $data = $this->validateXml($data);
                 } catch (ValidationFailedException $exception) {
                     throw $exception;
                 }
@@ -268,13 +268,13 @@ final class Record extends Entity
     {
         try {
             $this->identifier = $this->validateRegEx(
-                string: $identifier,
+                $identifier,
                 // xs:anyURI
-                regEx: '/^(([a-zA-Z][0-9a-zA-Z+\\-\\.]*:)?\/{0,2}[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?(#[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?$/'
+                '/^(([a-zA-Z][0-9a-zA-Z+\\-\\.]*:)?\/{0,2}[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?(#[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?$/'
             );
-            $this->setFormat(format: $format);
-            $this->setContent(data: $data);
-            $this->setLastChanged(dateTime: $lastChanged);
+            $this->setFormat($format);
+            $this->setContent($data);
+            $this->setLastChanged($lastChanged);
             $this->sets = new ArrayCollection();
         } catch (ValidationFailedException $exception) {
             throw $exception;

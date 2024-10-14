@@ -80,7 +80,7 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function addOrUpdate(Format|Record|Set|Token $entity, bool $bulkMode = false): void
     {
-        $this->getRepository(className: get_class($entity))->addOrUpdate(entity: $entity);
+        $this->getRepository(get_class($entity))->addOrUpdate($entity);
         if (!$bulkMode) {
             $this->flush();
         }
@@ -95,7 +95,7 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function delete(Format|Record|Set|Token $entity): void
     {
-        $this->getRepository(className: get_class($entity))->delete(entity: $entity);
+        $this->getRepository(get_class($entity))->delete($entity);
     }
 
     /**
@@ -107,11 +107,11 @@ final class EntityManager extends EntityManagerDecorator
     {
         $timestamp = '0000-00-00T00:00:00Z';
         $dql = $this->createQueryBuilder();
-        $dql->select(select: $dql->expr()->min('record.lastChanged'));
-        $dql->from(from: Record::class, alias: 'record');
+        $dql->select($dql->expr()->min('record.lastChanged'));
+        $dql->from(Record::class, 'record');
         $query = $dql->getQuery()->enableResultCache();
         /** @var ?string $result */
-        $result = $query->getOneOrNullResult(hydrationMode: AbstractQuery::HYDRATE_SCALAR_COLUMN);
+        $result = $query->getOneOrNullResult(AbstractQuery::HYDRATE_SCALAR_COLUMN);
         return $result ?? $timestamp;
     }
 
@@ -124,7 +124,7 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function getMetadataFormat(string $prefix): ?Format
     {
-        return $this->getReference(entityName: Format::class, id: $prefix);
+        return $this->getReference(Format::class, $prefix);
     }
 
     /**
@@ -138,21 +138,21 @@ final class EntityManager extends EntityManagerDecorator
     {
         $entities = [];
         if ($recordIdentifier === null) {
-            $formats = $this->getRepository(className: Format::class)->findAll();
+            $formats = $this->getRepository(Format::class)->findAll();
         } else {
             $dql = $this->createQueryBuilder();
-            $dql->select(select: 'record.format')
-                ->from(from: Record::class, alias: 'record')
-                ->where(predicates: $dql->expr()->eq('record.identifier', ':recordIdentifier'))
-                ->setParameter(key: 'recordIdentifier', value: $recordIdentifier);
+            $dql->select('record.format')
+                ->from(Record::class, 'record')
+                ->where($dql->expr()->eq('record.identifier', ':recordIdentifier'))
+                ->setParameter('recordIdentifier', $recordIdentifier);
             $query = $dql->getQuery()->enableResultCache();
             /** @var Format[] */
-            $formats = $query->getResult(hydrationMode: AbstractQuery::HYDRATE_OBJECT);
+            $formats = $query->getResult(AbstractQuery::HYDRATE_OBJECT);
         }
         foreach ($formats as $format) {
             $entities[$format->getPrefix()] = $format;
         }
-        return new ResultSet(elements: $entities);
+        return new ResultSet($entities);
     }
 
     /**
@@ -165,12 +165,10 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function getRecord(string $identifier, string $format): ?Record
     {
-        return $this->getRepository(className: Record::class)->findOneBy(
-            criteria: [
-                'identifier' => $identifier,
-                'format' => $this->getMetadataFormat(prefix: $format)
-            ]
-        );
+        return $this->getRepository(Record::class)->findOneBy([
+            'identifier' => $identifier,
+            'format' => $this->getMetadataFormat($format)
+        ]);
     }
 
     /**
@@ -198,45 +196,42 @@ final class EntityManager extends EntityManagerDecorator
         $cursor = $counter * $maxRecords;
 
         $dql = $this->createQueryBuilder();
-        $dql->select(select: 'record')
-            ->from(from: Record::class, alias: 'record', indexBy: 'record.identifier')
-            ->where(predicates: $dql->expr()->eq('record.format', ':metadataPrefix'))
-            ->setParameter(
-                key: 'metadataPrefix',
-                value: $this->getMetadataFormat(prefix: $metadataPrefix)
-            )
-            ->setFirstResult(firstResult: $cursor)
-            ->setMaxResults(maxResults: $maxRecords);
+        $dql->select('record')
+            ->from(Record::class, 'record', 'record.identifier')
+            ->where($dql->expr()->eq('record.format', ':metadataPrefix'))
+            ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix))
+            ->setFirstResult($cursor)
+            ->setMaxResults($maxRecords);
         if (isset($from)) {
-            $dql->andWhere(where: $dql->expr()->gte('record.lastChanged', ':from'));
-            $dql->setParameter(key: 'from', value: new DateTime($from));
+            $dql->andWhere($dql->expr()->gte('record.lastChanged', ':from'));
+            $dql->setParameter('from', new DateTime($from));
         }
         if (isset($until)) {
-            $dql->andWhere(where: $dql->expr()->lte('record.lastChanged', ':until'));
-            $dql->setParameter(key: 'until', value: new DateTime($until));
+            $dql->andWhere($dql->expr()->lte('record.lastChanged', ':until'));
+            $dql->setParameter('until', new DateTime($until));
         }
         if (isset($set)) {
             $dql->innerJoin(
-                join: Set::class,
-                alias: 'sets',
-                conditionType: Join::WITH,
-                condition: $dql->expr()->orX(
+                Set::class,
+                'sets',
+                Join::WITH,
+                $dql->expr()->orX(
                     $dql->expr()->eq('sets.spec', ':setSpec'),
                     $dql->expr()->like('sets.spec', ':setLike')
                 )
             );
-            $dql->setParameter(key: 'setSpec', value: $set);
-            $dql->setParameter(key: 'setLike', value: $set . ':%');
+            $dql->setParameter('setSpec', $set);
+            $dql->setParameter('setLike', $set . ':%');
         }
         $query = $dql->getQuery();
         /** @var array<string, Record> */
         $queryResult = $query->getResult();
-        $result = new ResultSet(elements: $queryResult);
-        $paginator = new Paginator(query: $query, fetchJoinCollection: true);
+        $result = new ResultSet($queryResult);
+        $paginator = new Paginator($query, true);
         if (count($paginator) > ($cursor + count($result))) {
             $token = new Token(
-                verb: $verb,
-                parameters: [
+                $verb,
+                [
                     'verb' => $verb,
                     'identifier' => null,
                     'metadataPrefix' => $metadataPrefix,
@@ -248,9 +243,9 @@ final class EntityManager extends EntityManagerDecorator
                     'completeListSize' => count($paginator)
                 ]
             );
-            $this->persist(object: $token);
+            $this->persist($token);
             $this->flush();
-            $result->setResumptionToken(token: $token);
+            $result->setResumptionToken($token);
         }
         return $result;
     }
@@ -265,14 +260,12 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function getResumptionToken(string $token, string $verb): ?Token
     {
-        $resumptionToken = $this->getRepository(className: Token::class)->findOneBy(
-            criteria: [
-                'token' => $token,
-                'verb' => $verb
-            ]
-        );
+        $resumptionToken = $this->getRepository(Token::class)->findOneBy([
+            'token' => $token,
+            'verb' => $verb
+        ]);
         if (isset($resumptionToken) && $resumptionToken->getValidUntil() < new DateTime()) {
-            $this->delete(entity: $resumptionToken);
+            $this->delete($resumptionToken);
             return null;
         }
         return $resumptionToken;
@@ -287,7 +280,7 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function getSet(string $spec): ?Set
     {
-        return $this->getReference(entityName: Set::class, id: $spec);
+        return $this->getReference(Set::class, $spec);
     }
 
     /**
@@ -303,19 +296,19 @@ final class EntityManager extends EntityManagerDecorator
         $cursor = $counter * $maxRecords;
 
         $dql = $this->createQueryBuilder();
-        $dql->select(select: 'set')
-            ->from(from: Set::class, alias: 'set', indexBy: 'set.spec')
-            ->setFirstResult(firstResult: $cursor)
-            ->setMaxResults(maxResults: $maxRecords);
+        $dql->select('set')
+            ->from(Set::class, 'set', 'set.spec')
+            ->setFirstResult($cursor)
+            ->setMaxResults($maxRecords);
         $query = $dql->getQuery()->enableResultCache();
         /** @var array<string, Set> */
-        $queryResult = $query->getResult(hydrationMode: AbstractQuery::HYDRATE_OBJECT);
-        $result = new ResultSet(elements: $queryResult);
-        $paginator = new Paginator(query: $query);
+        $queryResult = $query->getResult(AbstractQuery::HYDRATE_OBJECT);
+        $result = new ResultSet($queryResult);
+        $paginator = new Paginator($query);
         if (count($paginator) > ($cursor + count($result))) {
             $token = new Token(
-                verb: 'ListSets',
-                parameters: [
+                'ListSets',
+                [
                     'verb' => 'ListSets',
                     'identifier' => null,
                     'metadataPrefix' => null,
@@ -327,9 +320,9 @@ final class EntityManager extends EntityManagerDecorator
                     'completeListSize' => count($paginator)
                 ]
             );
-            $this->persist(object: $token);
+            $this->persist($token);
             $this->flush();
-            $result->setResumptionToken(token: $token);
+            $result->setResumptionToken($token);
         }
         return $result;
     }
@@ -343,7 +336,7 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function isValidRecordIdentifier(string $identifier): bool
     {
-        $records = $this->getRepository(className: Record::class)->findBy(criteria: ['identifier' => $identifier]);
+        $records = $this->getRepository(Record::class)->findBy(['identifier' => $identifier]);
         return (bool) count($records) > 0;
     }
 
@@ -355,8 +348,8 @@ final class EntityManager extends EntityManagerDecorator
     public function pruneDeletedRecords(): int
     {
         $dql = $this->createQueryBuilder();
-        $dql->delete(delete: Record::class, alias: 'record')
-            ->where(predicates: $dql->expr()->isNull('record.content'));
+        $dql->delete(Record::class, 'record')
+            ->where($dql->expr()->isNull('record.content'));
         /** @var int */
         $deleted = $dql->getQuery()->execute();
         if ($deleted > 0) {
@@ -373,8 +366,8 @@ final class EntityManager extends EntityManagerDecorator
     public function pruneExpiredTokens(): int
     {
         $dql = $this->createQueryBuilder();
-        $dql->delete(delete: Token::class, alias: 'token')
-            ->where(predicates: $dql->expr()->lt('token.validUntil', new DateTime()));
+        $dql->delete(Token::class, 'token')
+            ->where($dql->expr()->lt('token.validUntil', new DateTime()));
         /** @var int */
         return $dql->getQuery()->execute();
     }
@@ -386,12 +379,12 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function pruneOrphanedSets(): int
     {
-        $sets = $this->getRepository(className: Set::class)->findAll();
+        $sets = $this->getRepository(Set::class)->findAll();
         $count = 0;
         foreach ($sets as $set) {
             if ($set->isEmpty()) {
                 $count += 1;
-                $this->remove(object: $set);
+                $this->remove($set);
             }
         }
         if ($count > 0) {
@@ -406,66 +399,39 @@ final class EntityManager extends EntityManagerDecorator
     private function __construct()
     {
         $config = new DoctrineConfiguration();
-        $config->setAutoGenerateProxyClasses(
-            autoGenerate: ProxyFactory::AUTOGENERATE_NEVER
-        );
-        $config->setMetadataCache(
-            cache: new PhpFilesAdapter(
-                namespace: 'Metadata',
-                directory: __DIR__ . '/../var/cache'
-            )
-        );
-        $config->setMetadataDriverImpl(
-            driverImpl: new AttributeDriver(
-                paths: [__DIR__ . '/Entity']
-            )
-        );
-        $config->setProxyDir(dir: __DIR__ . '/../var/generated');
-        $config->setProxyNamespace(ns: 'OCC\OaiPmh2\Entity\Proxy');
-        $config->setQueryCache(
-            cache: new PhpFilesAdapter(
-                namespace: 'Query',
-                directory: __DIR__ . '/../var/cache'
-            )
-        );
-        $config->setResultCache(
-            cache: new PhpFilesAdapter(
-                namespace: 'Result',
-                directory: __DIR__ . '/../var/cache'
-            )
-        );
+        $config->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_NEVER);
+        $config->setMetadataCache(new PhpFilesAdapter('Metadata', 0, __DIR__ . '/../var/cache'));
+        $config->setMetadataDriverImpl(new AttributeDriver([__DIR__ . '/Entity']));
+        $config->setProxyDir(__DIR__ . '/../var/generated');
+        $config->setProxyNamespace('OCC\OaiPmh2\Entity\Proxy');
+        $config->setQueryCache(new PhpFilesAdapter('Query', 0, __DIR__ . '/../var/cache'));
+        $config->setResultCache(new PhpFilesAdapter('Result', 0, __DIR__ . '/../var/cache'));
         $config->setSchemaAssetsFilter(
-            schemaAssetsFilter: static function (string|AbstractAsset $assetName): bool {
+            static function (string|AbstractAsset $assetName): bool {
                 if ($assetName instanceof AbstractAsset) {
                     $assetName = $assetName->getName();
                 }
-                return in_array(needle: $assetName, haystack: self::TABLES, strict: true);
+                return in_array($assetName, self::TABLES, true);
             }
         );
 
-        $baseDir = Path::canonicalize(path: __DIR__ . '/../');
-        $dsn = str_replace(
-            search: '%BASEDIR%',
-            replace: $baseDir,
-            subject: Configuration::getInstance()->database
-        );
-        $parser = new DsnParser(
-            schemeMapping: [
-                'mariadb' => 'pdo_mysql',
-                'mssql' => 'pdo_sqlsrv',
-                'mysql' => 'pdo_mysql',
-                'oracle' => 'pdo_oci',
-                'postgresql' => 'pdo_pgsql',
-                'sqlite' => 'pdo_sqlite'
-            ]
-        );
+        $baseDir = Path::canonicalize(__DIR__ . '/../');
+        $dsn = str_replace('%BASEDIR%', $baseDir, Configuration::getInstance()->database);
+        $parser = new DsnParser([
+            'mariadb' => 'pdo_mysql',
+            'mssql' => 'pdo_sqlsrv',
+            'mysql' => 'pdo_mysql',
+            'oracle' => 'pdo_oci',
+            'postgresql' => 'pdo_pgsql',
+            'sqlite' => 'pdo_sqlite'
+        ]);
         $conn = DriverManager::getConnection(
             // Generic return type of DsnParser::parse() is not correctly recognized.
             // phpcs:ignore
-            params: $parser->parse(dsn: $dsn),
-            config: $config
+            $parser->parse(dsn: $dsn),
+            $config
         );
 
-        parent::__construct(new DoctrineEntityManager(conn: $conn, config: $config));
+        parent::__construct(new DoctrineEntityManager($conn, $config));
     }
 }

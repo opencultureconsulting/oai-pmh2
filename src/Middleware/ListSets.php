@@ -47,50 +47,43 @@ class ListSets extends Middleware
     {
         $this->checkResumptionToken();
 
-        $sets = $this->em->getSets(counter: $this->arguments['counter']);
+        $sets = $this->em->getSets($this->arguments['counter']);
 
         if (count($sets) === 0) {
-            ErrorHandler::getInstance()->withError(errorCode: 'noSetHierarchy');
+            ErrorHandler::getInstance()->withError('noSetHierarchy');
             return;
         }
 
-        $response = new Response(serverRequest: $request);
-        $list = $response->createElement(
-            localName: 'ListSets',
-            value: '',
-            appendToRoot: true
-        );
+        $response = new Response($request);
+        $list = $response->createElement('ListSets', '', true);
 
         foreach ($sets as $oaiSet) {
-            $set = $response->createElement(localName: 'set');
-            $list->appendChild(node: $set);
+            $set = $response->createElement('set');
+            $list->appendChild($set);
 
             $setSpec = $response->createElement(
-                localName: 'setSpec',
-                value: $oaiSet->getSpec()
+                'setSpec',
+                $oaiSet->getSpec()
             );
-            $set->appendChild(node: $setSpec);
+            $set->appendChild($setSpec);
 
             $setName = $response->createElement(
-                localName: 'setName',
-                value: $oaiSet->getName()
+                'setName',
+                $oaiSet->getName()
             );
-            $set->appendChild(node: $setName);
+            $set->appendChild($setName);
 
             if ($oaiSet->hasDescription()) {
-                $setDescription = $response->createElement(localName: 'setDescription');
-                $set->appendChild(node: $setDescription);
+                $setDescription = $response->createElement('setDescription');
+                $set->appendChild($setDescription);
 
-                $data = $response->importData(data: $oaiSet->getDescription());
-                $setDescription->appendChild(node: $data);
+                $data = $response->importData($oaiSet->getDescription());
+                $setDescription->appendChild($data);
             }
         }
 
         $this->preparedResponse = $response;
 
-        $this->addResumptionToken(
-            node: $list,
-            token: $sets->getResumptionToken() ?? null
-        );
+        $this->addResumptionToken($list, $sets->getResumptionToken() ?? null);
     }
 }

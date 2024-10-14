@@ -124,7 +124,7 @@ final class Format extends Entity
     public function setNamespace(string $namespace): void
     {
         try {
-            $this->namespace = $this->validateUrl(url: $namespace);
+            $this->namespace = $this->validateUrl($namespace);
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }
@@ -142,7 +142,7 @@ final class Format extends Entity
     public function setSchema(string $schema): void
     {
         try {
-            $this->xmlSchema = $this->validateUrl(url: $schema);
+            $this->xmlSchema = $this->validateUrl($schema);
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }
@@ -160,12 +160,9 @@ final class Format extends Entity
     public function __construct(string $prefix, string $namespace, string $schema)
     {
         try {
-            $this->prefix = $this->validateRegEx(
-                string: $prefix,
-                regEx: '/^[A-Za-z0-9\-_\.!~\*\'\(\)]+$/'
-            );
-            $this->setNamespace(namespace: $namespace);
-            $this->setSchema(schema: $schema);
+            $this->prefix = $this->validateRegEx($prefix, '/^[A-Za-z0-9\-_\.!~\*\'\(\)]+$/');
+            $this->setNamespace($namespace);
+            $this->setSchema($schema);
             $this->records = new ArrayCollection();
         } catch (ValidationFailedException $exception) {
             throw $exception;

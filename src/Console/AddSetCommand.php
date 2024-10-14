@@ -81,20 +81,16 @@ class AddSetCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->validateInput(input: $input, output: $output)) {
+        if (!$this->validateInput($input, $output)) {
             return Command::INVALID;
         }
 
         if (array_key_exists('file', $this->arguments)) {
-            $description = file_get_contents(filename: $this->arguments['file']) ?: null;
+            $description = file_get_contents($this->arguments['file']) ?: null;
         }
 
-        $set = new Set(
-            spec: $this->arguments['setSpec'],
-            name: $this->arguments['setName'],
-            description: $description ?? null
-        );
-        $this->em->addOrUpdate(entity: $set);
+        $set = new Set($this->arguments['setSpec'], $this->arguments['setName'], $description ?? null);
+        $this->em->addOrUpdate($set);
 
         return Command::SUCCESS;
     }

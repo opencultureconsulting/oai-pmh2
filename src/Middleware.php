@@ -88,24 +88,24 @@ abstract class Middleware extends AbstractMiddleware
     protected function addResumptionToken(DOMElement $node, ?Token $token): void
     {
         if (isset($token) || isset($this->arguments['resumptionToken'])) {
-            $resumptionToken = $this->preparedResponse->createElement(localName: 'resumptionToken');
+            $resumptionToken = $this->preparedResponse->createElement('resumptionToken');
             if (isset($token)) {
                 $resumptionToken->nodeValue = $token->getToken();
                 $resumptionToken->setAttribute(
-                    qualifiedName: 'expirationDate',
-                    value: $token->getValidUntil()->format(format: 'Y-m-d\TH:i:s\Z')
+                    'expirationDate',
+                    $token->getValidUntil()->format('Y-m-d\TH:i:s\Z')
                 );
                 $this->arguments['completeListSize'] = $token->getParameters()['completeListSize'];
             }
             $resumptionToken->setAttribute(
-                qualifiedName: 'completeListSize',
-                value: (string) $this->arguments['completeListSize']
+                'completeListSize',
+                (string) $this->arguments['completeListSize']
             );
             $resumptionToken->setAttribute(
-                qualifiedName: 'cursor',
-                value: (string) ($this->arguments['counter'] * Configuration::getInstance()->maxRecords)
+                'cursor',
+                (string) ($this->arguments['counter'] * Configuration::getInstance()->maxRecords)
             );
-            $node->appendChild(node: $resumptionToken);
+            $node->appendChild($resumptionToken);
         }
     }
 
@@ -117,14 +117,11 @@ abstract class Middleware extends AbstractMiddleware
     protected function checkResumptionToken(): void
     {
         if (isset($this->arguments['resumptionToken'])) {
-            $token = $this->em->getResumptionToken(
-                token: $this->arguments['resumptionToken'],
-                verb: $this->arguments['verb']
-            );
+            $token = $this->em->getResumptionToken($this->arguments['resumptionToken'], $this->arguments['verb']);
             if (isset($token)) {
                 $this->arguments = array_merge($this->arguments, $token->getParameters());
             } else {
-                ErrorHandler::getInstance()->withError(errorCode: 'badResumptionToken');
+                ErrorHandler::getInstance()->withError('badResumptionToken');
             }
         }
     }
@@ -150,7 +147,7 @@ abstract class Middleware extends AbstractMiddleware
         /** @var OaiRequestMetadata */
         $arguments = $request->getAttributes();
         $this->arguments = array_merge($this->arguments, $arguments);
-        $this->prepareResponse(request: $request);
+        $this->prepareResponse($request);
         return $request;
     }
 
@@ -164,11 +161,7 @@ abstract class Middleware extends AbstractMiddleware
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
         if (!ErrorHandler::getInstance()->hasErrors() && isset($this->preparedResponse)) {
-            $response = $response->withBody(
-                body: Utils::streamFor(
-                    resource: (string) $this->preparedResponse
-                )
-            );
+            $response = $response->withBody(Utils::streamFor((string) $this->preparedResponse));
         }
         return $response;
     }

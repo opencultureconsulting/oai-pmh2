@@ -46,64 +46,51 @@ class GetRecord extends Middleware
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $oaiRecord = $this->em->getRecord(
-            identifier: (string) $this->arguments['identifier'],
-            format: (string) $this->arguments['metadataPrefix']
+            (string) $this->arguments['identifier'],
+            (string) $this->arguments['metadataPrefix']
         );
 
         if (!isset($oaiRecord)) {
-            if ($this->em->isValidRecordIdentifier(identifier: (string) $this->arguments['identifier'])) {
-                ErrorHandler::getInstance()->withError(errorCode: 'cannotDisseminateFormat');
+            if ($this->em->isValidRecordIdentifier((string) $this->arguments['identifier'])) {
+                ErrorHandler::getInstance()->withError('cannotDisseminateFormat');
             } else {
-                ErrorHandler::getInstance()->withError(errorCode: 'idDoesNotExist');
+                ErrorHandler::getInstance()->withError('idDoesNotExist');
             }
             return;
         }
 
-        $response = new Response(serverRequest: $request);
-        $getRecord = $response->createElement(
-            localName: 'GetRecord',
-            value: '',
-            appendToRoot: true
-        );
+        $response = new Response($request);
+        $getRecord = $response->createElement('GetRecord', '', true);
 
-        $record = $response->createElement(localName: 'record');
-        $getRecord->appendChild(node: $record);
+        $record = $response->createElement('record');
+        $getRecord->appendChild($record);
 
-        $header = $response->createElement(localName: 'header');
+        $header = $response->createElement('header');
         if (!$oaiRecord->hasContent()) {
-            $header->setAttribute(
-                qualifiedName: 'status',
-                value: 'deleted'
-            );
+            $header->setAttribute('status', 'deleted');
         }
-        $record->appendChild(node: $header);
+        $record->appendChild($header);
 
-        $identifier = $response->createElement(
-            localName: 'identifier',
-            value: $oaiRecord->getIdentifier()
-        );
-        $header->appendChild(node: $identifier);
+        $identifier = $response->createElement('identifier', $oaiRecord->getIdentifier());
+        $header->appendChild($identifier);
 
         $datestamp = $response->createElement(
-            localName: 'datestamp',
-            value: $oaiRecord->getLastChanged()->format(format: 'Y-m-d\TH:i:s\Z')
+            'datestamp',
+            $oaiRecord->getLastChanged()->format('Y-m-d\TH:i:s\Z')
         );
-        $header->appendChild(node: $datestamp);
+        $header->appendChild($datestamp);
 
         foreach ($oaiRecord->getSets() as $set) {
-            $setSpec = $response->createElement(
-                localName: 'setSpec',
-                value: $set->getName()
-            );
-            $header->appendChild(node: $setSpec);
+            $setSpec = $response->createElement('setSpec', $set->getName());
+            $header->appendChild($setSpec);
         }
 
         if ($oaiRecord->hasContent()) {
-            $metadata = $response->createElement(localName: 'metadata');
-            $record->appendChild(node: $metadata);
+            $metadata = $response->createElement('metadata');
+            $record->appendChild($metadata);
 
-            $data = $response->importData(data: $oaiRecord->getContent());
-            $metadata->appendChild(node: $data);
+            $data = $response->importData($oaiRecord->getContent());
+            $metadata->appendChild($data);
         }
 
         $this->preparedResponse = $response;

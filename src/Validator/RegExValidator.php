@@ -45,12 +45,10 @@ class RegExValidator
     protected static function getValidationConstraints(string $regEx): array
     {
         return [
-            new Assert\Regex(
-                pattern: [
-                    'pattern' => $regEx,
-                    'message' => 'This value does not match the regular expression "{{ pattern }}".'
-                ]
-            )
+            new Assert\Regex([
+                'pattern' => $regEx,
+                'message' => 'This value does not match the regular expression "{{ pattern }}".'
+            ])
         ];
     }
 
@@ -65,8 +63,8 @@ class RegExValidator
     public static function validate(string $string, string $regEx): ConstraintViolationListInterface
     {
         return Validation::createValidator()->validate(
-            value: $string,
-            constraints: self::getValidationConstraints(regEx: $regEx)
+            $string,
+            self::getValidationConstraints($regEx)
         );
     }
 }

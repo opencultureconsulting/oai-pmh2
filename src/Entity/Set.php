@@ -80,9 +80,9 @@ final class Set extends Entity
      */
     public function addRecord(Record $record): void
     {
-        if (!$this->records->contains(element: $record)) {
-            $this->records->add(element: $record);
-            $record->addSet(set: $this);
+        if (!$this->records->contains($record)) {
+            $this->records->add($record);
+            $record->addSet($this);
         }
     }
 
@@ -158,9 +158,9 @@ final class Set extends Entity
      */
     public function removeRecord(Record $record): void
     {
-        if ($this->records->contains(element: $record)) {
-            $this->records->removeElement(element: $record);
-            $record->removeSet(set: $this);
+        if ($this->records->contains($record)) {
+            $this->records->removeElement($record);
+            $record->removeSet($this);
         }
     }
 
@@ -178,7 +178,7 @@ final class Set extends Entity
         if (isset($description)) {
             $description = trim($description);
             try {
-                $description = $this->validateXml(xml: $description);
+                $description = $this->validateXml($description);
             } catch (ValidationFailedException $exception) {
                 throw $exception;
             }
@@ -211,11 +211,11 @@ final class Set extends Entity
     {
         try {
             $this->spec = $this->validateRegEx(
-                string: $spec,
-                regEx: '/^([A-Za-z0-9\-_\.!~\*\'\(\)])+(:[A-Za-z0-9\-_\.!~\*\'\(\)]+)*$/'
+                $spec,
+                '/^([A-Za-z0-9\-_\.!~\*\'\(\)])+(:[A-Za-z0-9\-_\.!~\*\'\(\)]+)*$/'
             );
-            $this->setName(name: $name);
-            $this->setDescription(description: $description);
+            $this->setName($name);
+            $this->setDescription($description);
             $this->records = new ArrayCollection();
         } catch (ValidationFailedException $exception) {
             throw $exception;

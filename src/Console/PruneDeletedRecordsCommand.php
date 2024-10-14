@@ -79,8 +79,8 @@ class PruneDeletedRecordsCommand extends Console
             $output->writeln([
                 '',
                 sprintf(
-                    format: ' [OK] %d deleted records were successfully removed! ',
-                    values: $deleted
+                    ' [OK] %d deleted records were successfully removed! ',
+                    $deleted
                 ),
                 ''
             ]);

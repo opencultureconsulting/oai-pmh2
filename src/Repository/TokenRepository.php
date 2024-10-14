@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Repository;
 
-use DateTime;
 use Doctrine\ORM\EntityRepository;
 use OCC\OaiPmh2\Entity\Token;
 
@@ -45,7 +44,7 @@ final class TokenRepository extends EntityRepository
      */
     public function addOrUpdate(Token $entity): void
     {
-        $this->getEntityManager()->persist(object: $entity);
+        $this->getEntityManager()->persist($entity);
     }
 
     /**
@@ -58,7 +57,7 @@ final class TokenRepository extends EntityRepository
     public function delete(Token $entity): void
     {
         $entityManager = $this->getEntityManager();
-        $entityManager->remove(object: $entity);
+        $entityManager->remove($entity);
         $entityManager->flush();
     }
 }

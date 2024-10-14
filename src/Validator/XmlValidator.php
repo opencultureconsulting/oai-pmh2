@@ -44,7 +44,7 @@ class XmlValidator
     protected static function getValidationConstraints(): array
     {
         return [
-            new Assert\Type(type: 'string'),
+            new Assert\Type('string'),
             new Assert\NotBlank()
         ];
     }
@@ -59,18 +59,18 @@ class XmlValidator
     public static function validate(string $xml): ConstraintViolationListInterface
     {
         $violations = Validation::createValidator()->validate(
-            value: $xml,
-            constraints: self::getValidationConstraints()
+            $xml,
+            self::getValidationConstraints()
         );
-        if (simplexml_load_string(data: $xml) === false) {
+        if (simplexml_load_string($xml) === false) {
             $violations->add(
-                violation: new ConstraintViolation(
-                    message: 'Value could not be parsed as XML.',
-                    messageTemplate: 'Value could not be parsed as XML.',
-                    parameters: [],
-                    root: $xml,
-                    propertyPath: null,
-                    invalidValue: $xml
+                new ConstraintViolation(
+                    'Value could not be parsed as XML.',
+                    'Value could not be parsed as XML.',
+                    [],
+                    $xml,
+                    null,
+                    $xml
                 )
             );
         }

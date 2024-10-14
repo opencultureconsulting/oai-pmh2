@@ -54,8 +54,8 @@ class PruneResumptionTokensCommand extends Console
         $output->writeln([
             '',
             sprintf(
-                format: ' [OK] %d expired resumption tokens were successfully deleted! ',
-                values: $expired
+                ' [OK] %d expired resumption tokens were successfully deleted! ',
+                $expired
             ),
             ''
         ]);

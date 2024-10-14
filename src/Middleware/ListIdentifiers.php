@@ -48,75 +48,62 @@ class ListIdentifiers extends Middleware
         $this->checkResumptionToken();
 
         $records = $this->em->getRecords(
-            verb: $this->arguments['verb'],
-            metadataPrefix: (string) $this->arguments['metadataPrefix'],
-            counter: $this->arguments['counter'],
-            from: $this->arguments['from'],
-            until: $this->arguments['until'],
-            set: $this->arguments['set']
+            $this->arguments['verb'],
+            (string) $this->arguments['metadataPrefix'],
+            $this->arguments['counter'],
+            $this->arguments['from'],
+            $this->arguments['until'],
+            $this->arguments['set']
         );
         if (count($records) === 0) {
-            ErrorHandler::getInstance()->withError(errorCode: 'noRecordsMatch');
+            ErrorHandler::getInstance()->withError('noRecordsMatch');
             return;
         }
 
-        $response = new Response(serverRequest: $request);
-        $list = $response->createElement(
-            localName: $this->arguments['verb'],
-            value: '',
-            appendToRoot: true
-        );
+        $response = new Response($request);
+        $list = $response->createElement($this->arguments['verb'], '', true);
         $baseNode = $list;
 
         foreach ($records as $oaiRecord) {
             if ($this->arguments['verb'] === 'ListRecords') {
-                $record = $response->createElement(localName: 'record');
-                $list->appendChild(node: $record);
+                $record = $response->createElement('record');
+                $list->appendChild($record);
                 $baseNode = $record;
             }
 
-            $header = $response->createElement(localName: 'header');
-            $baseNode->appendChild(node: $header);
+            $header = $response->createElement('header');
+            $baseNode->appendChild($header);
 
             $identifier = $response->createElement(
-                localName: 'identifier',
-                value: $oaiRecord->getIdentifier()
+                'identifier',
+                $oaiRecord->getIdentifier()
             );
-            $header->appendChild(node: $identifier);
+            $header->appendChild($identifier);
 
             $datestamp = $response->createElement(
-                localName: 'datestamp',
-                value: $oaiRecord->getLastChanged()->format(format: 'Y-m-d\TH:i:s\Z')
+                'datestamp',
+                $oaiRecord->getLastChanged()->format('Y-m-d\TH:i:s\Z')
             );
-            $header->appendChild(node: $datestamp);
+            $header->appendChild($datestamp);
 
             foreach ($oaiRecord->getSets() as $oaiSet) {
-                $setSpec = $response->createElement(
-                    localName: 'setSpec',
-                    value: $oaiSet->getName()
-                );
-                $header->appendChild(node: $setSpec);
+                $setSpec = $response->createElement('setSpec', $oaiSet->getName());
+                $header->appendChild($setSpec);
             }
 
             if (!$oaiRecord->hasContent()) {
-                $header->setAttribute(
-                    qualifiedName: 'status',
-                    value: 'deleted'
-                );
+                $header->setAttribute('status', 'deleted');
             } elseif ($this->arguments['verb'] === 'ListRecords') {
-                $metadata = $response->createElement(localName: 'metadata');
-                $baseNode->appendChild(node: $metadata);
+                $metadata = $response->createElement('metadata');
+                $baseNode->appendChild($metadata);
 
-                $data = $response->importData(data: $oaiRecord->getContent());
-                $metadata->appendChild(node: $data);
+                $data = $response->importData($oaiRecord->getContent());
+                $metadata->appendChild($data);
             }
         }
 
         $this->preparedResponse = $response;
 
-        $this->addResumptionToken(
-            node: $list,
-            token: $records->getResumptionToken() ?? null
-        );
+        $this->addResumptionToken($list, $records->getResumptionToken() ?? null);
     }
 }

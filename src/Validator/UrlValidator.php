@@ -58,8 +58,8 @@ class UrlValidator
     public static function validate(string $url): ConstraintViolationListInterface
     {
         return Validation::createValidator()->validate(
-            value: $url,
-            constraints: self::getValidationConstraints()
+            $url,
+            self::getValidationConstraints()
         );
     }
 }

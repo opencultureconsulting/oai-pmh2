@@ -49,32 +49,30 @@ final class RecordRepository extends EntityRepository
     {
         /** @var EntityManager */
         $entityManager = $this->getEntityManager();
-        $oldRecord = $this->find(
-            id: [
-                'identifier' => $entity->getIdentifier(),
-                'format' => $entity->getFormat()
-            ]
-        );
+        $oldRecord = $this->find([
+            'identifier' => $entity->getIdentifier(),
+            'format' => $entity->getFormat()
+        ]);
         if (isset($oldRecord)) {
             if ($entity->hasContent() || Configuration::getInstance()->deletedRecords !== 'no') {
-                $oldRecord->setContent(data: $entity->getContent(), validate: false);
-                $oldRecord->setLastChanged(dateTime: $entity->getLastChanged());
+                $oldRecord->setContent($entity->getContent(), false);
+                $oldRecord->setLastChanged($entity->getLastChanged());
                 $newSets = $entity->getSets()->toArray();
                 $oldSets = $oldRecord->getSets()->toArray();
                 // Add new sets.
-                foreach (array_diff(array: $newSets, arrays: $oldSets) as $newSet) {
-                    $oldRecord->addSet(set: $newSet);
+                foreach (array_diff($newSets, $oldSets) as $newSet) {
+                    $oldRecord->addSet($newSet);
                 }
                 // Remove old sets.
-                foreach (array_diff(array: $oldSets, arrays: $newSets) as $oldSet) {
-                    $oldRecord->removeSet(set: $oldSet);
+                foreach (array_diff($oldSets, $newSets) as $oldSet) {
+                    $oldRecord->removeSet($oldSet);
                 }
             } else {
-                $entityManager->remove(object: $oldRecord);
+                $entityManager->remove($oldRecord);
             }
         } else {
             if ($entity->hasContent() || Configuration::getInstance()->deletedRecords !== 'no') {
-                $entityManager->persist(object: $entity);
+                $entityManager->persist($entity);
             }
         }
     }
@@ -91,12 +89,12 @@ final class RecordRepository extends EntityRepository
         /** @var EntityManager */
         $entityManager = $this->getEntityManager();
         if (Configuration::getInstance()->deletedRecords === 'no') {
-            $entityManager->remove(object: $entity);
+            $entityManager->remove($entity);
             $entityManager->flush();
             $entityManager->pruneOrphanedSets();
         } else {
             $entity->setContent();
-            $entity->setLastChanged(dateTime: new DateTime());
+            $entity->setLastChanged(new DateTime());
             $entityManager->flush();
         }
     }

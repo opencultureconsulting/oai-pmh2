@@ -71,17 +71,14 @@ class DeleteRecordCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->validateInput(input: $input, output: $output)) {
+        if (!$this->validateInput($input, $output)) {
             return Command::INVALID;
         }
 
-        $record = $this->em->getRecord(
-            identifier: $this->arguments['identifier'],
-            format: $this->arguments['format']
-        );
+        $record = $this->em->getRecord($this->arguments['identifier'], $this->arguments['format']);
 
         if (isset($record)) {
-            $this->em->delete(entity: $record);
+            $this->em->delete($record);
             $this->clearResultCache();
             $output->writeln([
                 '',
