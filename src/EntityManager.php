@@ -107,8 +107,8 @@ final class EntityManager extends EntityManagerDecorator
     {
         $timestamp = '0000-00-00T00:00:00Z';
         $dql = $this->createQueryBuilder();
-        $dql->select($dql->expr()->min('record.lastChanged'));
-        $dql->from(Record::class, 'record');
+        $dql->select($dql->expr()->min('records.lastChanged'));
+        $dql->from(Record::class, 'records');
         $query = $dql->getQuery()->enableResultCache();
         /** @var ?string $result */
         $result = $query->getOneOrNullResult(AbstractQuery::HYDRATE_SCALAR_COLUMN);
@@ -141,9 +141,10 @@ final class EntityManager extends EntityManagerDecorator
             $formats = $this->getRepository(Format::class)->findAll();
         } else {
             $dql = $this->createQueryBuilder();
-            $dql->select('record.format')
-                ->from(Record::class, 'record')
-                ->where($dql->expr()->eq('record.identifier', ':recordIdentifier'))
+            $dql->select('formats')
+                ->from(Format::class, 'formats')
+                ->innerJoin('formats.records', 'records')
+                ->where($dql->expr()->eq('records.identifier', ':recordIdentifier'))
                 ->setParameter('recordIdentifier', $recordIdentifier);
             $query = $dql->getQuery()->enableResultCache();
             /** @var Format[] */
@@ -196,18 +197,18 @@ final class EntityManager extends EntityManagerDecorator
         $cursor = $counter * $maxRecords;
 
         $dql = $this->createQueryBuilder();
-        $dql->select('record')
-            ->from(Record::class, 'record', 'record.identifier')
-            ->where($dql->expr()->eq('record.format', ':metadataPrefix'))
+        $dql->select('records')
+            ->from(Record::class, 'records', 'records.identifier')
+            ->where($dql->expr()->eq('records.format', ':metadataPrefix'))
             ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix))
             ->setFirstResult($cursor)
             ->setMaxResults($maxRecords);
         if (isset($from)) {
-            $dql->andWhere($dql->expr()->gte('record.lastChanged', ':from'));
+            $dql->andWhere($dql->expr()->gte('records.lastChanged', ':from'));
             $dql->setParameter('from', new DateTime($from));
         }
         if (isset($until)) {
-            $dql->andWhere($dql->expr()->lte('record.lastChanged', ':until'));
+            $dql->andWhere($dql->expr()->lte('records.lastChanged', ':until'));
             $dql->setParameter('until', new DateTime($until));
         }
         if (isset($set)) {
@@ -296,8 +297,8 @@ final class EntityManager extends EntityManagerDecorator
         $cursor = $counter * $maxRecords;
 
         $dql = $this->createQueryBuilder();
-        $dql->select('set')
-            ->from(Set::class, 'set', 'set.spec')
+        $dql->select('sets')
+            ->from(Set::class, 'sets', 'sets.spec')
             ->setFirstResult($cursor)
             ->setMaxResults($maxRecords);
         $query = $dql->getQuery()->enableResultCache();
@@ -348,8 +349,8 @@ final class EntityManager extends EntityManagerDecorator
     public function pruneDeletedRecords(): int
     {
         $dql = $this->createQueryBuilder();
-        $dql->delete(Record::class, 'record')
-            ->where($dql->expr()->isNull('record.content'));
+        $dql->delete(Record::class, 'records')
+            ->where($dql->expr()->isNull('records.content'));
         /** @var int */
         $deleted = $dql->getQuery()->execute();
         if ($deleted > 0) {
@@ -366,8 +367,8 @@ final class EntityManager extends EntityManagerDecorator
     public function pruneExpiredTokens(): int
     {
         $dql = $this->createQueryBuilder();
-        $dql->delete(Token::class, 'token')
-            ->where($dql->expr()->lt('token.validUntil', new DateTime()));
+        $dql->delete(Token::class, 'tokens')
+            ->where($dql->expr()->lt('tokens.validUntil', new DateTime()));
         /** @var int */
         return $dql->getQuery()->execute();
     }
