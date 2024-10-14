@@ -40,7 +40,7 @@ use OCC\OaiPmh2\Repository\TokenRepository;
 #[ORM\Entity(repositoryClass: TokenRepository::class)]
 #[ORM\Table(name: 'tokens')]
 #[ORM\Index(name: 'valid_until_idx', columns: ['valid_until'])]
-final class Token extends Entity
+class Token extends Entity
 {
     /**
      * The resumption token.
