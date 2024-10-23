@@ -31,7 +31,7 @@ jobs:
       - name: Run PHP Mess Detector
         uses: php-actions/phpmd@v1
         with:
-          path: bin/ public/ src/
+          path: bin/,public/,src/
           php_version: "8.1"
           ruleset: .phpmd.dist.xml
           output: sarif
