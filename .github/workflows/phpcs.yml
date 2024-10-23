@@ -28,8 +28,4 @@ jobs:
           php_version: "8.1"
 
       - name: Run PHP_CodeSniffer
-        uses: php-actions/phpcs@v1
-        with:
-          path: src/
-          php_version: "8.1"
-          standard: phpcs.xml.dist
+        run: composer phpcs:check
