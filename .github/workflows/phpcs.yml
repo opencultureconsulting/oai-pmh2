@@ -30,6 +30,6 @@ jobs:
       - name: Run PHP_CodeSniffer
         uses: php-actions/phpcs@v1
         with:
-          path: bin/ public/ src/
+          path: .
           php_version: "8.1"
           standard: phpcs.xml.dist
