@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      security-events: write
       actions: read
 
     steps:
@@ -29,8 +28,4 @@ jobs:
           php_version: "8.1"
 
       - name: Run PHPStan
-        uses: php-actions/phpstan@v3
-        with:
-          path: bin/ public/ src/
-          php_version: "8.1"
-          configuration: phpstan.dist.neon
+        run: composer phpstan:check
