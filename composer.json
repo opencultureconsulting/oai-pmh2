@@ -64,7 +64,7 @@
     },
     "scripts": {
         "pre-install-cmd": [
-            "@php -r \"if (!is_dir('./data')) { mkdir('./data', 0775); }\"",
+            "@php -r \"if (!is_dir('./data')) { umask(0); mkdir('./data', 0775); }\"",
             "@php -r \"if (!file_exists('./config/config.yml')) { copy('./config/config.dist.yml', './config/config.yml'); }\""
         ],
         "post-install-cmd": [
