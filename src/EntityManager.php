@@ -416,8 +416,11 @@ final class EntityManager extends EntityManagerDecorator
             }
         );
 
-        $baseDir = Path::canonicalize(__DIR__ . '/../');
-        $dsn = str_replace('%BASEDIR%', $baseDir, Configuration::getInstance()->database);
+        $dsn = str_replace(
+            '%BASEDIR%',
+            Path::canonicalize(__DIR__ . '/../'),
+            Configuration::getInstance()->database
+        );
         $parser = new DsnParser([
             'mariadb' => 'pdo_mysql',
             'mssql' => 'pdo_sqlsrv',
@@ -429,7 +432,7 @@ final class EntityManager extends EntityManagerDecorator
         $conn = DriverManager::getConnection(
             // Generic return type of DsnParser::parse() is not correctly recognized.
             // phpcs:ignore
-            $parser->parse(dsn: $dsn),
+            $parser->parse($dsn),
             $config
         );
 
