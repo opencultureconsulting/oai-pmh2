@@ -117,6 +117,9 @@ class Token extends Entity
     public function __construct(string $verb, array $parameters)
     {
         $this->token = substr(md5(microtime()), 0, 8);
+        if (isset($parameters['metadataPrefix'])) {
+            $this->token .= '~' . $parameters['metadataPrefix'];
+        }
         $this->verb = $verb;
         $this->parameters = serialize($parameters);
         $validUntil = new DateTime();

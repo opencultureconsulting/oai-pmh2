@@ -143,7 +143,7 @@
             <xsl:value-of select="/oai:OAI-PMH/oai:request/@metadataPrefix"/>
         </xsl:when>
         <xsl:when test="/oai:OAI-PMH/oai:request/@resumptionToken != ''">
-            <xsl:value-of select="substring-after(/oai:OAI-PMH/oai:request/@resumptionToken,'_')"/>
+            <xsl:value-of select="substring-after(/oai:OAI-PMH/oai:request/@resumptionToken,'~')"/>
         </xsl:when>
         </xsl:choose>
     </xsl:variable>
