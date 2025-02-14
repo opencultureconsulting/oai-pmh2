@@ -368,7 +368,8 @@ final class EntityManager extends EntityManagerDecorator
     {
         $dql = $this->createQueryBuilder();
         $dql->delete(Token::class, 'tokens')
-            ->where($dql->expr()->lt('tokens.validUntil', new DateTime()));
+            ->where($dql->expr()->lt('tokens.validUntil', ':now'))
+            ->setParameter('now', new DateTime());
         /** @var int */
         return $dql->getQuery()->execute();
     }
