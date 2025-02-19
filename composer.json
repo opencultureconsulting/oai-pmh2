@@ -42,13 +42,13 @@
         "symfony/yaml": "^6.4"
     },
     "require-dev": {
-        "phpdocumentor/shim": "^3.6",
+        "phpdocumentor/shim": "^3.7",
         "phpmd/phpmd": "^2.15",
         "phpstan/phpstan": "^1.12",
         "phpstan/phpstan-doctrine": "^1.5",
         "phpstan/phpstan-strict-rules": "^1.6",
         "phpstan/phpstan-symfony": "^1.4",
-        "friendsofphp/php-cs-fixer": "^3.68",
+        "friendsofphp/php-cs-fixer": "^3.69",
         "squizlabs/php_codesniffer": "^3.11",
         "vimeo/psalm": "^5.26"
     },
