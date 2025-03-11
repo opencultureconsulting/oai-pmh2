@@ -10,15 +10,21 @@
         "oai-pmh2",
         "code4lib"
     ],
-    "homepage": "https://github.com/opencultureconsulting/oai-pmh2",
+    "homepage": "https://opencultureconsulting.github.io/oai-pmh2/",
     "readme": "README.md",
-    "license": ["GPL-3.0-or-later"],
+    "license": "GPL-3.0-or-later",
     "authors": [
+        {
+            "name": "Open Culture Consulting",
+            "email": "office@opencultureconsulting.com",
+            "homepage": "https://www.opencultureconsulting.com",
+            "role": "maintainer"
+        },
         {
             "name": "Sebastian Meyer",
             "email": "sebastian.meyer@opencultureconsulting.com",
-            "homepage": "https://www.opencultureconsulting.com",
-            "role": "maintainer"
+            "homepage": "https://www.informathekar.de",
+            "role": "developer"
         }
     ],
     "support": {
@@ -48,7 +54,7 @@
         "phpstan/phpstan-doctrine": "^1.5",
         "phpstan/phpstan-strict-rules": "^1.6",
         "phpstan/phpstan-symfony": "^1.4",
-        "friendsofphp/php-cs-fixer": "^3.69",
+        "friendsofphp/php-cs-fixer": "^3.71",
         "squizlabs/php_codesniffer": "^3.11",
         "vimeo/psalm": "^5.26"
     },
@@ -58,9 +64,6 @@
         }
     },
     "config": {
-        "platform": {
-            "php": "8.1"
-        },
         "allow-plugins": {
             "phpdocumentor/shim": true
         }
