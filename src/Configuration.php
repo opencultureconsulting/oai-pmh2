@@ -38,7 +38,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property-read string $repositoryName Common name of this repository
  * @property-read string $adminEmail Repository contact's e-mail address
  * @property-read string $database Database's data source name (DSN)
- * @property-read array $metadataPrefix Array of served metadata prefixes
+ * @property-read array<string, array<string, string>> $metadataPrefix Array of served metadata prefixes
  * @property-read string $deletedRecords Repository's deleted records policy
  * @property-read int $maxRecords Maximum number of records served per request
  * @property-read int $tokenValid Number of seconds resumption tokens are valid

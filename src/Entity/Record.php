@@ -179,8 +179,7 @@ class Record extends Entity
      *
      * @return bool TRUE if content exists, FALSE otherwise
      *
-     * @psalm-assert-if-true string $this->content
-     * @psalm-assert-if-true string $this->getContent()
+     * @phpstan-assert-if-true !null $this->getContent()
      */
     public function hasContent(): bool
     {

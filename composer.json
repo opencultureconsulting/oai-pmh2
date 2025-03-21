@@ -50,13 +50,15 @@
     "require-dev": {
         "phpdocumentor/shim": "^3.7",
         "phpmd/phpmd": "^2.15",
-        "phpstan/phpstan": "^1.12",
-        "phpstan/phpstan-doctrine": "^1.5",
-        "phpstan/phpstan-strict-rules": "^1.6",
-        "phpstan/phpstan-symfony": "^1.4",
-        "friendsofphp/php-cs-fixer": "^3.71",
-        "squizlabs/php_codesniffer": "^3.11",
-        "vimeo/psalm": "^5.26"
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-doctrine": "^2.0",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpstan/phpstan-symfony": "^2.0",
+        "friendsofphp/php-cs-fixer": "^3.73",
+        "squizlabs/php_codesniffer": "^3.12",
+        "vimeo/psalm": "^6.9",
+        "psalm/plugin-symfony": "^5.2",
+        "weirdan/doctrine-psalm-plugin": "^2.10"
     },
     "autoload": {
         "psr-4": {

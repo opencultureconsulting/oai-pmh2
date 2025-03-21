@@ -51,7 +51,7 @@ use Symfony\Component\Filesystem\Path;
  * @mixin DoctrineEntityManager
  *
  * @psalm-import-type Params from DriverManager
- * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
+ * @SuppressWarnings("PHPMD.CouplingBetweenObjects")
  */
 final class EntityManager extends EntityManagerDecorator
 {
@@ -431,8 +431,6 @@ final class EntityManager extends EntityManagerDecorator
             'sqlite' => 'pdo_sqlite'
         ]);
         $conn = DriverManager::getConnection(
-            // Generic return type of DsnParser::parse() is not correctly recognized.
-            // phpcs:ignore
             $parser->parse($dsn),
             $config
         );

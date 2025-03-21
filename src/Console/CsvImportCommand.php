@@ -139,30 +139,36 @@ class CsvImportCommand extends Console
         $progressIndicator = new ProgressIndicator($output, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
         $progressIndicator->start('Importing...');
 
-        while ($row = fgetcsv($file)) {
-            /** @var Format */
-            $format = $this->em->getMetadataFormat($this->arguments['format']);
-            $record = new Record($row[$columnMapping['idColumn']], $format);
-            if (strlen(trim($row[$columnMapping['contentColumn']])) > 0) {
-                $record->setContent($row[$columnMapping['contentColumn']], !$this->arguments['noValidation']);
-            }
-            if (isset($columnMapping['dateColumn'])) {
-                $record->setLastChanged(new DateTime($row[$columnMapping['dateColumn']]));
-            }
-            if (isset($columnMapping['setColumn'])) {
-                $sets = $row[$columnMapping['setColumn']];
-                foreach (explode(',', $sets) as $set) {
-                    /** @var Set */
-                    $setSpec = $this->em->getSet(trim($set));
-                    $record->addSet($setSpec);
+        while ($row = fgetcsv($file, null, ",", "\"", "\\")) {
+            if (!is_null($row[0])) {
+                /** @var Format */
+                $format = $this->em->getMetadataFormat($this->arguments['format']);
+                /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
+                $record = new Record($row[$columnMapping['idColumn']], $format);
+                /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
+                if (strlen(trim($row[$columnMapping['contentColumn']])) > 0) {
+                    $record->setContent($row[$columnMapping['contentColumn']], !$this->arguments['noValidation']);
                 }
-            }
-            $this->em->addOrUpdate($record, true);
+                if (isset($columnMapping['dateColumn'])) {
+                    /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
+                    $record->setLastChanged(new DateTime($row[$columnMapping['dateColumn']]));
+                }
+                if (isset($columnMapping['setColumn'])) {
+                    $sets = $row[$columnMapping['setColumn']];
+                    /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
+                    foreach (explode(',', $sets) as $set) {
+                        /** @var Set */
+                        $setSpec = $this->em->getSet(trim($set));
+                        $record->addSet($setSpec);
+                    }
+                }
+                $this->em->addOrUpdate($record, true);
 
-            ++$count;
-            $progressIndicator->advance();
-            $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed.');
-            $this->checkMemoryUsage();
+                ++$count;
+                $progressIndicator->advance();
+                $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed.');
+                $this->checkMemoryUsage();
+            }
         }
         $this->em->flush();
         $this->em->pruneOrphanedSets();
@@ -204,20 +210,19 @@ class CsvImportCommand extends Console
             'setColumn' => $input->getOption('setColumn')
         ];
 
-        $headers = fgetcsv($file);
-        if (!is_array($headers) || !isset($headers[0])) {
+        $headers = fgetcsv($file, null, ",", "\"", "\\");
+        if (!is_array($headers) || is_null($headers[0])) {
             $output->writeln([
                 '',
                 sprintf(
                     ' [ERROR] File "%s" does not contain valid CSV. ',
-                    /** @phpstan-ignore-next-line - URI is always set for fopen() resources. */
-                    stream_get_meta_data($file)['uri'] ?: 'unknown'
+                    stream_get_meta_data($file)['uri'] ?? 'unknown'
                 ),
                 ''
             ]);
             return null;
         }
-        /** @var array<string, int> */
+        /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
         $headers = array_flip($headers);
 
         $callback = function (string $column) use ($headers): ?int {
@@ -231,8 +236,7 @@ class CsvImportCommand extends Console
                 '',
                 sprintf(
                     ' [ERROR] File "%s" does not contain mandatory columns. ',
-                    /** @phpstan-ignore-next-line - URI is always set for fopen() resources. */
-                    stream_get_meta_data($file)['uri'] ?: 'unknown'
+                    stream_get_meta_data($file)['uri'] ?? 'unknown'
                 ),
                 ''
             ]);

@@ -53,17 +53,16 @@ class UpdateFormatsCommand extends Console
      */
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        /** @var array<string, array<string, string>> */
         $formats = Configuration::getInstance()->metadataPrefix;
         $this->clearResultCache();
         $inDatabase = $this->em->getMetadataFormats();
         $failure = false;
         foreach ($formats as $prefix => $format) {
             if (
-                $inDatabase->containsKey(key: $prefix)
-                /** @phpstan-ignore-next-line - $inDatabase[$prefix] is always of type Format. */
+                $inDatabase->containsKey($prefix)
+                /** @phpstan-ignore-next-line - see line 62 */
                 and $format['namespace'] === $inDatabase[$prefix]->getNamespace()
-                /** @phpstan-ignore-next-line - $inDatabase[$prefix] is always of type Format. */
+                /** @phpstan-ignore-next-line - see line 62 */
                 and $format['schema'] === $inDatabase[$prefix]->getSchema()
             ) {
                 continue;

@@ -12,11 +12,17 @@
 
     <rule ref="rulesets/cleancode.xml">
         <!--
+            We want boolean flags for optional features of some methods.
+        -->
+        <exclude name="BooleanArgumentFlag" />
+        <!--
             We sometimes want to use else expressions for better readability.
         -->
         <exclude name="ElseExpression" />
+        <!--
+            We need to statically access third-party helpers from Symfony.
+        -->
         <exclude name="StaticAccess" />
-        <exclude name="BooleanArgumentFlag" />
     </rule>
     <rule ref="rulesets/codesize.xml" />
     <rule ref="rulesets/controversial.xml" />

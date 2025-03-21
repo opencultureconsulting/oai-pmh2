@@ -131,8 +131,7 @@ class Set extends Entity
      *
      * @return bool TRUE if description exists, FALSE otherwise
      *
-     * @psalm-assert-if-true string $this->description
-     * @psalm-assert-if-true string $this->getDescription()
+     * @phpstan-assert-if-true !null $this->getDescription()
      */
     public function hasDescription(): bool
     {
