@@ -34,7 +34,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-class ListSets extends Middleware
+final class ListSets extends Middleware
 {
     /**
      * Prepare the response body for verb "ListSets".
@@ -43,6 +43,7 @@ class ListSets extends Middleware
      *
      * @return void
      */
+    #[\Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $this->checkResumptionToken();

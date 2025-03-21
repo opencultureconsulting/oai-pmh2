@@ -30,7 +30,7 @@ namespace OCC\OaiPmh2\Middleware;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-class ListRecords extends ListIdentifiers
+final class ListRecords extends ListIdentifiers
 {
     /**
      * "ListIdentifiers" and "ListRecords" are practically identical except the

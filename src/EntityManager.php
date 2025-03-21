@@ -205,11 +205,11 @@ final class EntityManager extends EntityManagerDecorator
             ->setMaxResults($maxRecords);
         if (isset($from)) {
             $dql->andWhere($dql->expr()->gte('records.lastChanged', ':from'));
-            $dql->setParameter('from', new DateTime($from));
+            $dql->setParameter('from', new DateTime($from), 'datetime');
         }
         if (isset($until)) {
             $dql->andWhere($dql->expr()->lte('records.lastChanged', ':until'));
-            $dql->setParameter('until', new DateTime($until));
+            $dql->setParameter('until', new DateTime($until), 'datetime');
         }
         if (isset($set)) {
             $dql->innerJoin(
@@ -338,7 +338,7 @@ final class EntityManager extends EntityManagerDecorator
     public function isValidRecordIdentifier(string $identifier): bool
     {
         $records = $this->getRepository(Record::class)->findBy(['identifier' => $identifier]);
-        return (bool) count($records) > 0;
+        return count($records) > 0;
     }
 
     /**
@@ -369,7 +369,7 @@ final class EntityManager extends EntityManagerDecorator
         $dql = $this->createQueryBuilder();
         $dql->delete(Token::class, 'tokens')
             ->where($dql->expr()->lt('tokens.validUntil', ':now'))
-            ->setParameter('now', new DateTime());
+            ->setParameter('now', new DateTime(), 'datetime');
         /** @var int */
         return $dql->getQuery()->execute();
     }

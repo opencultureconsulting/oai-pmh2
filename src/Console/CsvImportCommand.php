@@ -52,13 +52,14 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:import:csv',
     description: 'Import records from a CSV file'
 )]
-class CsvImportCommand extends Console
+final class CsvImportCommand extends Console
 {
     /**
      * Configures the current command.
      *
      * @return void
      */
+    #[\Override]
     protected function configure(): void
     {
         $this->addArgument(
@@ -120,6 +121,7 @@ class CsvImportCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$this->validateInput($input, $output)) {
@@ -226,6 +228,7 @@ class CsvImportCommand extends Console
         $headers = array_flip($headers);
 
         $callback = function (string $column) use ($headers): ?int {
+            /** @psalm-suppress InvalidArgument */
             return array_key_exists($column, $headers) ? $headers[$column] : null;
         };
 

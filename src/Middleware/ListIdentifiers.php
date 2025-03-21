@@ -43,6 +43,7 @@ class ListIdentifiers extends Middleware
      *
      * @return void
      */
+    #[\Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $this->checkResumptionToken();

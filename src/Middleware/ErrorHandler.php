@@ -36,7 +36,7 @@ use Psr\Http\Message\StreamInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-class ErrorHandler extends AbstractMiddleware
+final class ErrorHandler extends AbstractMiddleware
 {
     use Singleton;
 
@@ -99,6 +99,7 @@ class ErrorHandler extends AbstractMiddleware
      *
      * @return ResponseInterface The error response
      */
+    #[\Override]
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
         if ($this->hasErrors()) {

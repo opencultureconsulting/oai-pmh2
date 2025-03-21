@@ -36,7 +36,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-class Identify extends Middleware
+final class Identify extends Middleware
 {
     /**
      * Prepare the response body for verb "Identify".
@@ -45,6 +45,7 @@ class Identify extends Middleware
      *
      * @return void
      */
+    #[\Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $response = new Response($request);

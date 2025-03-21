@@ -42,13 +42,14 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:add',
     description: 'Add or update a record in the database'
 )]
-class AddRecordCommand extends Console
+final class AddRecordCommand extends Console
 {
     /**
      * Configures the current command.
      *
      * @return void
      */
+    #[\Override]
     protected function configure(): void
     {
         $this->addArgument(
@@ -82,6 +83,7 @@ class AddRecordCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$this->validateInput($input, $output)) {
@@ -90,7 +92,7 @@ class AddRecordCommand extends Console
 
         /** @var Format */
         $format = $this->em->getMetadataFormat($this->arguments['format']);
-        $content = file_get_contents($this->arguments['file']) ?: '';
+        $content = (string) file_get_contents($this->arguments['file']);
 
         $record = new Record($this->arguments['identifier'], $format);
         if (trim($content) !== '') {

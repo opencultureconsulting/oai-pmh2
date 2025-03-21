@@ -13,7 +13,15 @@
 >
     <issueHandlers>
         <!--
-            Psalm doesn't recognize some variables always being set because of prior validation.
+            This is a false-positive caused by Doctrine's EntityManagerDecorator.
+        -->
+        <MethodSignatureMismatch>
+            <errorLevel type="suppress">
+                <file name="src/EntityManager.php"/>
+            </errorLevel>
+        </MethodSignatureMismatch>
+        <!--
+            This is a false-positive caused by Doctrine's ArrayCollection.
         -->
         <PossiblyNullReference>
             <errorLevel type="suppress">
@@ -30,15 +38,6 @@
         -->
         <PropertyNotSetInConstructor errorLevel="suppress"/>
         <RedundantPropertyInitializationCheck errorLevel="suppress"/>
-        <!--
-            We deliberately want to evaluate empty strings as FALSE in those files.
-        -->
-        <RiskyTruthyFalsyComparison>
-            <errorLevel type="suppress">
-                <file name="src/Console/AddRecordCommand.php"/>
-                <file name="src/Console/AddSetCommand.php"/>
-            </errorLevel>
-        </RiskyTruthyFalsyComparison>
         <!--
             Those classes are dynamically used depending on the given OAI verb.
             @see src/Middleware/Dispatcher.php:95

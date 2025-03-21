@@ -38,7 +38,7 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:tokens:prune',
     description: 'Prune expired resumption tokens from database'
 )]
-class PruneResumptionTokensCommand extends Console
+final class PruneResumptionTokensCommand extends Console
 {
     /**
      * Executes the current command.
@@ -48,6 +48,7 @@ class PruneResumptionTokensCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $expired = $this->em->pruneExpiredTokens();

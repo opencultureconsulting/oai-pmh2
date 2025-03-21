@@ -40,13 +40,14 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:sets:add',
     description: 'Add or update a set in the database'
 )]
-class AddSetCommand extends Console
+final class AddSetCommand extends Console
 {
     /**
      * Configures the current command.
      *
      * @return void
      */
+    #[\Override]
     protected function configure(): void
     {
         $this->addArgument(
@@ -79,6 +80,7 @@ class AddSetCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$this->validateInput($input, $output)) {
@@ -86,6 +88,7 @@ class AddSetCommand extends Console
         }
 
         if (array_key_exists('file', $this->arguments)) {
+            /** @psalm-suppress RiskyTruthyFalsyComparison */
             $description = file_get_contents($this->arguments['file']) ?: null;
         }
 

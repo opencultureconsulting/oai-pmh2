@@ -40,13 +40,14 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:prune',
     description: 'Prune deleted records from database'
 )]
-class PruneDeletedRecordsCommand extends Console
+final class PruneDeletedRecordsCommand extends Console
 {
     /**
      * Configures the current command.
      *
      * @return void
      */
+    #[\Override]
     protected function configure(): void
     {
         $this->addOption(
@@ -66,13 +67,14 @@ class PruneDeletedRecordsCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $policy = Configuration::getInstance()->deletedRecords;
-        $forced = (bool) $input->getOption('force');
+        $forced = $input->getOption('force');
         if (
             $policy === 'no'
-            or ($policy === 'transient' && $forced)
+            or ($policy === 'transient' && $forced === true)
         ) {
             $deleted = $this->em->pruneDeletedRecords();
             $this->clearResultCache();

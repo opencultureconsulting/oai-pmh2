@@ -33,7 +33,7 @@ use Symfony\Component\Validator\Validation;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-class UrlValidator
+final class UrlValidator
 {
     /**
      * Get constraints for URLs.

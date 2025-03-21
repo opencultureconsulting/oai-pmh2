@@ -34,7 +34,7 @@ use Symfony\Component\Validator\Validation;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-class XmlValidator
+final class XmlValidator
 {
     /**
      * Get constraints for XML.

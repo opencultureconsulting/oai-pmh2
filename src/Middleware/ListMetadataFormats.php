@@ -34,7 +34,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-class ListMetadataFormats extends Middleware
+final class ListMetadataFormats extends Middleware
 {
     /**
      * Prepare the response body for verb "ListMetadataFormats".
@@ -43,6 +43,7 @@ class ListMetadataFormats extends Middleware
      *
      * @return void
      */
+    #[\Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $formats = $this->em->getMetadataFormats($this->arguments['identifier']);

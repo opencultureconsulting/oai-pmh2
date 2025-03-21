@@ -107,12 +107,12 @@ abstract class Console extends Command
     protected function getPhpMemoryLimit(): int
     {
         if (!isset($this->memoryLimit)) {
-            $ini = trim(ini_get('memory_limit'));
-            $limit = (int) $ini;
-            if ($limit < 0) {
+            $phpValue = (string) ini_get('memory_limit');
+            $limit = (int) $phpValue;
+            if ($limit <= 0) {
                 return -1;
             }
-            $unit = strtolower($ini[strlen($ini) - 1]);
+            $unit = strtolower($phpValue[strlen($phpValue) - 1]);
             switch ($unit) {
                 case 'g':
                     $limit *= 1024;

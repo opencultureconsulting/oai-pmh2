@@ -34,7 +34,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-class Dispatcher extends AbstractMiddleware
+final class Dispatcher extends AbstractMiddleware
 {
     /**
      * List of defined OAI-PMH parameters.
@@ -85,6 +85,7 @@ class Dispatcher extends AbstractMiddleware
      *
      * @return ServerRequestInterface The processed server request
      */
+    #[\Override]
     protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
     {
         $request = $this->getRequestWithAttributes($request);
@@ -108,6 +109,7 @@ class Dispatcher extends AbstractMiddleware
      *
      * @return ResponseInterface The final response
      */
+    #[\Override]
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
         // TODO: Add support for content compression

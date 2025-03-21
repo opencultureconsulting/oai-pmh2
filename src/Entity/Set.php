@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  */
 #[ORM\Entity(repositoryClass: SetRepository::class)]
 #[ORM\Table(name: 'sets')]
-class Set extends Entity
+final class Set extends Entity
 {
     /**
      * The unique set spec.

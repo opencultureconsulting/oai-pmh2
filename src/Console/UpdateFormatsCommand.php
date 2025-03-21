@@ -41,7 +41,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
     name: 'oai:formats:update',
     description: 'Update metadata formats in database from configuration'
 )]
-class UpdateFormatsCommand extends Console
+final class UpdateFormatsCommand extends Console
 {
     /**
      * Executes the current command.
@@ -51,6 +51,7 @@ class UpdateFormatsCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $formats = Configuration::getInstance()->metadataPrefix;

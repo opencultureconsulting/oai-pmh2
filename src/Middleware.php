@@ -142,6 +142,7 @@ abstract class Middleware extends AbstractMiddleware
      *
      * @return ServerRequestInterface The processed server request
      */
+    #[\Override]
     protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
     {
         /** @var OaiRequestMetadata */
@@ -158,6 +159,7 @@ abstract class Middleware extends AbstractMiddleware
      *
      * @return ResponseInterface The processed response
      */
+    #[\Override]
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
         if (!ErrorHandler::getInstance()->hasErrors() && isset($this->preparedResponse)) {

@@ -37,7 +37,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  */
 #[ORM\Entity(repositoryClass: FormatRepository::class)]
 #[ORM\Table(name: 'formats')]
-class Format extends Entity
+final class Format extends Entity
 {
     /**
      * The unique metadata prefix.

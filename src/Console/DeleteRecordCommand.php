@@ -39,13 +39,14 @@ use Symfony\Component\Console\Output\OutputInterface;
     name: 'oai:records:delete',
     description: 'Delete a record while obeying deleted record policy'
 )]
-class DeleteRecordCommand extends Console
+final class DeleteRecordCommand extends Console
 {
     /**
      * Configures the current command.
      *
      * @return void
      */
+    #[\Override]
     protected function configure(): void
     {
         $this->addArgument(
@@ -69,6 +70,7 @@ class DeleteRecordCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
+    #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if (!$this->validateInput($input, $output)) {

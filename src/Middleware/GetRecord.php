@@ -34,7 +34,7 @@ use Psr\Http\Message\ServerRequestInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  */
-class GetRecord extends Middleware
+final class GetRecord extends Middleware
 {
     /**
      * Prepare the response body for verb "GetRecord".
@@ -43,6 +43,7 @@ class GetRecord extends Middleware
      *
      * @return void
      */
+    #[\Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $oaiRecord = $this->em->getRecord(
