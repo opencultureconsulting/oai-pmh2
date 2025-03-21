@@ -56,9 +56,7 @@
         "phpstan/phpstan-symfony": "^2.0",
         "friendsofphp/php-cs-fixer": "^3.73",
         "squizlabs/php_codesniffer": "^3.12",
-        "vimeo/psalm": "^6.9",
-        "psalm/plugin-symfony": "^5.2",
-        "weirdan/doctrine-psalm-plugin": "^2.10"
+        "vimeo/psalm": "^6.9"
     },
     "autoload": {
         "psr-4": {

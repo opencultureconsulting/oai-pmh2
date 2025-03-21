@@ -4,12 +4,13 @@
     xmlns="https://getpsalm.org/schema/config"
     xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
     errorLevel="1"
-    resolveFromConfigFile="true"
     findUnusedBaselineEntry="true"
     findUnusedCode="true"
     findUnusedVariablesAndParams="true"
     memoizeMethodCallResults="true"
+    resolveFromConfigFile="true"
     reportMixedIssues="false"
+    sealAllMethods="false"
 >
     <issueHandlers>
         <!--
@@ -23,14 +24,6 @@
                 <file name="src/Entity/Token.php"/>
             </errorLevel>
         </ClassMustBeFinal>
-        <!--
-            This is a false-positive caused by Doctrine's EntityManagerDecorator.
-        -->
-        <MethodSignatureMismatch>
-            <errorLevel type="suppress">
-                <file name="src/EntityManager.php"/>
-            </errorLevel>
-        </MethodSignatureMismatch>
         <!--
             This is a false-positive caused by Doctrine's ArrayCollection.
         -->
@@ -72,8 +65,4 @@
             <directory name="vendor"/>
         </ignoreFiles>
     </projectFiles>
-    <plugins>
-        <pluginClass class="Psalm\SymfonyPsalmPlugin\Plugin"/>
-        <pluginClass class="Weirdan\DoctrinePsalmPlugin\Plugin"/>
-    </plugins>
 </psalm>
