@@ -13,6 +13,17 @@
 >
     <issueHandlers>
         <!--
+            Entity classes must not be final in order for Doctrine DBAL to work.
+        -->
+        <ClassMustBeFinal>
+            <errorLevel type="suppress">
+                <file name="src/Entity/Format.php"/>
+                <file name="src/Entity/Record.php"/>
+                <file name="src/Entity/Set.php"/>
+                <file name="src/Entity/Token.php"/>
+            </errorLevel>
+        </ClassMustBeFinal>
+        <!--
             This is a false-positive caused by Doctrine's EntityManagerDecorator.
         -->
         <MethodSignatureMismatch>
