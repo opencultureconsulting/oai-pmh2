@@ -211,6 +211,7 @@ final class CsvImportCommand extends Console
             'dateColumn' => $input->getOption('dateColumn'),
             'setColumn' => $input->getOption('setColumn')
         ];
+        $filename = stream_get_meta_data($file)['uri'] ?? '';
 
         $headers = fgetcsv($file, null, ",", "\"", "\\");
         if (!is_array($headers) || is_null($headers[0])) {
@@ -218,7 +219,7 @@ final class CsvImportCommand extends Console
                 '',
                 sprintf(
                     ' [ERROR] File "%s" does not contain valid CSV. ',
-                    stream_get_meta_data($file)['uri'] ?? 'unknown'
+                    $filename ?: 'unknown'
                 ),
                 ''
             ]);
@@ -239,7 +240,7 @@ final class CsvImportCommand extends Console
                 '',
                 sprintf(
                     ' [ERROR] File "%s" does not contain mandatory columns. ',
-                    stream_get_meta_data($file)['uri'] ?? 'unknown'
+                    $filename ?: 'unknown'
                 ),
                 ''
             ]);

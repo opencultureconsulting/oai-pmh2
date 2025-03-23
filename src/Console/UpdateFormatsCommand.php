@@ -60,10 +60,11 @@ final class UpdateFormatsCommand extends Console
         $failure = false;
         foreach ($formats as $prefix => $format) {
             if (
+                /** PHPStan and Psalm don't recognize this as assertion. */
                 $inDatabase->containsKey($prefix)
-                /** @phpstan-ignore-next-line - see line 62 */
+                /** @phpstan-ignore-next-line - see above */
                 and $format['namespace'] === $inDatabase[$prefix]->getNamespace()
-                /** @phpstan-ignore-next-line - see line 62 */
+                /** @phpstan-ignore-next-line - see above */
                 and $format['schema'] === $inDatabase[$prefix]->getSchema()
             ) {
                 continue;
