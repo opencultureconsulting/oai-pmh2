@@ -29,7 +29,7 @@ jobs:
           php_version: "8.1"
 
       - name: Run PHP Mess Detector
-        uses: php-actions/phpmd@v1
+        uses: php-actions/phpmd@v2
         with:
           path: bin/,public/,src/
           php_version: "8.1"
