@@ -62,7 +62,7 @@ abstract class Console extends Command
     /**
      * This holds the entity manager singleton.
      */
-    protected EntityManager $em;
+    protected readonly EntityManager $em;
 
     /**
      * This holds the PHP memory limit in bytes.
@@ -110,18 +110,19 @@ abstract class Console extends Command
             $phpValue = (string) ini_get('memory_limit');
             $limit = (int) $phpValue;
             if ($limit <= 0) {
-                return -1;
-            }
-            $unit = strtolower($phpValue[strlen($phpValue) - 1]);
-            switch ($unit) {
-                case 'g':
-                    $limit *= 1024;
-                    // no break
-                case 'm':
-                    $limit *= 1024;
-                    // no break
-                case 'k':
-                    $limit *= 1024;
+                $limit = -1;
+            } else {
+                $unit = strtolower($phpValue[strlen($phpValue) - 1]);
+                switch ($unit) {
+                    case 'g':
+                        $limit *= 1024;
+                        // no break
+                    case 'm':
+                        $limit *= 1024;
+                        // no break
+                    case 'k':
+                        $limit *= 1024;
+                }
             }
             $this->memoryLimit = $limit;
         }

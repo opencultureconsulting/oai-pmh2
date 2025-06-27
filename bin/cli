@@ -36,22 +36,20 @@ use OCC\OaiPmh2\Console\UpdateFormatsCommand;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$commands = [
-    new AddRecordCommand(),
-    new AddSetCommand(),
-    new CsvImportCommand(),
-    new DeleteRecordCommand(),
-    new PruneDeletedRecordsCommand(),
-    new PruneResumptionTokensCommand(),
-    new UpdateFormatsCommand()
-];
-
 try {
     ConsoleRunner::run(
         new SingleManagerProvider(
             EntityManager::getInstance()
         ),
-        $commands
+        [
+            new AddRecordCommand(),
+            new AddSetCommand(),
+            new CsvImportCommand(),
+            new DeleteRecordCommand(),
+            new PruneDeletedRecordsCommand(),
+            new PruneResumptionTokensCommand(),
+            new UpdateFormatsCommand()
+        ]
     );
 } catch (Exception $exception) {
     echo '[ERROR] Exception ' . $exception->getCode() . ' thrown:' . PHP_EOL;

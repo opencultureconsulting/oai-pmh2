@@ -74,7 +74,7 @@ final class ErrorHandler extends AbstractMiddleware
         foreach (array_unique($this->errors) as $errorCode) {
             $error = $response->createElement(
                 'error',
-                self::OAI_ERRORS[$errorCode],
+                self::OAI_ERRORS[$errorCode] ?? 'An unknown error occurred.',
                 true
             );
             $error->setAttribute('code', $errorCode);

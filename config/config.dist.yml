@@ -76,6 +76,7 @@ metadataPrefix: {
 # delete records by importing empty records with the same identifiers and
 # metadata prefixes. Depending on the deleted records policy those records will
 # be either marked as deleted or completely removed from the database.
+# Valid options are:
 # "no" - The repository does not provide any information about deletions and
 # deleted records are completely removed from the database.
 # "persistent" - The repository provides consistent information about deletions

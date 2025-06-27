@@ -36,7 +36,7 @@ final class App
     /**
      * The PSR-15 Server Request Handler.
      */
-    private QueueRequestHandler $requestHandler;
+    private readonly QueueRequestHandler $requestHandler;
 
     /**
      * Instantiate application.
