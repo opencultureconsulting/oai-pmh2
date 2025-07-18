@@ -173,6 +173,7 @@ final class CsvImportCommand extends Console
             }
         }
         $this->em->flush();
+        $this->em->clear();
         $this->em->pruneOrphanedSets();
 
         $progressIndicator->finish('All done!');

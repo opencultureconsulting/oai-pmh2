@@ -78,6 +78,7 @@ abstract class Console extends Command
     {
         if ((memory_get_usage() / $this->getPhpMemoryLimit()) > 0.5) {
             $this->em->flush();
+            $this->em->clear();
         }
     }
 
