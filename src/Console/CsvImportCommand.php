@@ -169,11 +169,18 @@ final class CsvImportCommand extends Console
                 ++$count;
                 $progressIndicator->advance();
                 $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed.');
-                $this->checkMemoryUsage();
+
+                // Avoid memory exhaustion by working in batches and checking memory usage.
+                if ($count % 50 === 0 || (memory_get_usage() / $this->getPhpMemoryLimit()) > 0.3) {
+                    $this->em->flush();
+                    $this->em->clear();
+                }
             }
         }
         $this->em->flush();
         $this->em->clear();
+
+        $progressIndicator->setMessage('Pruning potentially orphaned sets.');
         $this->em->pruneOrphanedSets();
 
         $progressIndicator->finish('All done!');

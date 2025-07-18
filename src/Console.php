@@ -70,19 +70,6 @@ abstract class Console extends Command
     protected int $memoryLimit;
 
     /**
-     * Flushes changes to the database if memory limit reaches 50%.
-     *
-     * @return void
-     */
-    protected function checkMemoryUsage(): void
-    {
-        if ((memory_get_usage() / $this->getPhpMemoryLimit()) > 0.5) {
-            $this->em->flush();
-            $this->em->clear();
-        }
-    }
-
-    /**
      * Clears the result cache.
      *
      * @return void
