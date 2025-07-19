@@ -86,6 +86,10 @@ final class ConfigurationValidator
                 'tokenValid' => [
                     new Assert\Type('int'),
                     new Assert\Range(['min' => 300, 'max' => 86400])
+                ],
+                'batchSize' => [
+                    new Assert\Type('int'),
+                    new Assert\PositiveOrZero()
                 ]
             ])
         ];

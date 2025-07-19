@@ -88,6 +88,17 @@ abstract class Console extends Command
     }
 
     /**
+     * Flush and clear unit of work.
+     *
+     * @return void
+     */
+    protected function flushAndClear(): void
+    {
+        $this->em->flush();
+        $this->em->clear();
+    }
+
+    /**
      * Gets the PHP memory limit in bytes.
      *
      * @return int The memory limit in bytes or -1 if unlimited

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use DateTime;
+use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
 use OCC\OaiPmh2\Entity\Format;
 use OCC\OaiPmh2\Entity\Record;
@@ -138,6 +139,7 @@ final class CsvImportCommand extends Console
         }
 
         $count = 0;
+        $batchSize = Configuration::getInstance()->batchSize;
         $progressIndicator = new ProgressIndicator($output, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
         $progressIndicator->start('Importing...');
 
@@ -171,14 +173,21 @@ final class CsvImportCommand extends Console
                 $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed.');
 
                 // Avoid memory exhaustion by working in batches and checking memory usage.
-                if ($count % 50 === 0 || (memory_get_usage() / $this->getPhpMemoryLimit()) > 0.3) {
-                    $this->em->flush();
-                    $this->em->clear();
+                if ($batchSize === 0) {
+                    if ((memory_get_usage() / $this->getPhpMemoryLimit()) > 0.4) {
+                        $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing!');
+                        $this->flushAndClear();
+                    }
+                } else {
+                    if ($count % $batchSize === 0) {
+                        $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing!');
+                        $this->flushAndClear();
+                    }
                 }
             }
         }
-        $this->em->flush();
-        $this->em->clear();
+        $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing!');
+        $this->flushAndClear();
 
         $progressIndicator->setMessage('Pruning potentially orphaned sets.');
         $this->em->pruneOrphanedSets();

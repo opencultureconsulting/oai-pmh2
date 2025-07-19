@@ -42,6 +42,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property-read string $deletedRecords Repository's deleted records policy
  * @property-read int $maxRecords Maximum number of records served per request
  * @property-read int $tokenValid Number of seconds resumption tokens are valid
+ * @property-read int $batchSize Batch size for bulk imports
  *
  * @template TKey of string
  * @template TValue of array|int|string
