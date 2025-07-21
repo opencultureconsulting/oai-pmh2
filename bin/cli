@@ -23,36 +23,37 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2;
 
-use Doctrine\ORM\Tools\Console\ConsoleRunner;
+use Composer\InstalledVersions;
+use Doctrine\ORM\Tools\Console\Command as DoctrineCommand;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
-use Exception;
-use OCC\OaiPmh2\Console\AddRecordCommand;
-use OCC\OaiPmh2\Console\AddSetCommand;
-use OCC\OaiPmh2\Console\CsvImportCommand;
-use OCC\OaiPmh2\Console\DeleteRecordCommand;
-use OCC\OaiPmh2\Console\PruneDeletedRecordsCommand;
-use OCC\OaiPmh2\Console\PruneResumptionTokensCommand;
-use OCC\OaiPmh2\Console\UpdateFormatsCommand;
+use OCC\OaiPmh2\Console as Command;
+use Symfony\Component\Console\Application;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-try {
-    ConsoleRunner::run(
-        new SingleManagerProvider(
-            EntityManager::getInstance()
-        ),
-        [
-            new AddRecordCommand(),
-            new AddSetCommand(),
-            new CsvImportCommand(),
-            new DeleteRecordCommand(),
-            new PruneDeletedRecordsCommand(),
-            new PruneResumptionTokensCommand(),
-            new UpdateFormatsCommand()
-        ]
-    );
-} catch (Exception $exception) {
-    echo '[ERROR] Exception ' . $exception->getCode() . ' thrown:' . PHP_EOL;
-    echo $exception->getMessage() . PHP_EOL;
-    exit(1);
-}
+$entityManagerProvider = new SingleManagerProvider(EntityManager::getInstance());
+
+$cli = new Application(
+    'OAI-PMH2 Data Provider Command Line Interface',
+    InstalledVersions::getVersion('opencultureconsulting/oai-pmh2') ?? 'unknown'
+);
+$cli->addCommands([
+    // Doctrine Commands
+    new DoctrineCommand\ClearCache\MetadataCommand($entityManagerProvider),
+    new DoctrineCommand\ClearCache\QueryCommand($entityManagerProvider),
+    new DoctrineCommand\ClearCache\ResultCommand($entityManagerProvider),
+    new DoctrineCommand\SchemaTool\CreateCommand($entityManagerProvider),
+    new DoctrineCommand\SchemaTool\UpdateCommand($entityManagerProvider),
+    new DoctrineCommand\GenerateProxiesCommand($entityManagerProvider),
+    new DoctrineCommand\ValidateSchemaCommand($entityManagerProvider),
+    // OAI-PMH2 Commands
+    new Command\AddRecordCommand(),
+    new Command\AddSetCommand(),
+    new Command\CsvImportCommand(),
+    new Command\DeleteRecordCommand(),
+    new Command\PruneDeletedRecordsCommand(),
+    new Command\PruneResumptionTokensCommand(),
+    new Command\UpdateFormatsCommand()
+]);
+$cli->setCatchExceptions(true);
+$cli->run();
