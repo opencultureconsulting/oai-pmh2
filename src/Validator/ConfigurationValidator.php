@@ -46,16 +46,16 @@ final class ConfigurationValidator
             new Assert\Collection([
                 'repositoryName' => [
                     new Assert\Type('string'),
-                    new Assert\NotBlank()
+                    new Assert\NotBlank(['normalizer' => 'trim'])
                 ],
                 'adminEmail' => [
                     new Assert\Type('string'),
                     new Assert\Email(['mode' => 'html5']),
-                    new Assert\NotBlank()
+                    new Assert\NotBlank(['normalizer' => 'trim'])
                 ],
                 'database' => [
                     new Assert\Type('string'),
-                    new Assert\NotBlank()
+                    new Assert\NotBlank(['normalizer' => 'trim'])
                 ],
                 'metadataPrefix' => [
                     new Assert\Type('array'),
@@ -64,20 +64,19 @@ final class ConfigurationValidator
                             'schema' => [
                                 new Assert\Type('string'),
                                 new Assert\Url(),
-                                new Assert\NotBlank()
+                                new Assert\NotBlank(['normalizer' => 'trim'])
                             ],
                             'namespace' => [
                                 new Assert\Type('string'),
                                 new Assert\Url(),
-                                new Assert\NotBlank()
+                                new Assert\NotBlank(['normalizer' => 'trim'])
                             ]
                         ])
                     ])
                 ],
                 'deletedRecords' => [
                     new Assert\Type('string'),
-                    new Assert\Choice(['no', 'persistent', 'transient']),
-                    new Assert\NotBlank()
+                    new Assert\Choice(['choices' => ['no', 'persistent', 'transient']])
                 ],
                 'maxRecords' => [
                     new Assert\Type('int'),

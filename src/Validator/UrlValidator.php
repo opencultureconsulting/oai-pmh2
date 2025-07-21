@@ -44,7 +44,7 @@ final class UrlValidator
     {
         return [
             new Assert\Url(),
-            new Assert\NotBlank()
+            new Assert\NotBlank(['normalizer' => 'trim'])
         ];
     }
 

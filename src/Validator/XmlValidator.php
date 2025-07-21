@@ -45,7 +45,7 @@ final class XmlValidator
     {
         return [
             new Assert\Type('string'),
-            new Assert\NotBlank()
+            new Assert\NotBlank(['normalizer' => 'trim'])
         ];
     }
 
