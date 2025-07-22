@@ -136,7 +136,7 @@ final class CsvImportCommand extends Console
 
         $count = 0;
         $batchSize = Configuration::getInstance()->batchSize;
-        $progressIndicator = new ProgressIndicator($this->io['output'], null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
+        $progressIndicator = new ProgressIndicator($this->io, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
         $progressIndicator->start('Importing...');
 
         while ($row = fgetcsv($file, null, ",", "\"", "\\")) {
@@ -172,25 +172,22 @@ final class CsvImportCommand extends Console
 
         $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing!');
         $this->flushAndClear();
-
-        $progressIndicator->setMessage('Pruning potentially orphaned sets.');
-        $this->em->pruneOrphanedSets();
-
-        $progressIndicator->finish('All done!');
+        $progressIndicator->finish('All done! ' . (string) $count . ' records processed.');
 
         fclose($file);
 
+        $this->io->writeln('Pruning potentially orphaned sets...');
+        $this->em->pruneOrphanedSets();
+
         $this->clearResultCache();
 
-        $this->io['output']->writeln([
-            '',
+        $this->io->success(
             sprintf(
-                ' [OK] %d records with metadata prefix "%s" were imported successfully! ',
+                '%d records with metadata prefix "%s" were imported successfully!',
                 $count,
                 $this->arguments['format']
-            ),
-            ''
-        ]);
+            )
+        );
         return Command::SUCCESS;
     }
 
@@ -203,25 +200,19 @@ final class CsvImportCommand extends Console
      */
     protected function getColumnMapping($file): ?array
     {
-        /** @var array{idColumn: string, contentColumn: string, dateColumn: string, setColumn: string} */
         $columns = [
-            'idColumn' => $this->io['input']->getOption('idColumn'),
-            'contentColumn' => $this->io['input']->getOption('contentColumn'),
-            'dateColumn' => $this->io['input']->getOption('dateColumn'),
-            'setColumn' => $this->io['input']->getOption('setColumn')
+            'idColumn' => $this->arguments['idColumn'],
+            'contentColumn' => $this->arguments['contentColumn'],
+            'dateColumn' => $this->arguments['dateColumn'],
+            'setColumn' => $this->arguments['setColumn']
         ];
         $filename = stream_get_meta_data($file)['uri'] ?? '';
 
         $headers = fgetcsv($file, null, ",", "\"", "\\");
         if (!is_array($headers) || is_null($headers[0])) {
-            $this->io['output']->writeln([
-                '',
-                sprintf(
-                    ' [ERROR] File "%s" does not contain valid CSV. ',
-                    $filename ?: 'unknown'
-                ),
-                ''
-            ]);
+            $this->io->getErrorStyle()->error(
+                sprintf('File "%s" does not contain valid CSV.', $filename ?: 'unknown')
+            );
             return null;
         }
         /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
@@ -235,14 +226,9 @@ final class CsvImportCommand extends Console
         $columns = array_map($callback, $columns);
 
         if ($columns['idColumn'] === -1 || $columns['contentColumn'] === -1) {
-            $this->io['output']->writeln([
-                '',
-                sprintf(
-                    ' [ERROR] File "%s" does not contain mandatory columns. ',
-                    $filename ?: 'unknown'
-                ),
-                ''
-            ]);
+            $this->io->getErrorStyle()->error(
+                sprintf('File "%s" does not contain mandatory columns.', $filename ?: 'unknown')
+            );
             return null;
         }
         return $columns;

@@ -54,14 +54,9 @@ final class PruneResumptionTokensCommand extends Console
         parent::execute($input, $output);
 
         $expired = $this->em->pruneExpiredTokens();
-        $this->io['output']->writeln([
-            '',
-            sprintf(
-                ' [OK] %d expired resumption tokens were successfully deleted! ',
-                $expired
-            ),
-            ''
-        ]);
+        $this->io->success(
+            sprintf('%d expired resumption tokens were successfully deleted!', $expired)
+        );
         return Command::SUCCESS;
     }
 }

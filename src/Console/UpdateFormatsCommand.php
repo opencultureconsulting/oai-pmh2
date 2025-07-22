@@ -59,7 +59,10 @@ final class UpdateFormatsCommand extends Console
         $formats = Configuration::getInstance()->metadataPrefix;
         $this->clearResultCache();
         $inDatabase = $this->em->getMetadataFormats();
-        $failure = false;
+
+        $success = [];
+        $error = [];
+
         foreach ($formats as $prefix => $format) {
             if (
                 /** PHPStan and Psalm don't recognize this as assertion. */
@@ -74,61 +77,55 @@ final class UpdateFormatsCommand extends Console
             try {
                 $format = new Format($prefix, $format['namespace'], $format['schema']);
                 $this->em->addOrUpdate($format);
-                $this->io['output']->writeln([
-                    sprintf(
-                        ' [OK] Metadata format "%s" added or updated successfully! ',
-                        $prefix
-                    )
-                ]);
+                $success[] = sprintf('Metadata format "%s" added or updated.', $prefix);
             } catch (ValidationFailedException $exception) {
-                $failure = true;
-                $this->io['output']->writeln([
-                    sprintf(
-                        ' [ERROR] Could not add or update metadata format "%s". ',
-                        $prefix
-                    ),
+                $error[] = sprintf(
+                    '<error>Could not add or update metadata format "%s" (%s).</error>',
+                    $prefix,
                     $exception->getMessage()
-                ]);
+                );
             }
         }
         foreach (array_diff($inDatabase->getKeys(), array_keys($formats)) as $prefix) {
             /** @var Format */
             $format = $inDatabase[$prefix];
             $this->em->delete($format);
-            $this->io['output']->writeln([
-                sprintf(
-                    ' [OK] Metadata format "%s" and all associated records deleted successfully! ',
-                    $prefix
-                )
-            ]);
+            $success[] = sprintf('Metadata format "%s" and all associated records deleted.', $prefix);
         }
+
+        $this->io->getErrorStyle()->listing($error);
+        $this->io->listing($success);
+        $this->io->newLine(1);
+
         $this->clearResultCache();
         $currentFormats = $this->em->getMetadataFormats()->getKeys();
         if (count($currentFormats) > 0) {
-            $this->io['output']->writeln(
+            $this->io->note(
                 [
+                    '[INFO] The following metadata formats are currently supported:',
+                    '"' . implode('", "', $currentFormats) . '"',
                     '',
-                    ' [INFO] The following metadata formats are currently supported: ',
-                    ' "' . implode('", "', $currentFormats) . '" ',
-                    '',
-                    ' To change supported formats edit config/config.yml and run ',
-                    ' command "php bin/cli oai:formats:update" again! ',
-                    ''
-                ],
-                OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_QUIET
+                    'To change supported formats edit config/config.yml and run',
+                    'command "php bin/cli oai:formats:update" again!'
+                ]
             );
         } else {
-            $this->io['output']->writeln(
+            $this->io->getErrorStyle()->caution(
                 [
-                    '',
-                    ' [INFO] There are currently no metadata formats supported. ',
-                    ' Please add a metadata prefix to config/config.yml and run ',
-                    ' command "php bin/cli oai:formats:update" again! ',
-                    ''
-                ],
-                OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_QUIET
+                    '[INFO] There are currently no metadata formats supported.',
+                    'Please add a metadata prefix to config/config.yml and run',
+                    'command "php bin/cli oai:formats:update" again!'
+                ]
             );
         }
-        return $failure ? Command::FAILURE : Command::SUCCESS;
+        $this->io->newLine(1);
+
+        if (count($error) === 0) {
+            $this->io->success('Metadata formats updated successfully!');
+            return Command::SUCCESS;
+        } else {
+            $this->io->getErrorStyle()->error('Metadata formats could not be updated! See above for details.');
+            return Command::FAILURE;
+        }
     }
 }

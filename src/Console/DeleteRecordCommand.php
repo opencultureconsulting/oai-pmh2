@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
+use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -82,26 +83,23 @@ final class DeleteRecordCommand extends Console
         if (isset($record)) {
             $this->em->delete($record);
             $this->clearResultCache();
-            $this->io['output']->writeln([
-                '',
+            $this->io->success(
                 sprintf(
-                    ' [OK] Record "%s" with metadata prefix "%s" successfully (marked as) deleted. ',
+                    'Record "%s" with metadata prefix "%s" successfully %sdeleted.',
                     $this->arguments['identifier'],
-                    $this->arguments['format']
-                ),
-                ''
-            ]);
+                    $this->arguments['format'],
+                    Configuration::getInstance()->deletedRecords === 'no' ? '' : 'marked as '
+                )
+            );
             return Command::SUCCESS;
         } else {
-            $this->io['output']->writeln([
-                '',
+            $this->io->getErrorStyle()->error(
                 sprintf(
-                    ' [ERROR] Record "%s" with metadata prefix "%s" not found. ',
+                    'Record "%s" with metadata prefix "%s" not found.',
                     $this->arguments['identifier'],
                     $this->arguments['format']
-                ),
-                ''
-            ]);
+                )
+            );
             return Command::FAILURE;
         }
     }

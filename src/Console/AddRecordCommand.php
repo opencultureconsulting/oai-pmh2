@@ -97,15 +97,13 @@ final class AddRecordCommand extends Console
         $this->em->pruneOrphanedSets();
         $this->clearResultCache();
 
-        $this->io['output']->writeln([
-            '',
+        $this->io->success(
             sprintf(
-                ' [OK] Record "%s" with metadata prefix "%s" added or updated successfully! ',
+                'Record "%s" with metadata prefix "%s" added or updated successfully!',
                 $this->arguments['identifier'],
                 $this->arguments['format']
-            ),
-            ''
-        ]);
+            )
+        );
         return Command::SUCCESS;
     }
 }

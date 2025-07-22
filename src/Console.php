@@ -34,6 +34,7 @@ use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Style\SymfonyStyle;
 
 /**
  * Base class for all OAI-PMH console commands.
@@ -55,10 +56,6 @@ use Symfony\Component\Console\Output\OutputInterface;
  *     noValidation: bool,
  *     force: bool
  * }
- * @psalm-type IoInterface = array{
- *     input: InputInterface,
- *     output: OutputInterface
- * }
  */
 abstract class Console extends Command
 {
@@ -75,11 +72,9 @@ abstract class Console extends Command
     protected readonly EntityManager $em;
 
     /**
-     * This holds the Input and Output interfaces.
-     *
-     * @var IoInterface
+     * This holds the I/O interfaces.
      */
-    protected array $io;
+    protected SymfonyStyle $io;
 
     /**
      * This holds the PHP memory limit in bytes.
@@ -140,15 +135,10 @@ abstract class Console extends Command
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->io = [
-            'input' => $input,
-            'output' => $output
-        ];
-
-        /** @var CliArguments */
-        $mergedArguments = array_merge($this->io['input']->getArguments(), $this->io['input']->getOptions());
-        $this->arguments = $mergedArguments;
-
+        $this->io = new SymfonyStyle($input, $output);
+        /** @psalm-suppress PropertyTypeCoercion */
+        /** @phpstan-ignore assign.propertyType */
+        $this->arguments = array_merge($input->getArguments(), $input->getOptions());
         if (!$this->validateInput()) {
             return Command::INVALID;
         }
@@ -205,39 +195,27 @@ abstract class Console extends Command
     {
         if (array_key_exists('format', $this->arguments)) {
             if (MetadataPrefixValidator::validate($this->arguments['format'])->count() > 0) {
-                $this->io['output']->writeln([
-                    '',
-                    sprintf(
-                        ' [ERROR] Metadata format "%s" is not supported. ',
-                        $this->arguments['format']
-                    ),
-                    ''
-                ]);
+                $this->io->getErrorStyle()->error(
+                    sprintf('Metadata format "%s" is not supported.', $this->arguments['format'])
+                );
                 return false;
             }
         }
         if (array_key_exists('file', $this->arguments) && !is_readable($this->arguments['file'])) {
-            $this->io['output']->writeln([
-                '',
-                sprintf(
-                    ' [ERROR] File "%s" not found or not readable. ',
-                    $this->arguments['file']
-                ),
-                ''
-            ]);
+            $this->io->getErrorStyle()->error(
+                sprintf('File "%s" not found or not readable.', $this->arguments['file'])
+            );
             return false;
         }
         if (array_key_exists('sets', $this->arguments)) {
             $violations = SetsValidator::validate($this->arguments['sets']);
             if ($violations->count() > 0) {
-                $this->io['output']->writeln([
-                    '',
+                $this->io->getErrorStyle()->error(
                     sprintf(
-                        ' [ERROR] Sets "%s" are not supported. ',
+                        'Sets "%s" are not supported.',
                         implode('", "', (array) $violations->get(count($violations) - 1)->getInvalidValue())
-                    ),
-                    ''
-                ]);
+                    )
+                );
                 return false;
             }
         }
