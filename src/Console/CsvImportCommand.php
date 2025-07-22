@@ -108,6 +108,12 @@ final class CsvImportCommand extends Console
             InputOption::VALUE_NONE,
             'Optional: Skip content validation (improves ingest performance for large record sets).'
         );
+        $this->addOption(
+            'purge',
+            null,
+            InputOption::VALUE_NONE,
+            'Optional: Purge all existing records with the same metadata prefix before importing.'
+        );
         parent::configure();
     }
 
@@ -128,14 +134,23 @@ final class CsvImportCommand extends Console
 
         /** @var resource */
         $file = fopen($this->arguments['file'], 'r');
-
         $columnMapping = $this->getColumnMapping($file);
         if (!isset($columnMapping)) {
             return Command::FAILURE;
         }
 
+        if ($this->arguments['purge'] ?? false) {
+            $this->io->writeln(
+                sprintf(
+                    'Purging existing records with metadata prefix "%s"...',
+                    $this->arguments['format']
+                )
+            );
+            $this->em->purgeRecords($this->arguments['format']);
+            $this->clearResultCache();
+        }
+
         $count = 0;
-        $batchSize = Configuration::getInstance()->batchSize;
         $progressIndicator = new ProgressIndicator($this->io, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
         $progressIndicator->start('Importing...');
 
@@ -155,18 +170,7 @@ final class CsvImportCommand extends Console
                 $progressIndicator->advance();
                 $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed.');
 
-                // Avoid memory exhaustion by working in batches and checking memory usage.
-                if ($batchSize === 0) {
-                    if ((memory_get_usage() / $this->getPhpMemoryLimit()) > 0.4) {
-                        $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing!');
-                        $this->flushAndClear();
-                    }
-                } else {
-                    if ($count % $batchSize === 0) {
-                        $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing!');
-                        $this->flushAndClear();
-                    }
-                }
+                $this->checkMemoryUsage($count);
             }
         }
 

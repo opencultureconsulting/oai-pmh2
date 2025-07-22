@@ -396,6 +396,30 @@ final class EntityManager extends EntityManagerDecorator
     }
 
     /**
+     * Purge all records with given metadata prefix.
+     *
+     * @param string $metadataPrefix The metadata prefix
+     *
+     * @return int The number of affected records
+     */
+    public function purgeRecords(string $metadataPrefix): int
+    {
+        $dql = $this->createQueryBuilder();
+        if (Configuration::getInstance()->deletedRecords === 'no') {
+            $dql->delete(Record::class, 'records');
+        } else {
+            $dql->update(Record::class, 'records')
+                ->set('records.content', null)
+                ->set('records.lastChanged', ':now')
+                ->setParameter('now', new DateTime(), 'datetime');
+        }
+        $dql->where($dql->expr()->eq('records.format', ':metadataPrefix'))
+            ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix));
+        /** @var int */
+        return $dql->getQuery()->execute();
+    }
+
+    /**
      * Instantiate new Doctrine entity manager and connect to database.
      */
     private function __construct()

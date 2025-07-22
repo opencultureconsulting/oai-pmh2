@@ -54,6 +54,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *     dateColumn: string,
  *     setColumn: string,
  *     noValidation: bool,
+ *     purge: bool,
  *     force: bool
  * }
  */
@@ -104,6 +105,23 @@ abstract class Console extends Command
             }
         }
         $this->em->addOrUpdate($record, get_class($this) === CsvImportCommand::class);
+    }
+
+    /**
+     * Check memory usage/batch size and flush unit of work if necessary.
+     *
+     * @param int $count The number of processed records
+     *
+     * @return void
+     */
+    protected function checkMemoryUsage(int $count): void
+    {
+        $batchSize = Configuration::getInstance()->batchSize;
+        if ($batchSize === 0 && (memory_get_usage() / $this->getPhpMemoryLimit()) > 0.4) {
+            $this->flushAndClear();
+        } elseif ($batchSize > 0 && $count % $batchSize === 0) {
+            $this->flushAndClear();
+        }
     }
 
     /**
