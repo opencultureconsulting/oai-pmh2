@@ -22,6 +22,12 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2;
 
+use DateTime;
+use OCC\OaiPmh2\Console\CsvImportCommand;
+use OCC\OaiPmh2\Entity\Format;
+use OCC\OaiPmh2\Entity\Record;
+use OCC\OaiPmh2\Validator\MetadataPrefixValidator;
+use OCC\OaiPmh2\Validator\SetsValidator;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -49,6 +55,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  *     noValidation: bool,
  *     force: bool
  * }
+ * @psalm-type IoInterface = array{
+ *     input: InputInterface,
+ *     output: OutputInterface
+ * }
  */
 abstract class Console extends Command
 {
@@ -65,9 +75,41 @@ abstract class Console extends Command
     protected readonly EntityManager $em;
 
     /**
+     * This holds the Input and Output interfaces.
+     *
+     * @var IoInterface
+     */
+    protected array $io;
+
+    /**
      * This holds the PHP memory limit in bytes.
      */
     protected int $memoryLimit;
+
+    /**
+     * Add or update record.
+     *
+     * @param string $identifier The record identifier
+     * @param ?string $content The record's content or NULL to mark as deleted
+     * @param ?DateTime $lastChanged The record's date of last change
+     * @param string[] $sets The record's set specs
+     *
+     * @return void
+     */
+    protected function addOrUpdateRecord(string $identifier, ?string $content, ?DateTime $lastChanged = null, array $sets = []): void
+    {
+        /** @var Format */
+        $format = $this->em->getMetadataFormat($this->arguments['format']);
+        $record = new Record($identifier, $format, null, $lastChanged);
+        $record->setContent($content, !($this->arguments['noValidation'] ?? false));
+        foreach ($sets as $set) {
+            $setSpec = $this->em->getSet($set);
+            if (isset($setSpec)) {
+                $record->addSet($setSpec);
+            }
+        }
+        $this->em->addOrUpdate($record, get_class($this) === CsvImportCommand::class);
+    }
 
     /**
      * Clears the result cache.
@@ -85,6 +127,32 @@ abstract class Console extends Command
             ]),
             new NullOutput()
         );
+    }
+
+    /**
+     * Executes the current command.
+     *
+     * @param InputInterface $input The input
+     * @param OutputInterface $output The output
+     *
+     * @return int 0 if everything went fine, or an error code
+     */
+    #[\Override]
+    protected function execute(InputInterface $input, OutputInterface $output): int
+    {
+        $this->io = [
+            'input' => $input,
+            'output' => $output
+        ];
+
+        /** @var CliArguments */
+        $mergedArguments = array_merge($this->io['input']->getArguments(), $this->io['input']->getOptions());
+        $this->arguments = $mergedArguments;
+
+        if (!$this->validateInput()) {
+            return Command::INVALID;
+        }
+        return Command::SUCCESS;
     }
 
     /**
@@ -131,21 +199,13 @@ abstract class Console extends Command
     /**
      * Validate input arguments.
      *
-     * @param InputInterface $input The inputs
-     * @param OutputInterface $output The output interface
-     *
      * @return bool Whether the inputs validate
      */
-    protected function validateInput(InputInterface $input, OutputInterface $output): bool
+    protected function validateInput(): bool
     {
-        /** @var CliArguments */
-        $mergedArguments = array_merge($input->getArguments(), $input->getOptions());
-        $this->arguments = $mergedArguments;
-
         if (array_key_exists('format', $this->arguments)) {
-            $formats = $this->em->getMetadataFormats();
-            if (!$formats->containsKey($this->arguments['format'])) {
-                $output->writeln([
+            if (MetadataPrefixValidator::validate($this->arguments['format'])->count() > 0) {
+                $this->io['output']->writeln([
                     '',
                     sprintf(
                         ' [ERROR] Metadata format "%s" is not supported. ',
@@ -157,7 +217,7 @@ abstract class Console extends Command
             }
         }
         if (array_key_exists('file', $this->arguments) && !is_readable($this->arguments['file'])) {
-            $output->writeln([
+            $this->io['output']->writeln([
                 '',
                 sprintf(
                     ' [ERROR] File "%s" not found or not readable. ',
@@ -168,14 +228,13 @@ abstract class Console extends Command
             return false;
         }
         if (array_key_exists('sets', $this->arguments)) {
-            $sets = $this->em->getSets();
-            $invalidSets = array_diff($this->arguments['sets'], $sets->getKeys());
-            if (count($invalidSets) !== 0) {
-                $output->writeln([
+            $violations = SetsValidator::validate($this->arguments['sets']);
+            if ($violations->count() > 0) {
+                $this->io['output']->writeln([
                     '',
                     sprintf(
                         ' [ERROR] Sets "%s" are not supported. ',
-                        implode('", "', $invalidSets)
+                        implode('", "', (array) $violations->get(count($violations) - 1)->getInvalidValue())
                     ),
                     ''
                 ]);
@@ -189,7 +248,7 @@ abstract class Console extends Command
      * Create new console command instance.
      *
      * @param ?string $name The name of the command
-     *                      passing null means it must be set in configure()
+     *                      passing NULL means it must be set in configure()
      */
     public function __construct(?string $name = null)
     {

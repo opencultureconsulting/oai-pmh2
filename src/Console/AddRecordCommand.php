@@ -22,10 +22,8 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
+use DateTime;
 use OCC\OaiPmh2\Console;
-use OCC\OaiPmh2\Entity\Format;
-use OCC\OaiPmh2\Entity\Record;
-use OCC\OaiPmh2\Entity\Set;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -86,37 +84,25 @@ final class AddRecordCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->validateInput($input, $output)) {
+        if (parent::execute($input, $output) !== Command::SUCCESS) {
             return Command::INVALID;
         }
 
-        /** @var Format */
-        $format = $this->em->getMetadataFormat($this->arguments['format']);
-        $content = (string) file_get_contents($this->arguments['file']);
-
-        $record = new Record($this->arguments['identifier'], $format);
-        if (trim($content) !== '') {
-            $record->setContent($content);
-        }
-        if (array_key_exists('sets', $this->arguments)) {
-            foreach ($this->arguments['sets'] as $set) {
-                /** @var Set */
-                $setSpec = $this->em->getSet($set);
-                $record->addSet($setSpec);
-            }
-        }
-
-        $this->em->addOrUpdate($record);
+        $this->addOrUpdateRecord(
+            $this->arguments['identifier'],
+            trim((string) file_get_contents($this->arguments['file'])) ?: null,
+            new DateTime(),
+            $this->arguments['sets'] ?? []
+        );
         $this->em->pruneOrphanedSets();
-
         $this->clearResultCache();
 
-        $output->writeln([
+        $this->io['output']->writeln([
             '',
             sprintf(
                 ' [OK] Record "%s" with metadata prefix "%s" added or updated successfully! ',
                 $this->arguments['identifier'],
-                $format->getPrefix()
+                $this->arguments['format']
             ),
             ''
         ]);

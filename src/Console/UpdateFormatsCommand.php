@@ -54,6 +54,8 @@ final class UpdateFormatsCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        parent::execute($input, $output);
+
         $formats = Configuration::getInstance()->metadataPrefix;
         $this->clearResultCache();
         $inDatabase = $this->em->getMetadataFormats();
@@ -72,7 +74,7 @@ final class UpdateFormatsCommand extends Console
             try {
                 $format = new Format($prefix, $format['namespace'], $format['schema']);
                 $this->em->addOrUpdate($format);
-                $output->writeln([
+                $this->io['output']->writeln([
                     sprintf(
                         ' [OK] Metadata format "%s" added or updated successfully! ',
                         $prefix
@@ -80,7 +82,7 @@ final class UpdateFormatsCommand extends Console
                 ]);
             } catch (ValidationFailedException $exception) {
                 $failure = true;
-                $output->writeln([
+                $this->io['output']->writeln([
                     sprintf(
                         ' [ERROR] Could not add or update metadata format "%s". ',
                         $prefix
@@ -93,7 +95,7 @@ final class UpdateFormatsCommand extends Console
             /** @var Format */
             $format = $inDatabase[$prefix];
             $this->em->delete($format);
-            $output->writeln([
+            $this->io['output']->writeln([
                 sprintf(
                     ' [OK] Metadata format "%s" and all associated records deleted successfully! ',
                     $prefix
@@ -103,7 +105,7 @@ final class UpdateFormatsCommand extends Console
         $this->clearResultCache();
         $currentFormats = $this->em->getMetadataFormats()->getKeys();
         if (count($currentFormats) > 0) {
-            $output->writeln(
+            $this->io['output']->writeln(
                 [
                     '',
                     ' [INFO] The following metadata formats are currently supported: ',
@@ -116,7 +118,7 @@ final class UpdateFormatsCommand extends Console
                 OutputInterface::OUTPUT_NORMAL | OutputInterface::VERBOSITY_QUIET
             );
         } else {
-            $output->writeln(
+            $this->io['output']->writeln(
                 [
                     '',
                     ' [INFO] There are currently no metadata formats supported. ',

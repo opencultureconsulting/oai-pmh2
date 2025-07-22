@@ -51,8 +51,10 @@ final class PruneResumptionTokensCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        parent::execute($input, $output);
+
         $expired = $this->em->pruneExpiredTokens();
-        $output->writeln([
+        $this->io['output']->writeln([
             '',
             sprintf(
                 ' [OK] %d expired resumption tokens were successfully deleted! ',

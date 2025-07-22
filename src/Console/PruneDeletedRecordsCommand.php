@@ -70,15 +70,17 @@ final class PruneDeletedRecordsCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        parent::execute($input, $output);
+
         $policy = Configuration::getInstance()->deletedRecords;
-        $forced = $input->getOption('force');
+        $forced = $this->io['input']->getOption('force');
         if (
             $policy === 'no'
             or ($policy === 'transient' && $forced === true)
         ) {
             $deleted = $this->em->pruneDeletedRecords();
             $this->clearResultCache();
-            $output->writeln([
+            $this->io['output']->writeln([
                 '',
                 sprintf(
                     ' [OK] %d deleted records were successfully removed! ',
@@ -89,14 +91,14 @@ final class PruneDeletedRecordsCommand extends Console
             return Command::SUCCESS;
         } else {
             if ($policy === 'persistent') {
-                $output->writeln([
+                $this->io['output']->writeln([
                     '',
                     ' [ERROR] Under "persistent" policy removal of deleted records is not allowed. ',
                     ''
                 ]);
                 return Command::FAILURE;
             } else {
-                $output->writeln([
+                $this->io['output']->writeln([
                     '',
                     ' [INFO] Use the "--force" option to remove deleted records under "transient" policy. ',
                     ''

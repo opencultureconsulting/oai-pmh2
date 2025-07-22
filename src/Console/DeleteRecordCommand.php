@@ -73,7 +73,7 @@ final class DeleteRecordCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->validateInput($input, $output)) {
+        if (parent::execute($input, $output) !== Command::SUCCESS) {
             return Command::INVALID;
         }
 
@@ -82,7 +82,7 @@ final class DeleteRecordCommand extends Console
         if (isset($record)) {
             $this->em->delete($record);
             $this->clearResultCache();
-            $output->writeln([
+            $this->io['output']->writeln([
                 '',
                 sprintf(
                     ' [OK] Record "%s" with metadata prefix "%s" successfully (marked as) deleted. ',
@@ -93,7 +93,7 @@ final class DeleteRecordCommand extends Console
             ]);
             return Command::SUCCESS;
         } else {
-            $output->writeln([
+            $this->io['output']->writeln([
                 '',
                 sprintf(
                     ' [ERROR] Record "%s" with metadata prefix "%s" not found. ',

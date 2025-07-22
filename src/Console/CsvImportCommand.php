@@ -25,9 +25,6 @@ namespace OCC\OaiPmh2\Console;
 use DateTime;
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
-use OCC\OaiPmh2\Entity\Format;
-use OCC\OaiPmh2\Entity\Record;
-use OCC\OaiPmh2\Entity\Set;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressIndicator;
@@ -45,8 +42,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @psalm-type ColumnMapping = array{
  *     idColumn: int,
  *     contentColumn: int,
- *     dateColumn: ?int,
- *     setColumn: ?int
+ *     dateColumn: int,
+ *     setColumn: int
  * }
  */
 #[AsCommand(
@@ -81,14 +78,14 @@ final class CsvImportCommand extends Console
             'idColumn',
             'i',
             InputOption::VALUE_OPTIONAL,
-            'Name of the CSV column which holds the records\' identifier.',
+            'Optional: Name of the CSV column which holds the records\' identifier.',
             'identifier'
         );
         $this->addOption(
             'contentColumn',
             'c',
             InputOption::VALUE_OPTIONAL,
-            'Name of the CSV column which holds the records\' content.',
+            'Optional: Name of the CSV column which holds the records\' content.',
             'content'
         );
         $this->addOption(
@@ -125,48 +122,34 @@ final class CsvImportCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->validateInput($input, $output)) {
+        if (parent::execute($input, $output) !== Command::SUCCESS) {
             return Command::INVALID;
         }
 
         /** @var resource */
         $file = fopen($this->arguments['file'], 'r');
 
-        $columnMapping = $this->getColumnNames($input, $output, $file);
-
+        $columnMapping = $this->getColumnMapping($file);
         if (!isset($columnMapping)) {
             return Command::FAILURE;
         }
 
         $count = 0;
         $batchSize = Configuration::getInstance()->batchSize;
-        $progressIndicator = new ProgressIndicator($output, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
+        $progressIndicator = new ProgressIndicator($this->io['output'], null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
         $progressIndicator->start('Importing...');
 
         while ($row = fgetcsv($file, null, ",", "\"", "\\")) {
             if (!is_null($row[0])) {
-                /** @var Format */
-                $format = $this->em->getMetadataFormat($this->arguments['format']);
-                /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
-                $record = new Record($row[$columnMapping['idColumn']], $format);
-                /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
-                if (strlen(trim($row[$columnMapping['contentColumn']])) > 0) {
-                    $record->setContent($row[$columnMapping['contentColumn']], !$this->arguments['noValidation']);
-                }
-                if (isset($columnMapping['dateColumn'])) {
+                $this->addOrUpdateRecord(
                     /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
-                    $record->setLastChanged(new DateTime($row[$columnMapping['dateColumn']]));
-                }
-                if (isset($columnMapping['setColumn'])) {
-                    $sets = $row[$columnMapping['setColumn']];
+                    $row[$columnMapping['idColumn']],
                     /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
-                    foreach (explode(',', $sets) as $set) {
-                        /** @var Set */
-                        $setSpec = $this->em->getSet(trim($set));
-                        $record->addSet($setSpec);
-                    }
-                }
-                $this->em->addOrUpdate($record, true);
+                    trim($row[$columnMapping['contentColumn']]) ?: null,
+                    new DateTime($row[$columnMapping['dateColumn']] ?? 'now'),
+                    /** @phpstan-ignore arrayFilter.strict */
+                    array_filter(explode(',', $row[$columnMapping['setColumn']] ?? ''))
+                );
 
                 ++$count;
                 $progressIndicator->advance();
@@ -186,6 +169,7 @@ final class CsvImportCommand extends Console
                 }
             }
         }
+
         $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing!');
         $this->flushAndClear();
 
@@ -198,7 +182,7 @@ final class CsvImportCommand extends Console
 
         $this->clearResultCache();
 
-        $output->writeln([
+        $this->io['output']->writeln([
             '',
             sprintf(
                 ' [OK] %d records with metadata prefix "%s" were imported successfully! ',
@@ -213,26 +197,24 @@ final class CsvImportCommand extends Console
     /**
      * Get the column numbers of CSV.
      *
-     * @param InputInterface $input The input
-     * @param OutputInterface $output The output
      * @param resource $file The handle for the CSV file
      *
      * @return ?ColumnMapping The mapped columns or NULL in case of an error
      */
-    protected function getColumnNames(InputInterface $input, OutputInterface $output, $file): ?array
+    protected function getColumnMapping($file): ?array
     {
         /** @var array{idColumn: string, contentColumn: string, dateColumn: string, setColumn: string} */
         $columns = [
-            'idColumn' => $input->getOption('idColumn'),
-            'contentColumn' => $input->getOption('contentColumn'),
-            'dateColumn' => $input->getOption('dateColumn'),
-            'setColumn' => $input->getOption('setColumn')
+            'idColumn' => $this->io['input']->getOption('idColumn'),
+            'contentColumn' => $this->io['input']->getOption('contentColumn'),
+            'dateColumn' => $this->io['input']->getOption('dateColumn'),
+            'setColumn' => $this->io['input']->getOption('setColumn')
         ];
         $filename = stream_get_meta_data($file)['uri'] ?? '';
 
         $headers = fgetcsv($file, null, ",", "\"", "\\");
         if (!is_array($headers) || is_null($headers[0])) {
-            $output->writeln([
+            $this->io['output']->writeln([
                 '',
                 sprintf(
                     ' [ERROR] File "%s" does not contain valid CSV. ',
@@ -245,15 +227,15 @@ final class CsvImportCommand extends Console
         /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
         $headers = array_flip($headers);
 
-        $callback = function (string $column) use ($headers): ?int {
+        $callback = function (string $column) use ($headers): int {
             /** @psalm-suppress InvalidArgument */
-            return array_key_exists($column, $headers) ? $headers[$column] : null;
+            return array_key_exists($column, $headers) ? $headers[$column] : -1;
         };
 
         $columns = array_map($callback, $columns);
 
-        if (!isset($columns['idColumn']) || !isset($columns['contentColumn'])) {
-            $output->writeln([
+        if ($columns['idColumn'] === -1 || $columns['contentColumn'] === -1) {
+            $this->io['output']->writeln([
                 '',
                 sprintf(
                     ' [ERROR] File "%s" does not contain mandatory columns. ',

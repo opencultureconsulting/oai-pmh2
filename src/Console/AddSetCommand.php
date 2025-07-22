@@ -83,7 +83,7 @@ final class AddSetCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (!$this->validateInput($input, $output)) {
+        if (parent::execute($input, $output) !== Command::SUCCESS) {
             return Command::INVALID;
         }
 
@@ -95,6 +95,15 @@ final class AddSetCommand extends Console
         $set = new Set($this->arguments['setSpec'], $this->arguments['setName'], $description ?? null);
         $this->em->addOrUpdate($set);
 
+        $output->writeln([
+            '',
+            sprintf(
+                ' [OK] Set "%s" with set spec "%s" added or updated successfully! ',
+                $this->arguments['setName'],
+                $this->arguments['setSpec']
+            ),
+            ''
+        ]);
         return Command::SUCCESS;
     }
 }
