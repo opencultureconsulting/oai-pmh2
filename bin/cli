@@ -31,29 +31,61 @@ use Symfony\Component\Console\Application;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$entityManagerProvider = new SingleManagerProvider(EntityManager::getInstance());
+/**
+ * Provides the Command Line Interface.
+ *
+ * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
+ * @package OAIPMH2
+ */
+final class Cli extends Application
+{
+    /**
+     * This holds the entity manager provider for the CLI commands.
+     */
+    protected readonly SingleManagerProvider $entityManagerProvider;
 
-$cli = new Application(
-    'OAI-PMH2 Data Provider Command Line Interface',
-    InstalledVersions::getVersion('opencultureconsulting/oai-pmh2') ?? 'unknown'
-);
-$cli->addCommands([
-    // Doctrine Commands
-    new DoctrineCommand\ClearCache\MetadataCommand($entityManagerProvider),
-    new DoctrineCommand\ClearCache\QueryCommand($entityManagerProvider),
-    new DoctrineCommand\ClearCache\ResultCommand($entityManagerProvider),
-    new DoctrineCommand\SchemaTool\CreateCommand($entityManagerProvider),
-    new DoctrineCommand\SchemaTool\UpdateCommand($entityManagerProvider),
-    new DoctrineCommand\GenerateProxiesCommand($entityManagerProvider),
-    new DoctrineCommand\ValidateSchemaCommand($entityManagerProvider),
-    // OAI-PMH2 Commands
-    new Command\AddRecordCommand(),
-    new Command\AddSetCommand(),
-    new Command\CsvImportCommand(),
-    new Command\DeleteRecordCommand(),
-    new Command\PruneDeletedRecordsCommand(),
-    new Command\PruneResumptionTokensCommand(),
-    new Command\UpdateFormatsCommand()
-]);
-$cli->setCatchExceptions(true);
+    /**
+     * Set the default command list.
+     *
+     * @return void
+     */
+    protected function setDefaultCommands(): void
+    {
+        $this->addCommands([
+            // Doctrine Commands
+            new DoctrineCommand\ClearCache\MetadataCommand($this->entityManagerProvider),
+            new DoctrineCommand\ClearCache\QueryCommand($this->entityManagerProvider),
+            new DoctrineCommand\ClearCache\ResultCommand($this->entityManagerProvider),
+            new DoctrineCommand\SchemaTool\CreateCommand($this->entityManagerProvider),
+            new DoctrineCommand\SchemaTool\UpdateCommand($this->entityManagerProvider),
+            new DoctrineCommand\GenerateProxiesCommand($this->entityManagerProvider),
+            new DoctrineCommand\ValidateSchemaCommand($this->entityManagerProvider),
+            // OAI-PMH2 Commands
+            new Command\AddRecordCommand(),
+            new Command\AddSetCommand(),
+            new Command\CsvImportCommand(),
+            new Command\DeleteRecordCommand(),
+            new Command\PruneDeletedRecordsCommand(),
+            new Command\PruneResumptionTokensCommand(),
+            new Command\UpdateFormatsCommand()
+        ]);
+    }
+
+    /**
+     * Create new Command Line Interface instance.
+     */
+    public function __construct()
+    {
+        $this->entityManagerProvider = new SingleManagerProvider(EntityManager::getInstance());
+
+        parent::__construct(
+            'OAI-PMH2 Data Provider Command Line Interface',
+            InstalledVersions::getVersion('opencultureconsulting/oai-pmh2') ?? 'unknown'
+        );
+        $this->setCatchExceptions(true);
+        $this->setDefaultCommands();
+    }
+}
+
+$cli = new Cli();
 $cli->run();
