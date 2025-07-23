@@ -24,6 +24,7 @@ namespace OCC\OaiPmh2;
 
 use DateTime;
 use Doctrine\DBAL\DriverManager;
+use Doctrine\DBAL\ParameterType;
 use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Tools\DsnParser;
 use Doctrine\ORM\AbstractQuery;
@@ -409,8 +410,9 @@ final class EntityManager extends EntityManagerDecorator
             $dql->delete(Record::class, 'records');
         } else {
             $dql->update(Record::class, 'records')
-                ->set('records.content', null)
+                ->set('records.content', ':null')
                 ->set('records.lastChanged', ':now')
+                ->setParameter('null', null, ParameterType::NULL)
                 ->setParameter('now', new DateTime(), 'datetime');
         }
         $dql->where($dql->expr()->eq('records.format', ':metadataPrefix'))

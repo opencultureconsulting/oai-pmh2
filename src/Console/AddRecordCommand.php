@@ -69,7 +69,7 @@ final class AddRecordCommand extends Console
         $this->addArgument(
             'sets',
             InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
-            'Optional: The list of sets to associate the record with.'
+            'The list of sets to associate the record with.'
         );
         parent::configure();
     }

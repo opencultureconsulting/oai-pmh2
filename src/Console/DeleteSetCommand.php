@@ -37,7 +37,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  */
 #[AsCommand(
     name: 'oai:delete:set',
-    description: 'Delete a set'
+    description: 'Delete a set from the database'
 )]
 final class DeleteSetCommand extends Console
 {

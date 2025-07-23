@@ -68,7 +68,7 @@ final class AddSetCommand extends Console
         $this->addArgument(
             'file',
             InputArgument::OPTIONAL,
-            'Optional: The file containing the set description XML.'
+            'The file containing the set description XML.'
         );
         parent::configure();
     }
