@@ -26,8 +26,8 @@ use DateTime;
 use OCC\OaiPmh2\Console\CsvImportCommand;
 use OCC\OaiPmh2\Entity\Format;
 use OCC\OaiPmh2\Entity\Record;
+use OCC\OaiPmh2\Entity\Set;
 use OCC\OaiPmh2\Validator\MetadataPrefixValidator;
-use OCC\OaiPmh2\Validator\SetsValidator;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -98,10 +98,12 @@ abstract class Console extends Command
         $format = $this->em->getMetadataFormat($this->arguments['format']);
         $record = new Record($identifier, $format, null, $lastChanged);
         $record->setContent($content, !($this->arguments['noValidation'] ?? false));
-        foreach ($sets as $set) {
-            $setSpec = $this->em->getSet($set);
-            if (isset($setSpec)) {
-                $record->addSet($setSpec);
+        foreach ($sets as $setSpec) {
+            $set = $this->em->getSet($setSpec);
+            if (isset($set)) {
+                $record->addSet($set);
+            } elseif (Configuration::getInstance()->autoSets) {
+                $record->addSet(new Set($setSpec));
             }
         }
         $this->em->addOrUpdate($record, get_class($this) === CsvImportCommand::class);
@@ -224,18 +226,6 @@ abstract class Console extends Command
                 sprintf('File "%s" not found or not readable.', $this->arguments['file'])
             );
             return false;
-        }
-        if (array_key_exists('sets', $this->arguments)) {
-            $violations = SetsValidator::validate($this->arguments['sets']);
-            if ($violations->count() > 0) {
-                $this->io->getErrorStyle()->error(
-                    sprintf(
-                        'Sets "%s" are not supported.',
-                        implode('", "', (array) $violations->get(count($violations) - 1)->getInvalidValue())
-                    )
-                );
-                return false;
-            }
         }
         return true;
     }

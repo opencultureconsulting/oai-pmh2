@@ -89,6 +89,9 @@ final class ConfigurationValidator
                 'batchSize' => [
                     new Assert\Type('int'),
                     new Assert\PositiveOrZero()
+                ],
+                'autoSets' => [
+                    new Assert\Type('bool')
                 ]
             ])
         ];

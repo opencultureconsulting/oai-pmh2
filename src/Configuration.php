@@ -43,6 +43,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property-read int $maxRecords Maximum number of records served per request
  * @property-read int $tokenValid Number of seconds resumption tokens are valid
  * @property-read int $batchSize Batch size for bulk imports
+ * @property-read bool $autoSets Whether sets should be created automatically
  *
  * @template TKey of string
  * @template TValue of array|int|string
