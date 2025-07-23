@@ -37,8 +37,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package OAIPMH2
  */
 #[AsCommand(
-    name: 'oai:sets:add',
-    description: 'Add or update a set in the database'
+    name: 'oai:add:set',
+    description: 'Add or update a set in the database',
+    aliases: ['oai:update:set']
 )]
 final class AddSetCommand extends Console
 {

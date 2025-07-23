@@ -37,8 +37,9 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package OAIPMH2
  */
 #[AsCommand(
-    name: 'oai:records:add',
-    description: 'Add or update a record in the database'
+    name: 'oai:add:record',
+    description: 'Add or update a record in the database',
+    aliases: ['oai:update:record']
 )]
 final class AddRecordCommand extends Console
 {

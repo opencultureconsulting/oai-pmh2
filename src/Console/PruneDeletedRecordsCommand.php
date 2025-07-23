@@ -37,7 +37,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package OAIPMH2
  */
 #[AsCommand(
-    name: 'oai:records:prune',
+    name: 'oai:prune:records',
     description: 'Prune deleted records from database'
 )]
 final class PruneDeletedRecordsCommand extends Console

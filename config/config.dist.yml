@@ -43,8 +43,8 @@ adminEmail: 'admin@example.org'
 # database: 'pgsql://oaipmh:secret@localhost:5432/oai_data_provider'
 # database: 'sqlite3:////opt/oaipmh/database.db'
 #
-# Run "composer doctrine:initialize-database" after switching to a new DB to
-# test the settings and initialize the database!
+# Run "bin/cli orm:schema-tool:update --force" and "bin/cli oai:update:formats"
+# after switching to a new DB to test the settings and initialize the database!
 #
 database: 'sqlite3:///%BASEDIR%/data/sqlite3.db'
 
@@ -59,7 +59,7 @@ database: 'sqlite3:///%BASEDIR%/data/sqlite3.db'
 # have the same record in multiple formats, it's highly recommended to use the
 # same identifier for all versions of the record.
 #
-# Run "bin/cli oai:formats:update" after changing metadata prefixes to update
+# Run "bin/cli oai:update:formats" after changing metadata prefixes to update
 # the database accordingly!
 #
 metadataPrefix: {
@@ -87,7 +87,7 @@ metadataPrefix: {
 #
 # ["no"|"persistent"|"transient"]
 #
-# Run "bin/cli oai:records:prune" after changing the deleted records policy to
+# Run "bin/cli oai:prune:records" after changing the deleted records policy to
 # "no" to remove all deleted records from the database.
 # If your policy is "transient" and you want to clean up deleted records from
 # the database anyway, run the command with the "--force" flag.

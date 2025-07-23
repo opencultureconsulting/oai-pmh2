@@ -38,7 +38,7 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  * @package OAIPMH2
  */
 #[AsCommand(
-    name: 'oai:formats:update',
+    name: 'oai:update:formats',
     description: 'Update metadata formats in database from configuration'
 )]
 final class UpdateFormatsCommand extends Console

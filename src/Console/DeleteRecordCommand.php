@@ -37,7 +37,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package OAIPMH2
  */
 #[AsCommand(
-    name: 'oai:records:delete',
+    name: 'oai:delete:record',
     description: 'Delete a record while obeying deleted record policy'
 )]
 final class DeleteRecordCommand extends Console

@@ -35,7 +35,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @package OAIPMH2
  */
 #[AsCommand(
-    name: 'oai:tokens:prune',
+    name: 'oai:prune:tokens',
     description: 'Prune expired resumption tokens from database'
 )]
 final class PruneResumptionTokensCommand extends Console

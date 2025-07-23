@@ -47,7 +47,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * }
  */
 #[AsCommand(
-    name: 'oai:records:import:csv',
+    name: 'oai:import:csv',
     description: 'Import records from a CSV file'
 )]
 final class CsvImportCommand extends Console
