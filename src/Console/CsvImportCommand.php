@@ -63,7 +63,7 @@ final class CsvImportCommand extends Console
         $this->addArgument(
             'format',
             InputArgument::REQUIRED,
-            'The format (metadata prefix) of the records.',
+            'The format (metadata prefix) of the records',
             null,
             function (): array {
                 return $this->em->getMetadataFormats()->getKeys();
@@ -72,47 +72,47 @@ final class CsvImportCommand extends Console
         $this->addArgument(
             'file',
             InputArgument::REQUIRED,
-            'The CSV file containing the records.'
+            'The CSV file containing the records'
         );
         $this->addOption(
             'idColumn',
             'i',
             InputOption::VALUE_OPTIONAL,
-            'Name of the CSV column which holds the records\' identifier.',
+            'Name of the CSV column which holds the records\' identifier',
             'identifier'
         );
         $this->addOption(
             'contentColumn',
             'c',
             InputOption::VALUE_OPTIONAL,
-            'Name of the CSV column which holds the records\' content.',
+            'Name of the CSV column which holds the records\' content',
             'content'
         );
         $this->addOption(
             'dateColumn',
             'd',
             InputOption::VALUE_OPTIONAL,
-            'Name of the CSV column which holds the records\' datetime of last change.',
+            'Name of the CSV column which holds the records\' datetime of last change',
             'lastChanged'
         );
         $this->addOption(
             'setColumn',
             's',
             InputOption::VALUE_OPTIONAL,
-            'Name of the CSV column which holds the comma-separated list of the records\' sets.',
+            'Name of the CSV column which holds the comma-separated list of the records\' sets',
             'sets'
         );
         $this->addOption(
             'noValidation',
             null,
             InputOption::VALUE_NONE,
-            'Skip content validation (improves ingest performance for large record sets).'
+            'Skip content validation (improves ingest performance for large record sets)'
         );
         $this->addOption(
             'purge',
             null,
             InputOption::VALUE_NONE,
-            'Purge all existing records with the same metadata prefix before importing.'
+            'Purge all existing records with the same metadata prefix before importing'
         );
         parent::configure();
     }

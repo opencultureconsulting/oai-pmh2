@@ -54,7 +54,7 @@ final class PruneDeletedRecordsCommand extends Console
             'force',
             'f',
             InputOption::VALUE_NONE,
-            'Deletes records even under "transient" policy.'
+            'Deletes records even under "transient" policy'
         );
         parent::configure();
     }

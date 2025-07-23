@@ -54,7 +54,7 @@ final class AddSetCommand extends Console
         $this->addArgument(
             'setSpec',
             InputArgument::REQUIRED,
-            'The set (spec) to add or update.',
+            'The set (spec) to add or update',
             null,
             function (): array {
                 return $this->em->getSets()->getKeys();
@@ -63,12 +63,12 @@ final class AddSetCommand extends Console
         $this->addArgument(
             'setName',
             InputArgument::REQUIRED,
-            'The new set name.'
+            'The new set name'
         );
         $this->addArgument(
             'file',
             InputArgument::OPTIONAL,
-            'The file containing the set description XML.'
+            'The file containing the set description XML'
         );
         parent::configure();
     }

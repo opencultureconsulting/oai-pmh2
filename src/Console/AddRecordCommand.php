@@ -54,22 +54,22 @@ final class AddRecordCommand extends Console
         $this->addArgument(
             'identifier',
             InputArgument::REQUIRED,
-            'The record identifier.'
+            'The record identifier'
         );
         $this->addArgument(
             'format',
             InputArgument::REQUIRED,
-            'The metadata prefix.'
+            'The metadata prefix'
         );
         $this->addArgument(
             'file',
             InputArgument::REQUIRED,
-            'The file containing the record content.'
+            'The file containing the record content'
         );
         $this->addArgument(
             'sets',
             InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
-            'The list of sets to associate the record with.'
+            'The list of sets to associate the record with'
         );
         parent::configure();
     }

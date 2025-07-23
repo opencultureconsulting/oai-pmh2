@@ -53,12 +53,12 @@ final class DeleteRecordCommand extends Console
         $this->addArgument(
             'identifier',
             InputArgument::REQUIRED,
-            'The record identifier.'
+            'The record identifier'
         );
         $this->addArgument(
             'format',
             InputArgument::REQUIRED,
-            'The metadata prefix.'
+            'The metadata prefix'
         );
         parent::configure();
     }

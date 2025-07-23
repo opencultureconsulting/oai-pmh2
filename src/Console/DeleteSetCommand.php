@@ -52,7 +52,7 @@ final class DeleteSetCommand extends Console
         $this->addArgument(
             'setSpec',
             InputArgument::REQUIRED,
-            'The set (spec) to delete.',
+            'The set (spec) to delete',
             null,
             function (): array {
                 return $this->em->getSets()->getKeys();
