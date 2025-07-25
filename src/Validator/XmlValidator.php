@@ -44,8 +44,8 @@ final class XmlValidator
     protected static function getValidationConstraints(): array
     {
         return [
-            new Assert\Type('string'),
-            new Assert\NotBlank(['normalizer' => 'trim'])
+            new Assert\Type(type: 'string'),
+            new Assert\NotBlank(normalizer: 'trim')
         ];
     }
 

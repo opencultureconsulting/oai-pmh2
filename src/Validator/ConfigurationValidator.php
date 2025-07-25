@@ -45,53 +45,57 @@ final class ConfigurationValidator
         return [
             new Assert\Collection([
                 'repositoryName' => [
-                    new Assert\Type('string'),
-                    new Assert\NotBlank(['normalizer' => 'trim'])
+                    new Assert\Type(type: 'string'),
+                    new Assert\NotBlank(normalizer: 'trim')
                 ],
                 'adminEmail' => [
-                    new Assert\Type('string'),
-                    new Assert\Email(['mode' => 'html5']),
-                    new Assert\NotBlank(['normalizer' => 'trim'])
+                    new Assert\Type(type: 'string'),
+                    new Assert\Email(mode: 'html5'),
+                    new Assert\NotBlank(normalizer: 'trim')
                 ],
                 'database' => [
-                    new Assert\Type('string'),
-                    new Assert\NotBlank(['normalizer' => 'trim'])
+                    new Assert\Type(type: 'string'),
+                    new Assert\NotBlank(normalizer: 'trim')
                 ],
                 'metadataPrefix' => [
-                    new Assert\Type('array'),
+                    new Assert\Type(type: 'array'),
                     new Assert\All([
-                        new Assert\Collection([
-                            'schema' => [
-                                new Assert\Type('string'),
-                                new Assert\Url(),
-                                new Assert\NotBlank(['normalizer' => 'trim'])
+                        new Assert\Collection(
+                            fields: [
+                                'schema' => [
+                                    new Assert\Type('string'),
+                                    new Assert\Url(),
+                                    new Assert\NotBlank(normalizer: 'trim')
+                                ],
+                                'namespace' => [
+                                    new Assert\Type('string'),
+                                    new Assert\Url(),
+                                    new Assert\NotBlank(normalizer: 'trim')
+                                ]
                             ],
-                            'namespace' => [
-                                new Assert\Type('string'),
-                                new Assert\Url(),
-                                new Assert\NotBlank(['normalizer' => 'trim'])
-                            ]
-                        ])
+                            allowExtraFields: false,
+                            allowMissingFields: false
+                        )
                     ])
                 ],
                 'deletedRecords' => [
-                    new Assert\Type('string'),
-                    new Assert\Choice(['choices' => ['no', 'persistent', 'transient']])
+                    new Assert\Type(type: 'string'),
+                    new Assert\Choice(choices: ['no', 'persistent', 'transient'])
                 ],
                 'maxRecords' => [
-                    new Assert\Type('int'),
-                    new Assert\Range(['min' => 1, 'max' => 100])
+                    new Assert\Type(type: 'int'),
+                    new Assert\Range(min: 1, max: 100)
                 ],
                 'tokenValid' => [
-                    new Assert\Type('int'),
-                    new Assert\Range(['min' => 300, 'max' => 86400])
+                    new Assert\Type(type: 'int'),
+                    new Assert\Range(min: 300, max: 86400)
                 ],
                 'batchSize' => [
-                    new Assert\Type('int'),
+                    new Assert\Type(type: 'int'),
                     new Assert\PositiveOrZero()
                 ],
                 'autoSets' => [
-                    new Assert\Type('bool')
+                    new Assert\Type(type: 'bool')
                 ]
             ])
         ];

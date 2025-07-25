@@ -45,10 +45,10 @@ final class RegExValidator
     protected static function getValidationConstraints(string $regEx): array
     {
         return [
-            new Assert\Regex([
-                'pattern' => $regEx,
-                'message' => 'This value does not match the regular expression "{{ pattern }}".'
-            ])
+            new Assert\Regex(
+                pattern: $regEx,
+                message: 'This value does not match the regular expression "{{ pattern }}".'
+            )
         ];
     }
 
