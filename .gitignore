@@ -1,3 +1,5 @@
+/.ddev/
+!/.ddev/config.yaml
 /.phpdoc/cache/
 /.vscode/
 /config/config.yml
