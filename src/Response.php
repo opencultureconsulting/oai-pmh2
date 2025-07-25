@@ -61,7 +61,7 @@ final class Response
         }
         $stylesheet = Uri::composeComponents(
             $uri->getScheme(),
-            $uri->getAuthority(),
+            $uri->getHost(),
             rtrim($basePath, '/') . '/resources/stylesheet.xsl',
             null,
             null
@@ -86,7 +86,7 @@ final class Response
         $uri = $this->serverRequest->getUri();
         $baseUrl = Uri::composeComponents(
             $uri->getScheme(),
-            $uri->getAuthority(),
+            $uri->getHost(),
             $uri->getPath(),
             null,
             null

@@ -238,6 +238,8 @@ abstract class Console extends Command
      */
     public function __construct(?string $name = null)
     {
+        // Don't time out during CLI commands
+        set_time_limit(0);
         $this->em = EntityManager::getInstance();
         parent::__construct($name);
     }
