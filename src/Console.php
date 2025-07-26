@@ -79,6 +79,8 @@ abstract class Console extends Command
 
     /**
      * This holds the PHP memory limit in bytes.
+     *
+     * @var positive-int
      */
     protected int $memoryLimit;
 
@@ -179,7 +181,7 @@ abstract class Console extends Command
     /**
      * Gets the PHP memory limit in bytes.
      *
-     * @return int The memory limit in bytes or -1 if unlimited
+     * @return positive-int The memory limit in bytes
      */
     protected function getPhpMemoryLimit(): int
     {
@@ -187,7 +189,16 @@ abstract class Console extends Command
             $phpValue = (string) ini_get('memory_limit');
             $limit = (int) $phpValue;
             if ($limit <= 0) {
-                $limit = -1;
+                // Unlimited memory, so set a sensible default value
+                $this->io->getErrorStyle()->warning([
+                    'PHP memory limit is set to unlimited, temporarily setting it to 512M.',
+                    '',
+                    'You can change this in your php.ini or by using the --memory-limit option.',
+                    'Alternatively, it is recommended to set a batch size in config/config.yml',
+                    'to avoid high memory usage during import.'
+                ]);
+                ini_set('memory_limit', '512M');
+                return $this->getPhpMemoryLimit();
             } else {
                 $unit = strtolower($phpValue[strlen($phpValue) - 1]);
                 switch ($unit) {

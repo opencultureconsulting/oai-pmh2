@@ -174,9 +174,8 @@ final class CsvImportCommand extends Console
             }
         }
 
-        $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed. Flushing!');
         $this->flushAndClear();
-        $progressIndicator->finish('All done! ' . (string) $count . ' records processed.');
+        $progressIndicator->finish('All done! ' . (string) $count . ' records imported.');
 
         fclose($file);
 
