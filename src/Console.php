@@ -192,7 +192,6 @@ abstract class Console extends Command
                 // Unlimited memory, so set a sensible default value
                 $this->io->getErrorStyle()->warning([
                     'PHP memory limit is set to unlimited, temporarily setting it to 512M.',
-                    '',
                     'You can change this in your php.ini or by using the --memory-limit option.',
                     'Alternatively, it is recommended to set a batch size in config/config.yml',
                     'to avoid high memory usage during import.'

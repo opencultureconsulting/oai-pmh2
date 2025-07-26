@@ -90,7 +90,7 @@
         ],
         "doctrine:initialize-database": [
             "@php bin/cli orm:schema-tool:update --force",
-            "@php bin/cli oai:update:formats --quiet"
+            "@php bin/cli oai:update:formats"
         ],
         "php-cs-fixer:check": [
             "@php vendor/bin/php-cs-fixer check"
