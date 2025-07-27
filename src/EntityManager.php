@@ -36,6 +36,7 @@ use Doctrine\ORM\Proxy\ProxyFactory;
 use Doctrine\ORM\Query\Expr\Join;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use OCC\Basics\Traits\Singleton;
+use OCC\OaiPmh2\Driver\Middleware as DriverMiddleware;
 use OCC\OaiPmh2\Entity\Format;
 use OCC\OaiPmh2\Entity\Record;
 use OCC\OaiPmh2\Entity\Set;
@@ -376,7 +377,7 @@ final class EntityManager extends EntityManagerDecorator
     }
 
     /**
-     * Prune orphan sets.
+     * Prune orphaned sets.
      *
      * @return int The number of removed sets
      */
@@ -430,6 +431,7 @@ final class EntityManager extends EntityManagerDecorator
         $config->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_NEVER);
         $config->setMetadataCache(new PhpFilesAdapter('Metadata', 0, __DIR__ . '/../var/cache'));
         $config->setMetadataDriverImpl(new AttributeDriver([__DIR__ . '/Entity']));
+        $config->setMiddlewares([new DriverMiddleware()]);
         $config->setProxyDir(__DIR__ . '/../var/generated');
         $config->setProxyNamespace('OCC\OaiPmh2\Entity\Proxy');
         $config->setQueryCache(new PhpFilesAdapter('Query', 0, __DIR__ . '/../var/cache'));
