@@ -59,7 +59,7 @@ final class Identify extends Middleware
 
         $uri = Uri::composeComponents(
             $request->getUri()->getScheme(),
-            $request->getUri()->getAuthority(),
+            $request->getUri()->getHost(),
             $request->getUri()->getPath(),
             null,
             null
