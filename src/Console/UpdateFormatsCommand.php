@@ -95,7 +95,6 @@ final class UpdateFormatsCommand extends Console
 
         $this->io->getErrorStyle()->listing($error);
         $this->io->listing($success);
-        $this->io->newLine(1);
 
         $this->clearResultCache();
         $currentFormats = $this->em->getMetadataFormats()->getKeys();
@@ -104,16 +103,15 @@ final class UpdateFormatsCommand extends Console
                 'The following metadata formats are currently supported:',
                 '"' . implode('", "', $currentFormats) . '"',
                 'To change supported formats edit config/config.yml and',
-                'run command "php bin/cli oai:formats:update" again!'
+                'run command "bin/cli oai:update:formats" again!'
             ]);
         } else {
             $this->io->getErrorStyle()->caution([
                 'There are currently no metadata formats supported.',
                 'Please add a metadata prefix to config/config.yml and',
-                'run command "php bin/cli oai:formats:update" again!'
+                'run command "bin/cli oai:update:formats" again!'
             ]);
         }
-        $this->io->newLine(1);
 
         if (count($error) === 0) {
             $this->io->success('Metadata formats updated successfully!');
