@@ -323,7 +323,7 @@
         <h3>Record Header <em><xsl:value-of select="oai:identifier"/></em></h3>
         <ul>
         <li>&#187; <a class="link" href="?verb=ListMetadataFormats&amp;identifier={oai:identifier}">ListMetadataFormats</a></li>
-        <xsl:if test="oai:request/@metadataPrefix">
+        <xsl:if test="$metadataPrefix">
         <li>&#187; <a class="link" href="?verb=GetRecord&amp;metadataPrefix={$metadataPrefix}&amp;identifier={oai:identifier}">GetRecord</a></li>
         </xsl:if>
         </ul>
