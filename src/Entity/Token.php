@@ -46,19 +46,19 @@ class Token extends Entity
      * The resumption token.
      */
     #[ORM\Id]
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 8)]
     private string $token;
 
     /**
      * The verb for which the token is issued.
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 16)]
     private string $verb;
 
     /**
      * The query parameters as serialized array.
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'text')]
     private string $parameters;
 
     /**
@@ -117,9 +117,6 @@ class Token extends Entity
     public function __construct(string $verb, array $parameters)
     {
         $this->token = substr(md5(microtime()), 0, 8);
-        if (isset($parameters['metadataPrefix'])) {
-            $this->token .= '~' . $parameters['metadataPrefix'];
-        }
         $this->verb = $verb;
         $this->parameters = serialize($parameters);
         $validUntil = new DateTime();

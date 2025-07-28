@@ -25,6 +25,7 @@ namespace OCC\OaiPmh2\Validator;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\Validator\ConstraintViolationListInterface;
+use Symfony\Component\Validator\Context\ExecutionContextInterface;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -32,6 +33,8 @@ use Symfony\Component\Validator\Validation;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @SuppressWarnings("PHPMD.CouplingBetweenObjects")
  */
 final class ConfigurationValidator
 {
@@ -43,61 +46,68 @@ final class ConfigurationValidator
     protected static function getValidationConstraints(): array
     {
         return [
-            new Assert\Collection([
-                'repositoryName' => [
-                    new Assert\Type(type: 'string'),
-                    new Assert\NotBlank(normalizer: 'trim')
-                ],
-                'adminEmail' => [
-                    new Assert\Type(type: 'string'),
-                    new Assert\Email(mode: 'html5'),
-                    new Assert\NotBlank(normalizer: 'trim')
-                ],
-                'database' => [
-                    new Assert\Type(type: 'string'),
-                    new Assert\NotBlank(normalizer: 'trim')
-                ],
-                'metadataPrefix' => [
-                    new Assert\Type(type: 'array'),
-                    new Assert\All([
-                        new Assert\Collection(
-                            fields: [
-                                'schema' => [
-                                    new Assert\Type('string'),
-                                    new Assert\Url(),
-                                    new Assert\NotBlank(normalizer: 'trim')
+            new Assert\Collection(
+                fields: [
+                    'repositoryName' => [
+                        new Assert\Type(type: 'string'),
+                        new Assert\NotBlank(normalizer: 'trim')
+                    ],
+                    'adminEmail' => [
+                        new Assert\Type(type: 'string'),
+                        new Assert\Email(mode: 'html5'),
+                        new Assert\NotBlank(normalizer: 'trim')
+                    ],
+                    'database' => [
+                        new Assert\Type(type: 'string'),
+                        new Assert\NotBlank(normalizer: 'trim')
+                    ],
+                    'metadataPrefix' => [
+                        new Assert\Type(type: 'array'),
+                        new Assert\Callback([self::class, 'validateMetadataPrefix']),
+                        new Assert\All([
+                            new Assert\Collection(
+                                fields: [
+                                    'schema' => [
+                                        new Assert\Type('string'),
+                                        new Assert\Length(max: 255),
+                                        new Assert\Url(),
+                                        new Assert\NotBlank(normalizer: 'trim')
+                                    ],
+                                    'namespace' => [
+                                        new Assert\Type('string'),
+                                        new Assert\Length(max: 255),
+                                        new Assert\Url(),
+                                        new Assert\NotBlank(normalizer: 'trim')
+                                    ]
                                 ],
-                                'namespace' => [
-                                    new Assert\Type('string'),
-                                    new Assert\Url(),
-                                    new Assert\NotBlank(normalizer: 'trim')
-                                ]
-                            ],
-                            allowExtraFields: false,
-                            allowMissingFields: false
-                        )
-                    ])
+                                allowExtraFields: false,
+                                allowMissingFields: false
+                            )
+                        ])
+                    ],
+                    'deletedRecords' => [
+                        new Assert\Type(type: 'string'),
+                        new Assert\Choice(choices: ['no', 'persistent', 'transient'])
+                    ],
+                    'maxRecords' => [
+                        new Assert\Type(type: 'int'),
+                        new Assert\Range(min: 1, max: 100)
+                    ],
+                    'tokenValid' => [
+                        new Assert\Type(type: 'int'),
+                        new Assert\Range(min: 300, max: 86400)
+                    ],
+                    'batchSize' => [
+                        new Assert\Type(type: 'int'),
+                        new Assert\PositiveOrZero()
+                    ],
+                    'autoSets' => [
+                        new Assert\Type(type: 'bool')
+                    ]
                 ],
-                'deletedRecords' => [
-                    new Assert\Type(type: 'string'),
-                    new Assert\Choice(choices: ['no', 'persistent', 'transient'])
-                ],
-                'maxRecords' => [
-                    new Assert\Type(type: 'int'),
-                    new Assert\Range(min: 1, max: 100)
-                ],
-                'tokenValid' => [
-                    new Assert\Type(type: 'int'),
-                    new Assert\Range(min: 300, max: 86400)
-                ],
-                'batchSize' => [
-                    new Assert\Type(type: 'int'),
-                    new Assert\PositiveOrZero()
-                ],
-                'autoSets' => [
-                    new Assert\Type(type: 'bool')
-                ]
-            ])
+                allowExtraFields: false,
+                allowMissingFields: false
+            )
         ];
     }
 
@@ -114,5 +124,27 @@ final class ConfigurationValidator
             $config,
             self::getValidationConstraints()
         );
+    }
+
+    /**
+     * Validate metadata prefixes.
+     *
+     * @param array<string, string[]> $value Configuration array of metadata prefixes
+     * @param ExecutionContextInterface $context The execution context for validation
+     *
+     * @return void
+     */
+    public static function validateMetadataPrefix(mixed $value, ExecutionContextInterface $context): void
+    {
+        foreach (array_keys($value) as $key) {
+            if (!(preg_match('/^[A-Za-z0-9\-_\.!~\*\'\(\)]{1,16}$/', $key) > 0)) {
+                $context->buildViolation(
+                    sprintf(
+                        'Invalid metadata prefix "%s"',
+                        $key
+                    )
+                )->atPath('metadataPrefix')->addViolation();
+            }
+        }
     }
 }

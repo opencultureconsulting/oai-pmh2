@@ -43,13 +43,13 @@ class Set extends Entity
      * The unique set spec.
      */
     #[ORM\Id]
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $spec;
 
     /**
      * The name of the set.
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $name;
 
     /**

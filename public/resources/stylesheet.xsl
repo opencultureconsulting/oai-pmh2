@@ -137,16 +137,7 @@
     </xsl:template>
 
     <xsl:variable name='verb' select="/oai:OAI-PMH/oai:request/@verb"/>
-    <xsl:variable name='metadataPrefix'>
-        <xsl:choose>
-        <xsl:when test="/oai:OAI-PMH/oai:request/@metadataPrefix != ''">
-            <xsl:value-of select="/oai:OAI-PMH/oai:request/@metadataPrefix"/>
-        </xsl:when>
-        <xsl:when test="/oai:OAI-PMH/oai:request/@resumptionToken != ''">
-            <xsl:value-of select="substring-after(/oai:OAI-PMH/oai:request/@resumptionToken,'~')"/>
-        </xsl:when>
-        </xsl:choose>
-    </xsl:variable>
+    <xsl:variable name='metadataPrefix' select="/oai:OAI-PMH/oai:request/@metadataPrefix"/>
     <xsl:variable name='identifier' select="/oai:OAI-PMH/oai:request/@identifier"/>
     <xsl:variable name='from' select="/oai:OAI-PMH/oai:request/@from"/>
     <xsl:variable name='until' select="/oai:OAI-PMH/oai:request/@until"/>
@@ -313,7 +304,14 @@
     ListIdentifiers
     -->
     <xsl:template match="oai:ListIdentifiers">
-    <p class="info">This is a list of records' identifiers available for the metadata format <em><xsl:value-of select="$metadataPrefix"/></em>.</p>
+    <xsl:choose>
+        <xsl:when test="$metadataPrefix">
+            <p class="info">This is a list of records' identifiers available for the metadata format <em><xsl:value-of select="$metadataPrefix"/></em>.</p>
+        </xsl:when>
+        <xsl:otherwise>
+            <p class="info">This is the next batch of records' identifiers available according to the resumption token.</p>
+        </xsl:otherwise>
+    </xsl:choose>
     <ol>
         <xsl:apply-templates select="oai:header" />
     </ol>
@@ -325,7 +323,9 @@
         <h3>Record Header <em><xsl:value-of select="oai:identifier"/></em></h3>
         <ul>
         <li>&#187; <a class="link" href="?verb=ListMetadataFormats&amp;identifier={oai:identifier}">ListMetadataFormats</a></li>
+        <xsl:if test="oai:request/@metadataPrefix">
         <li>&#187; <a class="link" href="?verb=GetRecord&amp;metadataPrefix={$metadataPrefix}&amp;identifier={oai:identifier}">GetRecord</a></li>
+        </xsl:if>
         </ul>
         <table class="values">
         <tr><td class="key">Identifier</td>
@@ -347,7 +347,14 @@
     ListRecords
     -->
     <xsl:template match="oai:ListRecords">
-    <p class="info">This is a list of records available for the metadata format <em><xsl:value-of select="$metadataPrefix"/></em>.</p>
+    <xsl:choose>
+        <xsl:when test="$metadataPrefix">
+            <p class="info">This is a list of records available for the metadata format <em><xsl:value-of select="$metadataPrefix"/></em>.</p>
+        </xsl:when>
+        <xsl:otherwise>
+            <p class="info">This is the next batch of records available according to the resumption token.</p>
+        </xsl:otherwise>
+    </xsl:choose>
     <ol>
         <xsl:apply-templates select="oai:record" />
     </ol>
@@ -378,7 +385,9 @@
     <h3>Record <em><xsl:value-of select="oai:identifier"/></em></h3>
     <ul>
         <li>&#187; <a class="link" href="?verb=ListMetadataFormats&amp;identifier={oai:identifier}">ListMetadataFormats</a></li>
-        <xsl:if test="$verb != 'GetRecord'"><li>&#187; <a class="link" href="?verb=GetRecord&amp;metadataPrefix={$metadataPrefix}&amp;identifier={oai:identifier}">GetRecord</a></li></xsl:if>
+        <xsl:if test="$verb != 'GetRecord' and $metadataPrefix">
+        <li>&#187; <a class="link" href="?verb=GetRecord&amp;metadataPrefix={$metadataPrefix}&amp;identifier={oai:identifier}">GetRecord</a></li>
+        </xsl:if>
     </ul>
     <table class="values">
         <tr><td class="key">Identifier</td>

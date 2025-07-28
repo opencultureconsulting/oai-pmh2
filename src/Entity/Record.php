@@ -48,7 +48,7 @@ class Record extends Entity
      * The record identifier.
      */
     #[ORM\Id]
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $identifier;
 
     /**
@@ -269,7 +269,7 @@ class Record extends Entity
             $this->identifier = $this->validateRegEx(
                 $identifier,
                 // xs:anyURI
-                '/^(([a-zA-Z][0-9a-zA-Z+\\-\\.]*:)?\/{0,2}[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?(#[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?$/'
+                '/^(?=.)(([a-zA-Z][0-9a-zA-Z+\\-\\.]*:)?\/{0,2}[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?(#[0-9a-zA-Z;\/?:@&=+$\\.\\-_!~*\'()%]+)?$/'
             );
             $this->setFormat($format);
             $this->setContent($data);

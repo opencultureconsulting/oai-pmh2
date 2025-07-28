@@ -43,19 +43,19 @@ class Format extends Entity
      * The unique metadata prefix.
      */
     #[ORM\Id]
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 16)]
     private string $prefix;
 
     /**
      * The format's namespace URI.
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $namespace;
 
     /**
      * The format's schema URL.
      */
-    #[ORM\Column(type: 'string')]
+    #[ORM\Column(type: 'string', length: 255)]
     private string $xmlSchema;
 
     /**
@@ -160,7 +160,7 @@ class Format extends Entity
     public function __construct(string $prefix, string $namespace, string $schema)
     {
         try {
-            $this->prefix = $this->validateRegEx($prefix, '/^[A-Za-z0-9\-_\.!~\*\'\(\)]+$/');
+            $this->prefix = $this->validateRegEx($prefix, '/^[A-Za-z0-9\-_\.!~\*\'\(\)]{1,16}$/');
             $this->setNamespace($namespace);
             $this->setSchema($schema);
             $this->records = new ArrayCollection();
