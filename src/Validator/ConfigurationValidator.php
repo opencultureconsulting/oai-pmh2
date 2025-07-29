@@ -22,10 +22,11 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Validator;
 
+use OCC\OaiPmh2\Configuration;
 use Symfony\Component\Validator\Constraint;
 use Symfony\Component\Validator\Constraints as Assert;
-use Symfony\Component\Validator\ConstraintViolationListInterface;
 use Symfony\Component\Validator\Context\ExecutionContextInterface;
+use Symfony\Component\Validator\Exception\ValidationFailedException;
 use Symfony\Component\Validator\Validation;
 
 /**
@@ -34,6 +35,7 @@ use Symfony\Component\Validator\Validation;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
+ * @phpstan-import-type ConfigArray from Configuration
  * @SuppressWarnings("PHPMD.CouplingBetweenObjects")
  */
 final class ConfigurationValidator
@@ -114,16 +116,27 @@ final class ConfigurationValidator
     /**
      * Validate the given configuration array.
      *
-     * @param array<array-key, mixed> $config The configuration array to validate
+     * @param mixed[] $config The configuration array to validate
      *
-     * @return ConstraintViolationListInterface The list of violations
+     * @return void
+     *
+     * @throws ValidationFailedException if validation fails
+     *
+     * @phpstan-assert ConfigArray $config
      */
-    public static function validate(array $config): ConstraintViolationListInterface
+    public static function validate(array $config): void
     {
-        return Validation::createValidator()->validate(
+        $violations = Validation::createValidator()->validate(
             $config,
             self::getValidationConstraints()
         );
+        if (count($violations) > 0) {
+            // Redact sensitive information like database connection strings
+            if (isset($config['database'])) {
+                $config['database'] = '<redacted>';
+            }
+            throw new ValidationFailedException($config, $violations);
+        }
     }
 
     /**

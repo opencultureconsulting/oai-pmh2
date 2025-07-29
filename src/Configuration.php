@@ -26,7 +26,7 @@ use OCC\Basics\Traits\Singleton;
 use OCC\OaiPmh2\Validator\ConfigurationValidator;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
 use Symfony\Component\Filesystem\Path;
-use Symfony\Component\Validator\Exception\ValidationFailedException;
+use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -35,46 +35,66 @@ use Symfony\Component\Yaml\Yaml;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @property-read string $repositoryName Common name of this repository
- * @property-read string $adminEmail Repository contact's e-mail address
- * @property-read string $database Database's data source name (DSN)
- * @property-read array<string, array<string, string>> $metadataPrefix Array of served metadata prefixes
- * @property-read string $deletedRecords Repository's deleted records policy
- * @property-read int $maxRecords Maximum number of records served per request
- * @property-read int $tokenValid Number of seconds resumption tokens are valid
- * @property-read int $batchSize Batch size for bulk imports
+ * @property-read non-empty-string $repositoryName Common name of this repository
+ * @property-read non-empty-string $adminEmail Repository contact's e-mail address
+ * @property-read non-empty-string $database Database's data source name (DSN)
+ * @property-read array<non-empty-string, array{namespace: non-empty-string, schema: non-empty-string}> $metadataPrefix Array of served metadata prefixes
+ * @property-read 'no'|'transient'|'persistent' $deletedRecords Repository's deleted records policy
+ * @property-read int<1, 100> $maxRecords Maximum number of records served per request
+ * @property-read int<300, 86400> $tokenValid Number of seconds resumption tokens are valid
+ * @property-read non-negative-int $batchSize Batch size for bulk imports
  * @property-read bool $autoSets Whether sets should be created automatically
  *
- * @template TKey of string
- * @template TValue of array|int|string
+ * @phpstan-type ConfigArray = array{
+ *     repositoryName: non-empty-string,
+ *     adminEmail: non-empty-string,
+ *     database: non-empty-string,
+ *     metadataPrefix: array<non-empty-string, array{namespace: non-empty-string, schema: non-empty-string}>,
+ *     deletedRecords: 'no'|'transient'|'persistent',
+ *     maxRecords: int<1, 100>,
+ *     tokenValid: int<300, 86400>,
+ *     batchSize: non-negative-int,
+ *     autoSets: bool
+ * }
  */
 final class Configuration
 {
     use Singleton;
 
     /**
-     * Fully qualified path to the configuration file.
+     * Fully qualified path to the custom configuration file.
      *
-     * @var string
+     * @var non-empty-string
      */
     protected const CONFIG_FILE = __DIR__ . '/../config/config.yml';
 
     /**
+     * Fully qualified path to the default configuration file.
+     *
+     * @var non-empty-string
+     */
+    protected const DEFAULT_CONFIG_FILE = __DIR__ . '/../config/config.dist.yml';
+
+    /**
      * The configuration settings.
      *
-     * @var array<TKey, TValue>
+     * @var ConfigArray
      */
     protected readonly array $settings;
 
     /**
-     * Load and validate configuration settings from YAML file.
+     * Get configuration from file.
      *
-     * @throws FileNotFoundException if configuration file does not exist
-     * @throws ValidationFailedException if configuration file is not valid
+     * @param string $configFile The path to the configuration file
+     *
+     * @return mixed The parsed YAML from the file
+     *
+     * @throws FileNotFoundException if the file does not exist
+     * @throws ParseException if the YAML is not valid
      */
-    private function __construct()
+    protected function getConfiguration(string $configFile): mixed
     {
-        $configPath = Path::canonicalize(self::CONFIG_FILE);
+        $configPath = Path::canonicalize($configFile);
         if (!is_readable($configPath)) {
             throw new FileNotFoundException(
                 'Configuration file not found or not readable.',
@@ -83,21 +103,29 @@ final class Configuration
                 $configPath
             );
         }
-        /** @var array<TKey, TValue> */
-        $config = Yaml::parseFile($configPath);
-        $violations = ConfigurationValidator::validate($config);
-        if ($violations->count() > 0) {
-            throw new ValidationFailedException(null, $violations);
-        }
+        return Yaml::parseFile($configPath);
+    }
+
+    /**
+     * Load and validate configuration settings from YAML file.
+     */
+    private function __construct()
+    {
+        $config = array_merge(
+            (array) $this->getConfiguration(self::DEFAULT_CONFIG_FILE),
+            (array) $this->getConfiguration(self::CONFIG_FILE)
+        );
+        /** @psalm-suppress TypeDoesNotContainType */
+        ConfigurationValidator::validate($config);
         $this->settings = $config;
     }
 
     /**
      * Magic getter for $this->settings.
      *
-     * @param TKey $name The setting to retrieve
+     * @param non-empty-string $name The setting to retrieve
      *
-     * @return ?TValue The setting or NULL
+     * @return ?mixed The setting or NULL
      */
     public function __get(string $name): mixed
     {
