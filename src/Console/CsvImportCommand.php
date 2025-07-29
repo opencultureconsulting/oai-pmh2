@@ -39,11 +39,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @psalm-type ColumnMapping = array{
- *     idColumn: int,
- *     contentColumn: int,
- *     dateColumn: int,
- *     setColumn: int
+ * @phpstan-type ColumnMapping = array{
+ *     idColumn: non-negative-int,
+ *     contentColumn: non-negative-int,
+ *     dateColumn: int<-1, max>,
+ *     setColumn: int<-1, max>
  * }
  */
 #[AsCommand(
@@ -134,8 +134,8 @@ final class CsvImportCommand extends Console
 
         /** @var resource */
         $file = fopen($this->arguments['file'], 'r');
-        $columnMapping = $this->getColumnMapping($file);
-        if (!isset($columnMapping)) {
+        $columns = $this->getColumnMapping($file);
+        if (!isset($columns)) {
             return Command::FAILURE;
         }
 
@@ -158,12 +158,12 @@ final class CsvImportCommand extends Console
             if (!is_null($row[0])) {
                 $this->addOrUpdateRecord(
                     /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
-                    $row[$columnMapping['idColumn']],
+                    $row[$columns['idColumn']],
                     /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
-                    trim($row[$columnMapping['contentColumn']]) ?: null,
-                    new DateTime($row[$columnMapping['dateColumn']] ?? 'now'),
+                    trim($row[$columns['contentColumn']]) ?: null,
+                    $columns['dateColumn'] >= 0 ? new DateTime($row[$columns['dateColumn']] ?? 'now') : null,
                     /** @phpstan-ignore arrayFilter.strict */
-                    array_filter(explode(',', $row[$columnMapping['setColumn']] ?? ''))
+                    $columns['setColumn'] >= 0 ? array_filter(explode(',', $row[$columns['setColumn']] ?? '')) : []
                 );
 
                 ++$count;

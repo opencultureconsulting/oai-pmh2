@@ -35,7 +35,7 @@ use OCC\OaiPmh2\Repository\TokenRepository;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @psalm-import-type OaiRequestMetadata from \OCC\OaiPmh2\Middleware
+ * @phpstan-import-type OaiRequestMetadata from \OCC\OaiPmh2\Middleware
  */
 #[ORM\Entity(repositoryClass: TokenRepository::class)]
 #[ORM\Table(name: 'tokens')]

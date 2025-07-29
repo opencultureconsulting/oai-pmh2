@@ -39,7 +39,7 @@ final class Dispatcher extends AbstractMiddleware
     /**
      * List of defined OAI-PMH parameters.
      *
-     * @var string[]
+     * @var non-empty-list<'verb'|'identifier'|'metadataPrefix'|'from'|'until'|'set'|'resumptionToken'>
      */
     protected const OAI_PARAMS = [
         'verb',
@@ -91,7 +91,7 @@ final class Dispatcher extends AbstractMiddleware
         $request = $this->getRequestWithAttributes($request);
         $errorHandler = ErrorHandler::getInstance();
         if (!$errorHandler->hasErrors()) {
-            /** @var string */
+            /** @var non-empty-string */
             $verb = $request->getAttribute('verb');
             $middleware = __NAMESPACE__ . '\\' . $verb;
             if (is_a($middleware, Middleware::class, true)) {
@@ -138,7 +138,7 @@ final class Dispatcher extends AbstractMiddleware
             match ($arguments['verb']) {
                 'GetRecord' => $this->validateGetRecord($arguments),
                 'Identify' => $this->validateIdentify($arguments),
-                'ListIdentifiers', 'ListRecords' => $this->validateListRecords($arguments),
+                'ListIdentifiers', 'ListRecords' => $this->validateListIdentifiers($arguments),
                 'ListMetadataFormats' => $this->validateListFormats($arguments),
                 'ListSets' => $this->validateListSets($arguments),
                 default => ErrorHandler::getInstance()->withError('badVerb')
@@ -225,7 +225,7 @@ final class Dispatcher extends AbstractMiddleware
      *
      * @return void
      */
-    protected function validateListRecords(array $arguments): void
+    protected function validateListIdentifiers(array $arguments): void
     {
         if (
             isset($arguments['metadataPrefix'])

@@ -33,7 +33,7 @@ use Exception;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @psalm-import-type Params from DriverManager
+ * @phpstan-import-type Params from DriverManager
  */
 final class SQLite extends AbstractDriverMiddleware
 {

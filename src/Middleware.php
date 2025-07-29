@@ -36,16 +36,16 @@ use Psr\Http\Message\ServerRequestInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @psalm-type OaiRequestMetadata = array{
- *     verb: string,
- *     identifier: ?string,
- *     metadataPrefix: ?string,
- *     from: ?string,
- *     until: ?string,
- *     set: ?string,
- *     resumptionToken: ?string,
- *     counter: int,
- *     completeListSize: int
+ * @phpstan-type OaiRequestMetadata = array{
+ *     verb: 'Identify'|'GetRecord'|'ListIdentifiers'|'ListMetadataFormats'|'ListRecords'|'ListSets',
+ *     identifier: ?non-empty-string,
+ *     metadataPrefix: ?non-empty-string,
+ *     from: ?non-empty-string,
+ *     until: ?non-empty-string,
+ *     set: ?non-empty-string,
+ *     resumptionToken: ?non-empty-string,
+ *     counter: non-negative-int,
+ *     completeListSize: non-negative-int
  * }
  */
 abstract class Middleware extends AbstractMiddleware
@@ -56,7 +56,7 @@ abstract class Middleware extends AbstractMiddleware
      * @var OaiRequestMetadata
      */
     protected array $arguments = [
-        'verb' => '',
+        'verb' => 'Identify',
         'identifier' => null,
         'metadataPrefix' => null,
         'from' => null,

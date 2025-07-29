@@ -61,7 +61,7 @@ class Format extends Entity
     /**
      * The format's associated records.
      *
-     * @var Collection<string, Record>
+     * @var Collection<non-empty-string, Record>
      */
     #[ORM\OneToMany(
         targetEntity: Record::class,
@@ -95,7 +95,7 @@ class Format extends Entity
     /**
      * Get the associated records for this format.
      *
-     * @return Collection<string, Record> The collection of records
+     * @return Collection<non-empty-string, Record> The collection of records
      */
     public function getRecords(): Collection
     {

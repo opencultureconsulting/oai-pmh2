@@ -82,7 +82,7 @@ class Record extends Entity
     /**
      * Collection of associated sets.
      *
-     * @var Collection<string, Set>
+     * @var Collection<non-empty-string, Set>
      */
     #[ORM\ManyToMany(
         targetEntity: Set::class,
@@ -155,7 +155,7 @@ class Record extends Entity
     /**
      * Get a associated set.
      *
-     * @param string $setSpec The set's spec
+     * @param non-empty-string $setSpec The set's spec
      *
      * @return ?Set The Set or NULL on failure
      */
@@ -167,7 +167,7 @@ class Record extends Entity
     /**
      * Get a collection of associated sets.
      *
-     * @return Collection<string, Set> The associated sets
+     * @return Collection<non-empty-string, Set> The associated sets
      */
     public function getSets(): Collection
     {

@@ -42,17 +42,17 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @psalm-type CliArguments = array{
- *     identifier: string,
- *     format: string,
- *     file: string,
- *     sets?: list<string>,
- *     setSpec: string,
- *     setName: string,
- *     idColumn: string,
- *     contentColumn: string,
- *     dateColumn: string,
- *     setColumn: string,
+ * @phpstan-type CliArguments = array{
+ *     identifier: non-empty-string,
+ *     format: non-empty-string,
+ *     file: non-empty-string,
+ *     sets?: non-empty-list<non-empty-string>,
+ *     setSpec: non-empty-string,
+ *     setName: non-empty-string,
+ *     idColumn: non-empty-string,
+ *     contentColumn: non-empty-string,
+ *     dateColumn: non-empty-string,
+ *     setColumn: non-empty-string,
  *     noValidation: bool,
  *     purge: bool,
  *     force: bool

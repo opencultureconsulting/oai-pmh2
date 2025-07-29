@@ -48,9 +48,12 @@ class ListIdentifiers extends Middleware
     {
         $this->checkResumptionToken();
 
+        assert($this->arguments['verb'] === 'ListIdentifiers' || $this->arguments['verb'] === 'ListRecords');
+        assert(isset($this->arguments['metadataPrefix']));
+
         $records = $this->em->getRecords(
             $this->arguments['verb'],
-            (string) $this->arguments['metadataPrefix'],
+            $this->arguments['metadataPrefix'],
             $this->arguments['counter'],
             $this->arguments['from'],
             $this->arguments['until'],

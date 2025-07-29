@@ -113,11 +113,11 @@ final class ErrorHandler extends AbstractMiddleware
      *
      * @param string $errorCode The error code to handle
      *
-     * @return ErrorHandler The ErrorHandler instance
+     * @return $this The ErrorHandler instance
      *
      * @throws DomainException if error code is not a valid OAI-PMH error
      */
-    public function withError(string $errorCode): ErrorHandler
+    public function withError(string $errorCode): static
     {
         if (array_key_exists($errorCode, self::OAI_ERRORS)) {
             $this->errors[] = $errorCode;

@@ -52,7 +52,7 @@ use Symfony\Component\Filesystem\Path;
  *
  * @mixin DoctrineEntityManager
  *
- * @psalm-import-type Params from DriverManager
+ * @phpstan-import-type Params from DriverManager
  * @SuppressWarnings("PHPMD.CouplingBetweenObjects")
  */
 final class EntityManager extends EntityManagerDecorator
@@ -62,7 +62,7 @@ final class EntityManager extends EntityManagerDecorator
     /**
      * The database tables this class is allowed to handle.
      *
-     * @var string[]
+     * @var non-empty-list<'formats'|'records'|'records_sets'|'sets'|'tokens'>
      */
     private const TABLES = [
         'formats',
@@ -112,7 +112,7 @@ final class EntityManager extends EntityManagerDecorator
         $dql->select($dql->expr()->min('records.lastChanged'));
         $dql->from(Record::class, 'records');
         $query = $dql->getQuery()->enableResultCache();
-        /** @var ?string $result */
+        /** @var ?non-empty-string */
         $result = $query->getOneOrNullResult(AbstractQuery::HYDRATE_SCALAR_COLUMN);
         return $result ?? $timestamp;
     }
@@ -177,13 +177,12 @@ final class EntityManager extends EntityManagerDecorator
     /**
      * Get list of records.
      *
-     * @param string $verb The currently requested verb
-     *                     'ListIdentifiers' or 'ListRecords'
-     * @param string $metadataPrefix The metadata prefix
-     * @param int $counter Counter for split result sets
-     * @param ?string $from The "from" datestamp
-     * @param ?string $until The "until" datestamp
-     * @param ?string $set The set spec
+     * @param 'ListIdentifiers'|'ListRecords' $verb The currently requested verb
+     * @param non-empty-string $metadataPrefix The metadata prefix
+     * @param non-negative-int $counter Counter for split result sets
+     * @param ?non-empty-string $from The "from" datestamp
+     * @param ?non-empty-string $until The "until" datestamp
+     * @param ?non-empty-string $set The set spec
      *
      * @return ResultSet<Record> The records indexed by id and maybe a resumption token
      */
@@ -227,7 +226,7 @@ final class EntityManager extends EntityManagerDecorator
             $dql->setParameter('setLike', $set . ':%');
         }
         $query = $dql->getQuery();
-        /** @var array<string, Record> */
+        /** @var array<non-empty-string, Record> */
         $queryResult = $query->getResult();
         $result = new ResultSet($queryResult);
         $paginator = new Paginator($query, true);
@@ -289,7 +288,7 @@ final class EntityManager extends EntityManagerDecorator
     /**
      * Get all available sets.
      *
-     * @param int $counter Counter for split result sets
+     * @param non-negative-int $counter Counter for split result sets
      *
      * @return ResultSet<Set> The sets indexed by spec
      */
@@ -304,7 +303,7 @@ final class EntityManager extends EntityManagerDecorator
             ->setFirstResult($cursor)
             ->setMaxResults($maxRecords);
         $query = $dql->getQuery()->enableResultCache();
-        /** @var array<string, Set> */
+        /** @var array<non-empty-string, Set> */
         $queryResult = $query->getResult(AbstractQuery::HYDRATE_OBJECT);
         $result = new ResultSet($queryResult);
         $paginator = new Paginator($query);
@@ -353,7 +352,7 @@ final class EntityManager extends EntityManagerDecorator
         $dql = $this->createQueryBuilder();
         $dql->delete(Record::class, 'records')
             ->where($dql->expr()->isNull('records.content'));
-        /** @var int */
+        /** @var non-negative-int */
         $deleted = $dql->getQuery()->execute();
         if ($deleted > 0) {
             $this->pruneOrphanedSets();
@@ -372,7 +371,7 @@ final class EntityManager extends EntityManagerDecorator
         $dql->delete(Token::class, 'tokens')
             ->where($dql->expr()->lt('tokens.validUntil', ':now'))
             ->setParameter('now', new DateTime(), 'datetime');
-        /** @var int */
+        /** @var non-negative-int */
         return $dql->getQuery()->execute();
     }
 
@@ -418,7 +417,7 @@ final class EntityManager extends EntityManagerDecorator
         }
         $dql->where($dql->expr()->eq('records.format', ':metadataPrefix'))
             ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix));
-        /** @var int */
+        /** @var non-negative-int */
         return $dql->getQuery()->execute();
     }
 
