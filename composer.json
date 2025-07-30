@@ -76,8 +76,7 @@
             "@php -r \"if (!file_exists('./config/config.yml')) { copy('./config/config.dist.yml', './config/config.yml'); }\""
         ],
         "post-install-cmd": [
-            "@doctrine:clear-cache --quiet",
-            "@php bin/cli orm:generate-proxies --quiet"
+            "@doctrine:upgrade --quiet"
         ],
         "post-create-project-cmd": [
             "@doctrine:initialize-database --quiet"
@@ -90,6 +89,10 @@
         "doctrine:initialize-database": [
             "@php bin/cli orm:schema-tool:update --force",
             "@php bin/cli oai:update:formats"
+        ],
+        "doctrine:upgrade": [
+            "@doctrine:clear-cache",
+            "@php bin/cli orm:generate-proxies"
         ],
         "php-cs-fixer:check": [
             "@php vendor/bin/php-cs-fixer check"
@@ -120,6 +123,7 @@
     "scripts-descriptions": {
         "doctrine:clear-cache": "Clears the Doctrine/ORM metadata, query and result caches",
         "doctrine:initialize-database": "Initializes a new database (NOT RECOMMENDED IN PRODUCTION!)",
+        "doctrine:upgrade": "Clears the Doctrine/ORM caches and rebuilds the proxy classes after an upgrade",
         "php-cs-fixer:check": "Runs a code check with PHP Coding Standards Fixer and reports problems. If a custom configuration file '.php-cs-fixer.php' exists, it will be used instead of the default settings in '.php-cs-fixer.dist.php'.",
         "php-cs-fixer:fix": "Runs a code check with PHP Coding Standards Fixer and tries to fix all issues. If a custom configuration file '.php-cs-fixer.php' exists, it will be used instead of the default settings in '.php-cs-fixer.dist.php'.",
         "phpcs:check": "Runs a code check with PHP_CodeSniffer and reports problems. If a custom configuration file '.phpcs.xml' exists, it will be used instead of the default settings in '.phpcs.xml.dist'.",
