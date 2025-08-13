@@ -35,7 +35,15 @@ use OCC\OaiPmh2\Repository\TokenRepository;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @phpstan-import-type OaiRequestMetadata from \OCC\OaiPmh2\Middleware
+ * @phpstan-type TokenParameters = array{
+ *     verb: 'ListIdentifiers'|'ListRecords'|'ListSets',
+ *     metadataPrefix?: non-empty-string,
+ *     from?: non-empty-string,
+ *     until?: non-empty-string,
+ *     set?: non-empty-string,
+ *     counter: non-negative-int,
+ *     completeListSize: non-negative-int
+ * }
  */
 #[ORM\Entity(repositoryClass: TokenRepository::class)]
 #[ORM\Table(name: 'tokens')]
@@ -56,10 +64,12 @@ class Token extends Entity
     private string $verb;
 
     /**
-     * The query parameters as serialized array.
+     * The request parameters.
+     *
+     * @var TokenParameters
      */
-    #[ORM\Column(type: 'text')]
-    private string $parameters;
+    #[ORM\Column(type: 'json')]
+    private array $parameters;
 
     /**
      * The date and time of validity.
@@ -78,14 +88,13 @@ class Token extends Entity
     }
 
     /**
-     * Get the query parameters.
+     * Get the request parameters.
      *
-     * @return OaiRequestMetadata The query parameters
+     * @return TokenParameters The request parameters
      */
     public function getParameters(): array
     {
-        /** @var OaiRequestMetadata */
-        return unserialize($this->parameters);
+        return $this->parameters;
     }
 
     /**
@@ -112,13 +121,13 @@ class Token extends Entity
      * Get new entity of resumption token.
      *
      * @param string $verb The verb for which the token is issued
-     * @param OaiRequestMetadata $parameters The query parameters
+     * @param TokenParameters $parameters The request parameters
      */
     public function __construct(string $verb, array $parameters)
     {
         $this->token = substr(md5(microtime()), 0, 8);
         $this->verb = $verb;
-        $this->parameters = serialize($parameters);
+        $this->parameters = $parameters;
         $validUntil = new DateTime();
         $validUntil->add(new DateInterval('PT' . Configuration::getInstance()->tokenValid . 'S'));
         $this->validUntil = $validUntil;

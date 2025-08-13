@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use DateTime;
-use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -39,6 +38,16 @@ use Symfony\Component\Console\Output\OutputInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
+ * @extends Console<array{
+ *     file: non-empty-string,
+ *     format: non-empty-string,
+ *     idColumn: non-empty-string,
+ *     contentColumn: non-empty-string,
+ *     dateColumn: non-empty-string,
+ *     setColumn: non-empty-string,
+ *     noValidation: bool,
+ *     purge: bool
+ * }>
  * @phpstan-type ColumnMapping = array{
  *     idColumn: non-negative-int,
  *     contentColumn: non-negative-int,
@@ -128,27 +137,27 @@ final class CsvImportCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (parent::execute($input, $output) !== Command::SUCCESS) {
+        if (!$this->em->getMetadataFormats()->containsKey($this->arguments['format'])) {
+            $this->io->getErrorStyle()->error(
+                sprintf('Metadata format "%s" is not supported.', $this->arguments['format'])
+            );
             return Command::INVALID;
         }
 
-        /** @var resource */
         $file = fopen($this->arguments['file'], 'r');
+        if ($file === false) {
+            $this->io->getErrorStyle()->error(
+                sprintf('File "%s" not found or not readable.', $this->arguments['file'])
+            );
+            return Command::INVALID;
+        }
+
         $columns = $this->getColumnMapping($file);
         if (!isset($columns)) {
             return Command::FAILURE;
         }
 
-        if ($this->arguments['purge'] ?? false) {
-            $this->io->writeln(
-                sprintf(
-                    'Purging existing records with metadata prefix "%s"...',
-                    $this->arguments['format']
-                )
-            );
-            $this->em->purgeRecords($this->arguments['format']);
-            $this->clearResultCache();
-        }
+        $this->purgeRecords();
 
         $count = 0;
         $progressIndicator = new ProgressIndicator($this->io, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
@@ -235,5 +244,24 @@ final class CsvImportCommand extends Console
             return null;
         }
         return $columns;
+    }
+
+    /**
+     * Purge existing records before importing new ones.
+     *
+     * @return void
+     */
+    protected function purgeRecords(): void
+    {
+        if ($this->arguments['purge']) {
+            $this->io->writeln(
+                sprintf(
+                    'Purging existing records with metadata prefix "%s"...',
+                    $this->arguments['format']
+                )
+            );
+            $this->em->purgeRecords($this->arguments['format']);
+            $this->clearResultCache();
+        }
     }
 }

@@ -25,6 +25,7 @@ namespace OCC\OaiPmh2;
 use DOMElement;
 use GuzzleHttp\Psr7\Utils;
 use OCC\OaiPmh2\Entity\Token;
+use OCC\OaiPmh2\Middleware\Dispatcher;
 use OCC\OaiPmh2\Middleware\ErrorHandler;
 use OCC\PSR15\AbstractMiddleware;
 use Psr\Http\Message\ResponseInterface;
@@ -36,41 +37,47 @@ use Psr\Http\Message\ServerRequestInterface;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @phpstan-type OaiRequestMetadata = array{
+ * @template RequestParameters of array{
  *     verb: 'Identify'|'GetRecord'|'ListIdentifiers'|'ListMetadataFormats'|'ListRecords'|'ListSets',
- *     identifier: ?non-empty-string,
- *     metadataPrefix: ?non-empty-string,
- *     from: ?non-empty-string,
- *     until: ?non-empty-string,
- *     set: ?non-empty-string,
- *     resumptionToken: ?non-empty-string,
- *     counter: non-negative-int,
- *     completeListSize: non-negative-int
+ *     identifier?: non-empty-string,
+ *     metadataPrefix?: non-empty-string,
+ *     from?: non-empty-string,
+ *     until?: non-empty-string,
+ *     set?: non-empty-string,
+ *     resumptionToken?: non-empty-string
  * }
  */
 abstract class Middleware extends AbstractMiddleware
 {
     /**
-     * This holds the request metadata.
+     * This holds the request parameters.
      *
-     * @var OaiRequestMetadata
+     * @var RequestParameters
      */
-    protected array $arguments = [
-        'verb' => 'Identify',
-        'identifier' => null,
-        'metadataPrefix' => null,
-        'from' => null,
-        'until' => null,
-        'set' => null,
-        'resumptionToken' => null,
-        'counter' => 0,
-        'completeListSize' => 0
-    ];
+    protected array $arguments;
+
+    /**
+     * This holds the error handler singleton.
+     */
+    protected ErrorHandler $errorHandler;
 
     /**
      * This holds the entity manager singleton.
      */
     protected EntityManager $em;
+
+    /**
+     * This holds the flow control data.
+     *
+     * @var array{
+     *     counter: non-negative-int,
+     *     completeListSize: non-negative-int
+     * }
+     */
+    protected array $flowControl = [
+        'counter' => 0,
+        'completeListSize' => 0
+    ];
 
     /**
      * This holds the prepared response document.
@@ -95,34 +102,17 @@ abstract class Middleware extends AbstractMiddleware
                     'expirationDate',
                     $token->getValidUntil()->format('Y-m-d\TH:i:s\Z')
                 );
-                $this->arguments['completeListSize'] = $token->getParameters()['completeListSize'];
+                $this->flowControl['completeListSize'] = $token->getParameters()['completeListSize'];
             }
             $resumptionToken->setAttribute(
                 'completeListSize',
-                (string) $this->arguments['completeListSize']
+                (string) $this->flowControl['completeListSize']
             );
             $resumptionToken->setAttribute(
                 'cursor',
-                (string) ($this->arguments['counter'] * Configuration::getInstance()->maxRecords)
+                (string) ($this->flowControl['counter'] * Configuration::getInstance()->maxRecords)
             );
             $node->appendChild($resumptionToken);
-        }
-    }
-
-    /**
-     * Check for resumption token and populate request arguments.
-     *
-     * @return void
-     */
-    protected function checkResumptionToken(): void
-    {
-        if (isset($this->arguments['resumptionToken'])) {
-            $token = $this->em->getResumptionToken($this->arguments['resumptionToken'], $this->arguments['verb']);
-            if (isset($token)) {
-                $this->arguments = array_merge($this->arguments, $token->getParameters());
-            } else {
-                ErrorHandler::getInstance()->withError('badResumptionToken');
-            }
         }
     }
 
@@ -145,10 +135,12 @@ abstract class Middleware extends AbstractMiddleware
     #[\Override]
     protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
     {
-        /** @var OaiRequestMetadata */
+        /** @var RequestParameters */
         $arguments = $request->getAttributes();
-        $this->arguments = array_merge($this->arguments, $arguments);
-        $this->prepareResponse($request);
+        $this->arguments = $arguments;
+        if ($this->validateArguments()) {
+            $this->prepareResponse($request);
+        }
         return $request;
     }
 
@@ -162,10 +154,89 @@ abstract class Middleware extends AbstractMiddleware
     #[\Override]
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
-        if (!ErrorHandler::getInstance()->hasErrors() && isset($this->preparedResponse)) {
+        if (!$this->errorHandler->hasErrors() && isset($this->preparedResponse)) {
             $response = $response->withBody(Utils::streamFor((string) $this->preparedResponse));
         }
         return $response;
+    }
+
+    /**
+     * Validate the request arguments.
+     *
+     * @see https://openarchives.org/OAI/openarchivesprotocol.html#ProtocolMessages
+     *
+     * @return bool Whether the arguments are a valid set of OAI-PMH request parameters
+     *
+     * @phpstan-assert-if-true RequestParameters $this->arguments
+     */
+    abstract protected function validateArguments(): bool;
+
+    /**
+     * Validate date/time arguments.
+     *
+     * @return void
+     */
+    protected function validateDateTime(): void
+    {
+        $from = date_create($this->arguments['from'] ?? $this->em->getEarliestDatestamp());
+        $until = date_create($this->arguments['until'] ?? 'NOW');
+        if ($from === false || $until === false || $from > $until) {
+            $this->errorHandler->withError('badArgument');
+        }
+    }
+
+    /**
+     * Validate "metadataPrefix" argument.
+     *
+     * @return void
+     */
+    protected function validateMetadataPrefix(): void
+    {
+        if (!$this->em->getMetadataFormats()->containsKey($this->arguments['metadataPrefix'] ?? '')) {
+            $this->errorHandler->withError('cannotDisseminateFormat');
+        }
+    }
+
+    /**
+     * Check the resumption token and populate request arguments.
+     *
+     * @return void
+     */
+    protected function validateResumptionToken(): void
+    {
+        if (array_key_exists('resumptionToken', $this->arguments)) {
+            if (count($this->arguments) !== 2) {
+                $this->errorHandler->withError('badArgument');
+            }
+            $token = $this->em->getResumptionToken($this->arguments['resumptionToken'], $this->arguments['verb']);
+            if (isset($token)) {
+                foreach ($token->getParameters() as $parameter => $value) {
+                    if (in_array($parameter, Dispatcher::OAI_PARAMS, true)) {
+                        /** @psalm-suppress InvalidPropertyAssignmentValue */
+                        /** @phpstan-ignore assign.propertyType */
+                        $this->arguments[$parameter] = $value;
+                    } elseif (in_array($parameter, ['counter', 'completeListSize'], true)) {
+                        /** @psalm-suppress PropertyTypeCoercion */
+                        /** @phpstan-ignore assign.propertyType */
+                        $this->flowControl[$parameter] = $value;
+                    }
+                }
+            } else {
+                $this->errorHandler->withError('badResumptionToken');
+            }
+        }
+    }
+
+    /**
+     * Validate "set" argument.
+     *
+     * @return void
+     */
+    protected function validateSet(): void
+    {
+        if ($this->em->getSets()->isEmpty()) {
+            $this->errorHandler->withError('noSetHierarchy');
+        }
     }
 
     /**
@@ -176,5 +247,6 @@ abstract class Middleware extends AbstractMiddleware
     final public function __construct()
     {
         $this->em = EntityManager::getInstance();
+        $this->errorHandler = ErrorHandler::getInstance();
     }
 }

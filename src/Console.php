@@ -42,20 +42,20 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @phpstan-type CliArguments = array{
- *     identifier: non-empty-string,
- *     format: non-empty-string,
- *     file: non-empty-string,
+ * @template CliParameters of array{
+ *     file?: non-empty-string,
+ *     identifier?: non-empty-string,
+ *     format?: non-empty-string,
  *     sets?: non-empty-list<non-empty-string>,
- *     setSpec: non-empty-string,
- *     setName: non-empty-string,
- *     idColumn: non-empty-string,
- *     contentColumn: non-empty-string,
- *     dateColumn: non-empty-string,
- *     setColumn: non-empty-string,
- *     noValidation: bool,
- *     purge: bool,
- *     force: bool
+ *     setSpec?: non-empty-string,
+ *     setName?: non-empty-string,
+ *     idColumn?: non-empty-string,
+ *     contentColumn?: non-empty-string,
+ *     dateColumn?: non-empty-string,
+ *     setColumn?: non-empty-string,
+ *     noValidation?: bool,
+ *     purge?: bool,
+ *     force?: bool,
  * }
  */
 abstract class Console extends Command
@@ -63,7 +63,7 @@ abstract class Console extends Command
     /**
      * This holds the command's arguments and options.
      *
-     * @var CliArguments
+     * @var CliParameters
      */
     protected array $arguments;
 
@@ -96,19 +96,24 @@ abstract class Console extends Command
      */
     protected function addOrUpdateRecord(string $identifier, ?string $content, ?DateTime $lastChanged = null, array $sets = []): void
     {
-        /** @var Format */
-        $format = $this->em->getMetadataFormat($this->arguments['format']);
-        $record = new Record($identifier, $format, null, $lastChanged);
-        $record->setContent($content, !($this->arguments['noValidation'] ?? false));
-        foreach ($sets as $setSpec) {
-            $set = $this->em->getSet($setSpec);
-            if (isset($set)) {
-                $record->addSet($set);
-            } elseif (Configuration::getInstance()->autoSets) {
-                $record->addSet(new Set($setSpec));
+        $format = $this->em->getMetadataFormat($this->arguments['format'] ?? '');
+        if (isset($format)) {
+            $record = new Record($identifier, $format, null, $lastChanged);
+            $record->setContent($content, ($this->arguments['noValidation'] ?? false) === false);
+            foreach ($sets as $setSpec) {
+                $set = $this->em->getSet($setSpec);
+                if (isset($set)) {
+                    $record->addSet($set);
+                } elseif (Configuration::getInstance()->autoSets) {
+                    $record->addSet(new Set($setSpec));
+                }
             }
+            $this->em->addOrUpdate($record, get_class($this) === CsvImportCommand::class);
+        } else {
+            $this->io->getErrorStyle()->error(
+                sprintf('Metadata format "%s" is not supported.', $this->arguments['format'] ?? '')
+            );
         }
-        $this->em->addOrUpdate($record, get_class($this) === CsvImportCommand::class);
     }
 
     /**
@@ -144,27 +149,6 @@ abstract class Console extends Command
             ]),
             new NullOutput()
         );
-    }
-
-    /**
-     * Executes the current command.
-     *
-     * @param InputInterface $input The input
-     * @param OutputInterface $output The output
-     *
-     * @return int 0 if everything went fine, or an error code
-     */
-    #[\Override]
-    protected function execute(InputInterface $input, OutputInterface $output): int
-    {
-        $this->io = new SymfonyStyle($input, $output);
-        /** @psalm-suppress PropertyTypeCoercion */
-        /** @phpstan-ignore assign.propertyType */
-        $this->arguments = array_merge($input->getArguments(), $input->getOptions());
-        if (!$this->validateInput()) {
-            return Command::INVALID;
-        }
-        return Command::SUCCESS;
     }
 
     /**
@@ -217,40 +201,32 @@ abstract class Console extends Command
     }
 
     /**
-     * Validate input arguments.
+     * Initializes the command.
      *
-     * @return bool Whether the inputs validate
+     * @param InputInterface $input The input
+     * @param OutputInterface $output The output
+     *
+     * @return void
      */
-    protected function validateInput(): bool
+    #[\Override]
+    protected function initialize(InputInterface $input, OutputInterface $output): void
     {
-        if (array_key_exists('format', $this->arguments)) {
-            if (MetadataPrefixValidator::validate($this->arguments['format'])->count() > 0) {
-                $this->io->getErrorStyle()->error(
-                    sprintf('Metadata format "%s" is not supported.', $this->arguments['format'])
-                );
-                return false;
-            }
-        }
-        if (array_key_exists('file', $this->arguments) && !is_readable($this->arguments['file'])) {
-            $this->io->getErrorStyle()->error(
-                sprintf('File "%s" not found or not readable.', $this->arguments['file'])
-            );
-            return false;
-        }
-        return true;
+        $this->io = new SymfonyStyle($input, $output);
+        /** @psalm-suppress PropertyTypeCoercion */
+        /** @phpstan-ignore assign.propertyType */
+        $this->arguments = array_merge($input->getArguments(), $input->getOptions());
     }
 
     /**
      * Create new console command instance.
      *
      * @param ?string $name The name of the command
-     *                      passing NULL means it must be set in configure()
      */
     public function __construct(?string $name = null)
     {
         // Don't time out during CLI commands
         set_time_limit(0);
-        $this->em = EntityManager::getInstance();
         parent::__construct($name);
+        $this->em = EntityManager::getInstance();
     }
 }

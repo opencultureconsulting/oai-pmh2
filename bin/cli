@@ -24,7 +24,13 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2;
 
 use Composer\InstalledVersions;
-use Doctrine\ORM\Tools\Console\Command as DoctrineCommand;
+use Doctrine\Migrations\Configuration\Configuration as DoctrineMigrationsConfiguration;
+use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
+use Doctrine\Migrations\Configuration\Migration\ExistingConfiguration;
+use Doctrine\Migrations\DependencyFactory;
+use Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration;
+use Doctrine\Migrations\Tools\Console\Command as DoctrineMigrationsCommand;
+use Doctrine\ORM\Tools\Console\Command as DoctrineORMCommand;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use OCC\OaiPmh2\Console as Command;
 use Symfony\Component\Console\Application;
@@ -40,27 +46,54 @@ require __DIR__ . '/../vendor/autoload.php';
 final class Cli extends Application
 {
     /**
-     * This holds the entity manager provider for the CLI commands.
-     */
-    protected readonly SingleManagerProvider $entityManagerProvider;
-
-    /**
-     * Set the default command list.
+     * Register commands for Doctrine DBAL.
      *
      * @return void
      */
-    protected function setDefaultCommands(): void
+    protected function addDoctrineCommands(): void
+    {
+        $entityManagerProvider = new SingleManagerProvider(EntityManager::getInstance());
+
+        $storage = new TableMetadataStorageConfiguration();
+        $storage->setTableName('migrations');
+
+        $configuration = new DoctrineMigrationsConfiguration();
+        $configuration->addMigrationsDirectory(
+            __NAMESPACE__ . '\\Migration',
+            __DIR__ . '/../data/migrations'
+        );
+        $configuration->setAllOrNothing(true);
+        $configuration->setCheckDatabasePlatform(true);
+        $configuration->setCustomTemplate(__DIR__ . '/../src/Migration.template');
+        $configuration->setMetadataStorageConfiguration($storage);
+        $configuration->setMigrationOrganization(DoctrineMigrationsConfiguration::VERSIONS_ORGANIZATION_NONE);
+        $configuration->setTransactional(true);
+
+        $dependencyFactory = DependencyFactory::fromEntityManager(
+            new ExistingConfiguration($configuration),
+            new ExistingEntityManager($entityManagerProvider->getDefaultManager())
+        );
+
+        $this->addCommands([
+            // Doctrine migrations commands
+            new DoctrineMigrationsCommand\DiffCommand($dependencyFactory, 'orm:schema:diff'),
+            new DoctrineMigrationsCommand\MigrateCommand($dependencyFactory, 'orm:schema:migrate'),
+            // Doctrine ORM commands
+            new DoctrineORMCommand\ClearCache\MetadataCommand($entityManagerProvider),
+            new DoctrineORMCommand\ClearCache\QueryCommand($entityManagerProvider),
+            new DoctrineORMCommand\ClearCache\ResultCommand($entityManagerProvider),
+            new DoctrineORMCommand\GenerateProxiesCommand($entityManagerProvider)
+        ]);
+    }
+
+    /**
+     * Register commands for OAI-PMH2 tasks.
+     *
+     * @return void
+     */
+    protected function addOaiCommands(): void
     {
         $this->addCommands([
-            // Doctrine Commands
-            new DoctrineCommand\ClearCache\MetadataCommand($this->entityManagerProvider),
-            new DoctrineCommand\ClearCache\QueryCommand($this->entityManagerProvider),
-            new DoctrineCommand\ClearCache\ResultCommand($this->entityManagerProvider),
-            new DoctrineCommand\SchemaTool\CreateCommand($this->entityManagerProvider),
-            new DoctrineCommand\SchemaTool\UpdateCommand($this->entityManagerProvider),
-            new DoctrineCommand\GenerateProxiesCommand($this->entityManagerProvider),
-            new DoctrineCommand\ValidateSchemaCommand($this->entityManagerProvider),
-            // OAI-PMH2 Commands
             new Command\AddRecordCommand(),
             new Command\AddSetCommand(),
             new Command\CsvImportCommand(),
@@ -68,7 +101,7 @@ final class Cli extends Application
             new Command\DeleteSetCommand(),
             new Command\PruneDeletedRecordsCommand(),
             new Command\PruneResumptionTokensCommand(),
-            new Command\UpdateFormatsCommand()
+            new Command\UpdateFormatsCommand(),
         ]);
     }
 
@@ -77,14 +110,13 @@ final class Cli extends Application
      */
     public function __construct()
     {
-        $this->entityManagerProvider = new SingleManagerProvider(EntityManager::getInstance());
-
         parent::__construct(
             'OAI-PMH2 Data Provider Command Line Interface',
             InstalledVersions::getVersion('opencultureconsulting/oai-pmh2') ?? 'unknown'
         );
         $this->setCatchExceptions(true);
-        $this->setDefaultCommands();
+        $this->addDoctrineCommands();
+        $this->addOaiCommands();
     }
 }
 

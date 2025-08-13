@@ -34,6 +34,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @extends Console<array{
+ *     setSpec: non-empty-string
+ * }>
  */
 #[AsCommand(
     name: 'oai:delete:set',
@@ -72,10 +76,6 @@ final class DeleteSetCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (parent::execute($input, $output) !== Command::SUCCESS) {
-            return Command::INVALID;
-        }
-
         $set = $this->em->getSet($this->arguments['setSpec']);
 
         if (isset($set)) {

@@ -34,8 +34,6 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
- *
- * @phpstan-import-type OaiRequestMetadata from Middleware
  */
 final class Response
 {
@@ -94,12 +92,12 @@ final class Response
             null
         );
         $request = $this->createElement('request', $baseUrl, true);
-        /** @var OaiRequestMetadata */
+        /** @var array<string, string> */
         $params = $this->serverRequest->getAttributes();
         foreach ($params as $param => $value) {
             $request->setAttribute(
                 $param,
-                htmlspecialchars((string) $value, ENT_XML1 | ENT_COMPAT, 'UTF-8')
+                htmlspecialchars($value, ENT_XML1 | ENT_COMPAT, 'UTF-8')
             );
         }
     }

@@ -89,7 +89,7 @@ final class ErrorHandler extends AbstractMiddleware
      */
     public function hasErrors(): bool
     {
-        return (bool) count($this->errors);
+        return count($this->errors) > 0;
     }
 
     /**

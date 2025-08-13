@@ -61,11 +61,10 @@ final class EntityManager extends EntityManagerDecorator
 
     /**
      * The database tables this class is allowed to handle.
-     *
-     * @var non-empty-list<'formats'|'records'|'records_sets'|'sets'|'tokens'>
      */
     private const TABLES = [
         'formats',
+        'migrations',
         'records',
         'records_sets',
         'sets',
@@ -107,7 +106,7 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function getEarliestDatestamp(): string
     {
-        $timestamp = '0000-00-00T00:00:00Z';
+        $timestamp = '0000-01-01T00:00:00Z';
         $dql = $this->createQueryBuilder();
         $dql->select($dql->expr()->min('records.lastChanged'));
         $dql->from(Record::class, 'records');
@@ -231,19 +230,18 @@ final class EntityManager extends EntityManagerDecorator
         $result = new ResultSet($queryResult);
         $paginator = new Paginator($query, true);
         if (count($paginator) > ($cursor + count($result))) {
+            /** @psalm-suppress ArgumentTypeCoercion */
             $token = new Token(
                 $verb,
-                [
+                array_filter([
                     'verb' => $verb,
-                    'identifier' => null,
                     'metadataPrefix' => $metadataPrefix,
                     'from' => $from,
                     'until' => $until,
                     'set' => $set,
-                    'resumptionToken' => null,
                     'counter' => $counter + 1,
                     'completeListSize' => count($paginator)
-                ]
+                ], fn ($value): bool => isset($value))
             );
             $this->persist($token);
             $this->flush();
@@ -312,12 +310,6 @@ final class EntityManager extends EntityManagerDecorator
                 'ListSets',
                 [
                     'verb' => 'ListSets',
-                    'identifier' => null,
-                    'metadataPrefix' => null,
-                    'from' => null,
-                    'until' => null,
-                    'set' => null,
-                    'resumptionToken' => null,
                     'counter' => $counter + 1,
                     'completeListSize' => count($paginator)
                 ]

@@ -8,7 +8,7 @@ includes:
     - vendor/phpstan/phpstan-doctrine/extension.neon
 
 parameters:
-    level: 9
+    level: 10
     phpVersion: 80100 # PHP 8.1
     treatPhpDocTypesAsCertain: false
     ignoreErrors:

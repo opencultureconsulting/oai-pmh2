@@ -36,6 +36,8 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @extends Console<array{}>
  */
 #[AsCommand(
     name: 'oai:update:formats',
@@ -54,8 +56,6 @@ final class UpdateFormatsCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        parent::execute($input, $output);
-
         $formats = Configuration::getInstance()->metadataPrefix;
         $this->clearResultCache();
         $inDatabase = $this->em->getMetadataFormats();

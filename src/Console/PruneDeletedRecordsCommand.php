@@ -35,6 +35,10 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @extends Console<array{
+ *     force: bool
+ * }>
  */
 #[AsCommand(
     name: 'oai:prune:records',
@@ -70,8 +74,6 @@ final class PruneDeletedRecordsCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        parent::execute($input, $output);
-
         $policy = Configuration::getInstance()->deletedRecords;
         if (
             $policy === 'no'

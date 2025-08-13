@@ -33,6 +33,12 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @template RequestParameters of array{
+ *     verb: 'ListSets',
+ *     resumptionToken?: non-empty-string
+ * }
+ * @extends Middleware<RequestParameters>
  */
 final class ListSets extends Middleware
 {
@@ -46,12 +52,10 @@ final class ListSets extends Middleware
     #[\Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
-        $this->checkResumptionToken();
-
-        $sets = $this->em->getSets($this->arguments['counter']);
+        $sets = $this->em->getSets($this->flowControl['counter']);
 
         if (count($sets) === 0) {
-            ErrorHandler::getInstance()->withError('noSetHierarchy');
+            $this->errorHandler->withError('noSetHierarchy');
             return;
         }
 
@@ -86,5 +90,24 @@ final class ListSets extends Middleware
         $this->preparedResponse = $response;
 
         $this->addResumptionToken($list, $sets->getResumptionToken() ?? null);
+    }
+
+    /**
+     * Validate the request arguments.
+     *
+     * @see https://openarchives.org/OAI/openarchivesprotocol.html#ProtocolMessages
+     *
+     * @return bool Whether the arguments are a valid set of OAI-PMH request parameters
+     *
+     * @phpstan-assert-if-true RequestParameters $this->arguments
+     */
+    #[\Override]
+    protected function validateArguments(): bool
+    {
+        $this->validateResumptionToken();
+        if (count($this->arguments) > 1 && !array_key_exists('resumptionToken', $this->arguments)) {
+            $this->errorHandler->withError('badArgument');
+        }
+        return !$this->errorHandler->hasErrors();
     }
 }

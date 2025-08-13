@@ -35,6 +35,11 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @extends Console<array{
+ *     identifier: non-empty-string,
+ *     format: non-empty-string
+ * }>
  */
 #[AsCommand(
     name: 'oai:delete:record',
@@ -74,10 +79,6 @@ final class DeleteRecordCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (parent::execute($input, $output) !== Command::SUCCESS) {
-            return Command::INVALID;
-        }
-
         $record = $this->em->getRecord($this->arguments['identifier'], $this->arguments['format']);
 
         if (isset($record)) {
@@ -85,10 +86,10 @@ final class DeleteRecordCommand extends Console
             $this->clearResultCache();
             $this->io->success(
                 sprintf(
-                    'Record "%s" with metadata prefix "%s" successfully %sdeleted.',
+                    'Record "%s" with metadata prefix "%s" successfully %s.',
                     $this->arguments['identifier'],
                     $this->arguments['format'],
-                    Configuration::getInstance()->deletedRecords === 'no' ? '' : 'marked as '
+                    Configuration::getInstance()->deletedRecords === 'no' ? 'deleted' : 'marked as deleted'
                 )
             );
             return Command::SUCCESS;

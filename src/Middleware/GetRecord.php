@@ -33,6 +33,13 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @template RequestParameters of array{
+ *     verb: 'GetRecord',
+ *     identifier: non-empty-string,
+ *     metadataPrefix: non-empty-string
+ * }
+ * @extends Middleware<RequestParameters>
  */
 final class GetRecord extends Middleware
 {
@@ -47,15 +54,15 @@ final class GetRecord extends Middleware
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $oaiRecord = $this->em->getRecord(
-            (string) $this->arguments['identifier'],
-            (string) $this->arguments['metadataPrefix']
+            $this->arguments['identifier'],
+            $this->arguments['metadataPrefix']
         );
 
         if (!isset($oaiRecord)) {
-            if ($this->em->isValidRecordIdentifier((string) $this->arguments['identifier'])) {
-                ErrorHandler::getInstance()->withError('cannotDisseminateFormat');
+            if ($this->em->isValidRecordIdentifier($this->arguments['identifier'])) {
+                $this->errorHandler->withError('cannotDisseminateFormat');
             } else {
-                ErrorHandler::getInstance()->withError('idDoesNotExist');
+                $this->errorHandler->withError('idDoesNotExist');
             }
             return;
         }
@@ -95,5 +102,29 @@ final class GetRecord extends Middleware
         }
 
         $this->preparedResponse = $response;
+    }
+
+    /**
+     * Validate the request arguments.
+     *
+     * @see https://openarchives.org/OAI/openarchivesprotocol.html#ProtocolMessages
+     *
+     * @return bool Whether the arguments are a valid set of OAI-PMH request parameters
+     *
+     * @phpstan-assert-if-true RequestParameters $this->arguments
+     */
+    #[\Override]
+    protected function validateArguments(): bool
+    {
+        if (
+            count($this->arguments) !== 3
+            or !array_key_exists('identifier', $this->arguments)
+            or !array_key_exists('metadataPrefix', $this->arguments)
+        ) {
+            $this->errorHandler->withError('badArgument');
+        } else {
+            $this->validateMetadataPrefix();
+        }
+        return !$this->errorHandler->hasErrors();
     }
 }

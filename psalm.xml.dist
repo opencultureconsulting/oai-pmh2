@@ -42,20 +42,6 @@
         -->
         <PropertyNotSetInConstructor errorLevel="suppress"/>
         <RedundantPropertyInitializationCheck errorLevel="suppress"/>
-        <!--
-            Those classes are dynamically used depending on the given OAI verb.
-            @see src/Middleware/Dispatcher.php:95
-        -->
-        <UnusedClass>
-            <errorLevel type="suppress">
-                <referencedClass name="OCC\OaiPmh2\Middleware\GetRecord"/>
-                <referencedClass name="OCC\OaiPmh2\Middleware\Identify"/>
-                <referencedClass name="OCC\OaiPmh2\Middleware\ListIdentifiers"/>
-                <referencedClass name="OCC\OaiPmh2\Middleware\ListMetadataFormats"/>
-                <referencedClass name="OCC\OaiPmh2\Middleware\ListRecords"/>
-                <referencedClass name="OCC\OaiPmh2\Middleware\ListSets"/>
-            </errorLevel>
-        </UnusedClass>
     </issueHandlers>
     <projectFiles>
         <file name="bin/cli"/>

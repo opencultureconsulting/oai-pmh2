@@ -35,6 +35,12 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @extends Console<array{
+ *     setSpec: non-empty-string,
+ *     setName: non-empty-string,
+ *     file?: non-empty-string
+ * }>
  */
 #[AsCommand(
     name: 'oai:add:set',
@@ -84,13 +90,14 @@ final class AddSetCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (parent::execute($input, $output) !== Command::SUCCESS) {
-            return Command::INVALID;
-        }
-
         if (array_key_exists('file', $this->arguments)) {
-            /** @psalm-suppress RiskyTruthyFalsyComparison */
-            $description = file_get_contents($this->arguments['file']) ?: null;
+            if (!is_readable($this->arguments['file'])) {
+                $this->io->getErrorStyle()->error(
+                    sprintf('File "%s" not found or not readable.', $this->arguments['file'])
+                );
+                return Command::INVALID;
+            }
+            $description = (string) file_get_contents($this->arguments['file']) ?: null;
         }
 
         $set = new Set($this->arguments['setSpec'], $this->arguments['setName'], $description ?? null);

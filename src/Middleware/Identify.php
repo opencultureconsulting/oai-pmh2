@@ -35,6 +35,11 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @template RequestParameters of array{
+ *     verb: 'Identify'
+ * }
+ * @extends Middleware<RequestParameters>
  */
 final class Identify extends Middleware
 {
@@ -99,5 +104,23 @@ final class Identify extends Middleware
         // $identify->appendChild($compressionGzip);
 
         $this->preparedResponse = $response;
+    }
+
+    /**
+     * Validate the request arguments.
+     *
+     * @see https://openarchives.org/OAI/openarchivesprotocol.html#ProtocolMessages
+     *
+     * @return bool Whether the arguments are a valid set of OAI-PMH request parameters
+     *
+     * @phpstan-assert-if-true RequestParameters $this->arguments
+     */
+    #[\Override]
+    protected function validateArguments(): bool
+    {
+        if (count($this->arguments) !== 1) {
+            $this->errorHandler->withError('badArgument');
+        }
+        return !$this->errorHandler->hasErrors();
     }
 }

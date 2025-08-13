@@ -35,6 +35,13 @@ use Symfony\Component\Console\Output\OutputInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @extends Console<array{
+ *     identifier: non-empty-string,
+ *     format: non-empty-string,
+ *     file: non-empty-string,
+ *     sets?: non-empty-list<non-empty-string>
+ * }>
  */
 #[AsCommand(
     name: 'oai:add:record',
@@ -85,7 +92,10 @@ final class AddRecordCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (parent::execute($input, $output) !== Command::SUCCESS) {
+        if (!is_readable($this->arguments['file'])) {
+            $this->io->getErrorStyle()->error(
+                sprintf('File "%s" not found or not readable.', $this->arguments['file'])
+            );
             return Command::INVALID;
         }
 

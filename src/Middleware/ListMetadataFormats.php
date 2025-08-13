@@ -33,6 +33,12 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @template RequestParameters of array{
+ *     verb: 'ListMetadataFormats',
+ *     identifier?: non-empty-string
+ * }
+ * @extends Middleware<RequestParameters>
  */
 final class ListMetadataFormats extends Middleware
 {
@@ -46,16 +52,16 @@ final class ListMetadataFormats extends Middleware
     #[\Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
-        $formats = $this->em->getMetadataFormats($this->arguments['identifier']);
+        $formats = $this->em->getMetadataFormats($this->arguments['identifier'] ?? null);
 
         if (count($formats) === 0) {
             if (
                 !isset($this->arguments['identifier'])
                 || $this->em->isValidRecordIdentifier($this->arguments['identifier'])
             ) {
-                ErrorHandler::getInstance()->withError('noMetadataFormats');
+                $this->errorHandler->withError('noMetadataFormats');
             } else {
-                ErrorHandler::getInstance()->withError('idDoesNotExist');
+                $this->errorHandler->withError('idDoesNotExist');
             }
             return;
         }
@@ -87,5 +93,25 @@ final class ListMetadataFormats extends Middleware
         }
 
         $this->preparedResponse = $response;
+    }
+
+    /**
+     * Validate the request arguments.
+     *
+     * @see https://openarchives.org/OAI/openarchivesprotocol.html#ProtocolMessages
+     *
+     * @return bool Whether the arguments are a valid set of OAI-PMH request parameters
+     *
+     * @phpstan-assert-if-true RequestParameters $this->arguments
+     */
+    #[\Override]
+    protected function validateArguments(): bool
+    {
+        if (count($this->arguments) > 1) {
+            if (!array_key_exists('identifier', $this->arguments) || count($this->arguments) > 2) {
+                $this->errorHandler->withError('badArgument');
+            }
+        }
+        return !$this->errorHandler->hasErrors();
     }
 }

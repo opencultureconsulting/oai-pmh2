@@ -33,6 +33,16 @@ use Psr\Http\Message\ServerRequestInterface;
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
+ *
+ * @template RequestParameters of array{
+ *     verb: 'ListIdentifiers'|'ListRecords',
+ *     metadataPrefix: non-empty-string,
+ *     from?: non-empty-string,
+ *     until?: non-empty-string,
+ *     set?: non-empty-string,
+ *     resumptionToken?: non-empty-string
+ * }
+ * @extends Middleware<RequestParameters>
  */
 class ListIdentifiers extends Middleware
 {
@@ -46,21 +56,16 @@ class ListIdentifiers extends Middleware
     #[\Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
-        $this->checkResumptionToken();
-
-        assert($this->arguments['verb'] === 'ListIdentifiers' || $this->arguments['verb'] === 'ListRecords');
-        assert(isset($this->arguments['metadataPrefix']));
-
         $records = $this->em->getRecords(
             $this->arguments['verb'],
             $this->arguments['metadataPrefix'],
-            $this->arguments['counter'],
-            $this->arguments['from'],
-            $this->arguments['until'],
-            $this->arguments['set']
+            $this->flowControl['counter'],
+            $this->arguments['from'] ?? null,
+            $this->arguments['until'] ?? null,
+            $this->arguments['set'] ?? null
         );
         if (count($records) === 0) {
-            ErrorHandler::getInstance()->withError('noRecordsMatch');
+            $this->errorHandler->withError('noRecordsMatch');
             return;
         }
 
@@ -109,5 +114,38 @@ class ListIdentifiers extends Middleware
         $this->preparedResponse = $response;
 
         $this->addResumptionToken($list, $records->getResumptionToken() ?? null);
+    }
+
+    /**
+     * Validate the request arguments.
+     *
+     * @see https://openarchives.org/OAI/openarchivesprotocol.html#ProtocolMessages
+     *
+     * @return bool Whether the arguments are a valid set of OAI-PMH request parameters
+     *
+     * @phpstan-assert-if-true RequestParameters $this->arguments
+     */
+    #[\Override]
+    protected function validateArguments(): bool
+    {
+        $this->validateResumptionToken();
+        if (
+            !array_key_exists('metadataPrefix', $this->arguments)
+            or array_key_exists('identifier', $this->arguments)
+        ) {
+            $this->errorHandler->withError('badArgument');
+        } else {
+            $this->validateMetadataPrefix();
+        }
+        if (
+            array_key_exists('from', $this->arguments)
+            or array_key_exists('until', $this->arguments)
+        ) {
+            $this->validateDateTime();
+        }
+        if (array_key_exists('set', $this->arguments)) {
+            $this->validateSet();
+        }
+        return !$this->errorHandler->hasErrors();
     }
 }
