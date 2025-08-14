@@ -90,11 +90,11 @@
 ###
 
 # PHP files
-*.php     text eol=lf diff=php
-*.phpt    text eol=lf diff=php
-*.phtml   text eol=lf diff=html
-*.twig    text eol=lf
-*.phar    binary
+*.php      text eol=lf diff=php
+*.phpt     text eol=lf diff=php
+*.phtml    text eol=lf diff=html
+*.twig     text eol=lf
+*.phar     binary
 
 # Configuration
 phpcs.xml    text eol=lf
@@ -107,15 +107,21 @@ psalm.xml    text eol=lf
 ###
 
 # Configuration
-.editorconfig   text eol=lf
-*.dist.xml      text eol=lf
-*.xml.dist      text eol=lf
-*.neon          text eol=lf
+.editorconfig text eol=lf
+*.dist.xml    text eol=lf
+*.xml.dist    text eol=lf
+*.neon        text eol=lf
 
 # Generated documentation
-doc/*           linguist-generated=true
+doc/*      linguist-generated=true
 
 # Exclude files from exporting
-.github/*       export-ignore
-.phpdoc/*       export-ignore
-phpdoc.dist.xml export-ignore
+.ddev/*                export-ignore
+.github/*              export-ignore
+.phpdoc/*              export-ignore
+.php-cs-fixer.dist.php export-ignore
+.phpmd.dist.xml        export-ignore
+phpcs.xml.dist         export-ignore
+phpdoc.dist.xml        export-ignore
+phpstan.dist.neon      export-ignore
+psalm.xml.dist         export-ignore
