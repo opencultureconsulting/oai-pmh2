@@ -48,6 +48,7 @@
         "symfony/cache": "^6.4",
         "symfony/console": "^6.4",
         "symfony/filesystem": "^6.4",
+        "symfony/http-client": "^6.4",
         "symfony/validator": "^6.4",
         "symfony/yaml": "^6.4"
     },
@@ -57,7 +58,7 @@
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-doctrine": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0",
-        "friendsofphp/php-cs-fixer": "^3.85",
+        "friendsofphp/php-cs-fixer": "^3.86",
         "squizlabs/php_codesniffer": "^3.13",
         "vimeo/psalm": "^6.13"
     },
@@ -82,24 +83,15 @@
             "@php -r \"if (!file_exists('./config/config.yml')) { copy('./config/config.dist.yml', './config/config.yml'); }\""
         ],
         "post-install-cmd": [
-            "@app:clear-cache --quiet",
+            "@php bin/cli orm:clear-cache:metadata --flush --quiet",
+            "@php bin/cli orm:clear-cache:query --quiet",
+            "@php bin/cli orm:clear-cache:result --flush --quiet",
             "@php bin/cli orm:generate-proxies --quiet"
         ],
         "post-create-project-cmd": [
-            "@app:initialize-database --quiet"
-        ],
-        "app:clear-cache": [
-            "@php bin/cli orm:clear-cache:metadata --flush",
-            "@php bin/cli orm:clear-cache:query",
-            "@php bin/cli orm:clear-cache:result --flush"
-        ],
-        "app:initialize-database": [
-            "@php bin/cli orm:schema:diff --allow-empty-diff",
-            "@php bin/cli orm:schema:migrate --allow-no-migration --no-interaction",
-            "@php bin/cli oai:update:formats"
-        ],
-        "app:upgrade": [
-            "@php bin/cli oai:upgrade:app"
+            "@php bin/cli orm:schema:diff --allow-empty-diff --quiet",
+            "@php bin/cli orm:schema:migrate --allow-no-migration --no-interaction --quiet",
+            "@php bin/cli oai:update:formats --quiet"
         ],
         "php-cs-fixer:check": [
             "@php vendor/bin/php-cs-fixer check"
@@ -128,9 +120,6 @@
         ]
     },
     "scripts-descriptions": {
-        "app:clear-cache": "Clears the Doctrine ORM metadata, query and result caches",
-        "app:initialize-database": "Initializes a new database (NOT RECOMMENDED IN PRODUCTION!)",
-        "app:upgrade": "Upgrades the OAI-PMH2 Data Provider to the latest stable (or any given) version",
         "php-cs-fixer:check": "Runs a code check with PHP Coding Standards Fixer and reports problems. If a custom configuration file '.php-cs-fixer.php' exists, it will be used instead of the default settings in '.php-cs-fixer.dist.php'.",
         "php-cs-fixer:fix": "Runs a code check with PHP Coding Standards Fixer and tries to fix all issues. If a custom configuration file '.php-cs-fixer.php' exists, it will be used instead of the default settings in '.php-cs-fixer.dist.php'.",
         "phpcs:check": "Runs a code check with PHP_CodeSniffer and reports problems. If a custom configuration file '.phpcs.xml' exists, it will be used instead of the default settings in '.phpcs.xml.dist'.",
