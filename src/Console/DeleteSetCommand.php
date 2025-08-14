@@ -58,9 +58,7 @@ final class DeleteSetCommand extends Console
             InputArgument::REQUIRED,
             'The set (spec) to delete',
             null,
-            function (): array {
-                return $this->em->getSets()->getKeys();
-            }
+            fn(): array => $this->em->getSets()->getKeys()
         );
         parent::configure();
     }

@@ -66,7 +66,9 @@ final class AddRecordCommand extends Console
         $this->addArgument(
             'format',
             InputArgument::REQUIRED,
-            'The metadata prefix'
+            'The metadata prefix',
+            null,
+            fn(): array => $this->em->getMetadataFormats()->getKeys()
         );
         $this->addArgument(
             'file',

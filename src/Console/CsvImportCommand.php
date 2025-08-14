@@ -74,9 +74,7 @@ final class CsvImportCommand extends Console
             InputArgument::REQUIRED,
             'The format (metadata prefix) of the records',
             null,
-            function (): array {
-                return $this->em->getMetadataFormats()->getKeys();
-            }
+            fn(): array => $this->em->getMetadataFormats()->getKeys()
         );
         $this->addArgument(
             'file',
