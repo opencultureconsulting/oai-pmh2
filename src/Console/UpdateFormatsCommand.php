@@ -28,6 +28,7 @@ use OCC\OaiPmh2\Entity\Format;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Validator\Exception\ValidationFailedException;
 
@@ -37,7 +38,9 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
  *
- * @extends Console<array{}>
+ * @extends Console<array{
+ *     list: bool
+ * }>
  */
 #[AsCommand(
     name: 'oai:update:formats',
@@ -45,6 +48,23 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
 )]
 final class UpdateFormatsCommand extends Console
 {
+    /**
+     * Configures the current command.
+     *
+     * @return void
+     */
+    #[\Override]
+    protected function configure(): void
+    {
+        $this->addOption(
+            'list',
+            'l',
+            InputOption::VALUE_NONE,
+            'List all available formats instead of updating'
+        );
+        parent::configure();
+    }
+
     /**
      * Executes the current command.
      *
@@ -56,8 +76,38 @@ final class UpdateFormatsCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        $success = true;
+        if (!$this->arguments['list']) {
+            $success = $this->updateMetadataFormats();
+        }
+
+        $prefixes = $this->em->getMetadataFormats()->getKeys();
+        if (count($prefixes) > 0) {
+            $this->io->note([
+                'The following metadata formats are currently supported:',
+                '"' . implode('", "', $prefixes) . '"',
+                'To change supported formats edit config/config.yml and',
+                'run command "bin/cli oai:update:formats" again!'
+            ]);
+        } else {
+            $this->io->getErrorStyle()->caution([
+                'There are currently no metadata formats supported.',
+                'Please add a metadata prefix to config/config.yml and',
+                'run command "bin/cli oai:update:formats" again!'
+            ]);
+        }
+
+        return $success ? Command::SUCCESS : Command::FAILURE;
+    }
+
+    /**
+     * Updates metadata formats based on the configuration.
+     *
+     * @return bool Whether the update was successful
+     */
+    protected function updateMetadataFormats(): bool
+    {
         $formats = Configuration::getInstance()->metadataPrefix;
-        $this->clearResultCache();
         $inDatabase = $this->em->getMetadataFormats();
 
         $success = [];
@@ -92,33 +142,17 @@ final class UpdateFormatsCommand extends Console
             $this->em->delete($format);
             $success[] = sprintf('Metadata format "%s" and all associated records deleted.', $prefix);
         }
+        $this->clearResultCache();
 
         $this->io->getErrorStyle()->listing($error);
         $this->io->listing($success);
 
-        $this->clearResultCache();
-        $currentFormats = $this->em->getMetadataFormats()->getKeys();
-        if (count($currentFormats) > 0) {
-            $this->io->note([
-                'The following metadata formats are currently supported:',
-                '"' . implode('", "', $currentFormats) . '"',
-                'To change supported formats edit config/config.yml and',
-                'run command "bin/cli oai:update:formats" again!'
-            ]);
-        } else {
-            $this->io->getErrorStyle()->caution([
-                'There are currently no metadata formats supported.',
-                'Please add a metadata prefix to config/config.yml and',
-                'run command "bin/cli oai:update:formats" again!'
-            ]);
-        }
-
         if (count($error) === 0) {
             $this->io->success('Metadata formats updated successfully!');
-            return Command::SUCCESS;
+            return true;
         } else {
             $this->io->getErrorStyle()->error('Metadata formats could not be updated! See above for details.');
-            return Command::FAILURE;
+            return false;
         }
     }
 }

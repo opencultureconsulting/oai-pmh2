@@ -24,10 +24,8 @@ namespace OCC\OaiPmh2;
 
 use DateTime;
 use OCC\OaiPmh2\Console\CsvImportCommand;
-use OCC\OaiPmh2\Entity\Format;
 use OCC\OaiPmh2\Entity\Record;
 use OCC\OaiPmh2\Entity\Set;
-use OCC\OaiPmh2\Validator\MetadataPrefixValidator;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -53,6 +51,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *     contentColumn?: non-empty-string,
  *     dateColumn?: non-empty-string,
  *     setColumn?: non-empty-string,
+ *     list?: bool,
  *     noValidation?: bool,
  *     purge?: bool,
  *     force?: bool,
