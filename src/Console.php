@@ -42,8 +42,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *
  * @template CliParameters of array{
  *     file?: non-empty-string,
- *     identifier?: non-empty-string,
  *     format?: non-empty-string,
+ *     identifier?: non-empty-string,
  *     sets?: non-empty-list<non-empty-string>,
  *     setSpec?: non-empty-string,
  *     setName?: non-empty-string,
@@ -51,10 +51,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *     contentColumn?: non-empty-string,
  *     dateColumn?: non-empty-string,
  *     setColumn?: non-empty-string,
+ *     force?: bool,
  *     list?: bool,
  *     noValidation?: bool,
- *     purge?: bool,
- *     force?: bool,
+ *     purge?: bool
  * }
  */
 abstract class Console extends Command

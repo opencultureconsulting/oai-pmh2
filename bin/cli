@@ -32,6 +32,7 @@ use Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration;
 use Doctrine\Migrations\Tools\Console\Command as DoctrineMigrationsCommand;
 use Doctrine\ORM\Tools\Console\Command as DoctrineORMCommand;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console as Command;
 use Symfony\Component\Console\Application;
 
@@ -111,7 +112,7 @@ final class Cli extends Application
     public function __construct()
     {
         parent::__construct(
-            'OAI-PMH2 Data Provider Command Line Interface',
+            Configuration::getInstance()->repositoryName,
             InstalledVersions::getVersion('opencultureconsulting/oai-pmh2') ?? 'unknown'
         );
         $this->setCatchExceptions(true);
