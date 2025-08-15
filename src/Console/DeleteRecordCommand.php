@@ -65,7 +65,7 @@ final class DeleteRecordCommand extends Console
             InputArgument::REQUIRED,
             'The metadata prefix',
             null,
-            fn(): array => $this->em->getMetadataFormats()->getKeys()
+            fn (): array => $this->em->getMetadataFormats()->getKeys()
         );
         parent::configure();
     }

@@ -62,7 +62,7 @@ final class AddSetCommand extends Console
             InputArgument::REQUIRED,
             'The set (spec) to add or update',
             null,
-            fn(): array => $this->em->getSets()->getKeys()
+            fn (): array => $this->em->getSets()->getKeys()
         );
         $this->addArgument(
             'setName',
