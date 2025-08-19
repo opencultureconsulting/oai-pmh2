@@ -246,12 +246,12 @@ final class UpgradeAppCommand extends Console
     {
         $this->appInfo = InstalledVersions::getRootPackage();
         $this->http = HttpClient::create();
-        $this->io->writeln([
+        $this->io->writeln(
             sprintf(
                 'Current version: <info>%s</info>',
                 $this->appInfo['pretty_version']
             )
-        ]);
+        );
 
         if ($this->arguments['list']) {
             return $this->listAvailableReleases();
@@ -348,18 +348,26 @@ final class UpgradeAppCommand extends Console
      */
     protected function getNewRelease(): void
     {
-        $compare = version_compare($this->appInfo['version'], $this->releaseInfo['version']);
-        $this->io->writeln([
-            sprintf(
-                'Found version: %s',
-                match ($compare) {
-                    -1 => '<info>' . $this->releaseInfo['pretty_version'] . '</info> (newer)',
-                    0 => '<info>' . $this->releaseInfo['pretty_version'] . '</info> (current)',
-                    1 => '<comment>' . $this->releaseInfo['pretty_version'] . '</comment> (older)'
-                }
-            ),
-            ''
-        ]);
+        if (!$this->appInfo['dev'] && !$this->arguments['dev']) {
+            $compare = version_compare($this->appInfo['version'], $this->releaseInfo['version']);
+            $this->io->writeln(
+                sprintf(
+                    'Found version: %s',
+                    match ($compare) {
+                        -1 => '<info>' . $this->releaseInfo['pretty_version'] . '</info> (newer)',
+                        0 => '<info>' . $this->releaseInfo['pretty_version'] . '</info> (current)',
+                        1 => '<comment>' . $this->releaseInfo['pretty_version'] . '</comment> (older)'
+                    }
+                )
+            );
+        } else {
+            $this->io->writeln(
+                sprintf(
+                    'Found version: <info>%s</info>',
+                    $this->releaseInfo['pretty_version']
+                )
+            );
+        }
         $file = $this->download();
         try {
             $this->unpack($file);
