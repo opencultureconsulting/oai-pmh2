@@ -1,0 +1,27 @@
+#
+# The upgrade configuration
+#
+# This file contains instructions for the "app:upgrade" command. It is specific
+# to one release and should not be changed manually.
+#
+
+# During upgrade all files in the app's root directory are replaced by their
+# newer version. Existing files and directories in the target directory which
+# are not part of the new release are preserved. For directories this is
+# handled individually based on the following configuration:
+# - Only directories mentioned here are upgraded. Everything else is preserved.
+# - Directories can either be mirrored or copied, based on their configuration.
+#   "mirror" - The directory is overwritten recursively, all existing files are
+#   either replaced by their respective newer version or deleted if they are
+#   not part of the new release.
+#   "copy" - The directory is copied recursively, all existing files are either
+#   replaced by their respective newer version or preserved if they are not
+#   part of the new release.
+
+directories: {
+    bin: 'mirror',
+    config: 'copy',
+    doc: 'mirror',
+    public: 'copy',
+    src: 'mirror'
+}

@@ -119,6 +119,7 @@ doc/*      linguist-generated=true
 .ddev/*                export-ignore
 .github/*              export-ignore
 .phpdoc/*              export-ignore
+.editorconfig          export-ignore
 .php-cs-fixer.dist.php export-ignore
 .phpmd.dist.xml        export-ignore
 phpcs.xml.dist         export-ignore
