@@ -12,19 +12,9 @@
     <version number="latest">
         <api format="php">
             <source dsn=".">
-                <path>/src</path>
+                <!-- Disable API documentation. -->
+                <path>/non-existent</path>
             </source>
-            <extensions>
-                <extension>php</extension>
-            </extensions>
-            <default-package-name>OAIPMH2</default-package-name>
-            <include-source>true</include-source>
-            <ignore-tags>
-                <ignore-tag>extends</ignore-tag>
-                <ignore-tag>implements</ignore-tag>
-                <ignore-tag>phpstan-require-implements</ignore-tag>
-                <ignore-tag>psalm-suppress</ignore-tag>
-            </ignore-tags>
         </api>
         <guide format="rst">
             <source dsn=".">
