@@ -380,6 +380,8 @@ final class UpgradeAppCommand extends Console
      * Installs dependencies for new release.
      *
      * @return void
+     *
+     * @throws Exception if installing dependencies fails
      */
     protected function installDependencies(): void
     {
@@ -389,7 +391,7 @@ final class UpgradeAppCommand extends Console
         }
         $app = new ComposerApplication();
         $app->add(new InstallCommand());
-        $app->doRun(
+        $errorCode = $app->doRun(
             new ArrayInput([
                 'command' => 'install',
                 '--no-cache' => true,
@@ -399,6 +401,9 @@ final class UpgradeAppCommand extends Console
             ]),
             $this->io
         );
+        if ($errorCode !== 0) {
+            throw new Exception('Failed to install dependencies.');
+        }
     }
 
     /**
@@ -487,13 +492,15 @@ final class UpgradeAppCommand extends Console
      * Runs post-upgrade maintenance tasks.
      *
      * @return void
+     *
+     * @throws Exception if post-upgrade tasks failed
      */
     protected function runPostUpgradeCmd(): void
     {
         $this->io->writeln('Running post-upgrade migrations...');
         $app = new ComposerApplication();
         $app->add(new RunScriptCommand());
-        $app->doRun(
+        $errorCode = $app->doRun(
             new ArrayInput([
                 'command' => 'run-script',
                 'script' => 'post-upgrade-cmd',
@@ -501,6 +508,9 @@ final class UpgradeAppCommand extends Console
             ]),
             $this->io
         );
+        if ($errorCode !== 0) {
+            throw new Exception('Failed to run post-upgrade tasks.');
+        }
     }
 
     /**
