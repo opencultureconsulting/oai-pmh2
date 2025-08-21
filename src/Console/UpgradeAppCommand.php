@@ -245,12 +245,14 @@ final class UpgradeAppCommand extends Console
     {
         $this->appInfo = InstalledVersions::getRootPackage();
         $this->http = HttpClient::create();
-        $this->io->writeln(
+        $this->io->writeln([
+            '',
             sprintf(
                 'Current version: <info>%s</info>',
                 $this->appInfo['pretty_version']
-            )
-        );
+            ),
+            ''
+        ]);
 
         if ($this->arguments['list']) {
             return $this->listAvailableReleases();
@@ -345,16 +347,16 @@ final class UpgradeAppCommand extends Console
      */
     protected function getConfirmation(): void
     {
-        $this->io->note([
-            'You are about to perform an automatic installation.',
-            'This includes database migrations which can potentially lead to data loss.',
-            'Please carefully read the release notes and always keep a backup!'
+        $this->io->writeln([
+            '<comment>You are about to perform an automated installation.</comment>',
+            '<comment>This includes database migrations which can lead to data loss.</comment>',
+            '<comment>Carefully read the release notes and always keep a BACKUP!</comment>'
         ]);
         if ($this->arguments['dev']) {
-            $this->io->caution([
-                'You selected a development branch for installation.',
-                'Be aware that those are considered unstable and not suitable for production.'
-            ]);
+            $this->io->note(
+                'You have selected a development branch for installation.' . PHP_EOL
+                . 'Be aware that those are considered unstable and not suitable for production.'
+            );
         }
         if (!$this->io->confirm('Continue?', true)) {
             throw new Exception('Aborted.');
@@ -372,7 +374,7 @@ final class UpgradeAppCommand extends Console
     {
         if (!str_contains($this->appInfo['version'], 'dev') && !$this->arguments['dev']) {
             $compare = version_compare($this->appInfo['version'], $this->releaseInfo['version']);
-            $this->io->writeln(
+            $this->io->writeln([
                 sprintf(
                     'Found version: %s',
                     match ($compare) {
@@ -380,15 +382,17 @@ final class UpgradeAppCommand extends Console
                         0 => '<info>' . $this->releaseInfo['pretty_version'] . '</info> (current)',
                         1 => '<comment>' . $this->releaseInfo['pretty_version'] . '</comment> (older)'
                     }
-                )
-            );
+                ),
+                ''
+            ]);
         } else {
-            $this->io->writeln(
+            $this->io->writeln([
                 sprintf(
                     'Found version: <info>%s</info>',
                     $this->releaseInfo['pretty_version']
-                )
-            );
+                ),
+                ''
+            ]);
         }
         $this->getConfirmation();
         $file = $this->download();
