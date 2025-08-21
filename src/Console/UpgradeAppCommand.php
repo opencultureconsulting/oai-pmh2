@@ -386,6 +386,9 @@ final class UpgradeAppCommand extends Console
     protected function installDependencies(): void
     {
         $this->io->writeln('Installing dependencies...');
+        if ($this->arguments['dev']) {
+            putenv('COMPOSER_ROOT_VERSION=' . $this->releaseInfo['version']);
+        }
         $app = new ComposerApplication();
         $app->add(new InstallCommand());
         $app->doRun(
