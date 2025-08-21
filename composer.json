@@ -95,7 +95,7 @@
         ],
         "post-upgrade-cmd": [
             "@php bin/cli orm:schema:diff --allow-empty-diff --quiet",
-            "@php bin/cli orm:schema:migrate --allow-no-migration"
+            "@php bin/cli orm:schema:migrate --allow-no-migration --quiet"
         ],
         "php-cs-fixer:check": [
             "@php vendor/bin/php-cs-fixer check"
