@@ -26,6 +26,7 @@ jobs:
         with:
           command: install
           php_version: "8.1"
+          args: "--ignore-platform-req=ext-zip"
 
       - name: Run PHP_CodeSniffer
         run: composer phpcs:check

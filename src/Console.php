@@ -51,6 +51,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *     contentColumn?: non-empty-string,
  *     dateColumn?: non-empty-string,
  *     setColumn?: non-empty-string,
+ *     release?: non-empty-string,
+ *     dev?: bool,
  *     force?: bool,
  *     list?: bool,
  *     noValidation?: bool,

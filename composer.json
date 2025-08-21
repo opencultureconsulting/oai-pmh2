@@ -93,6 +93,10 @@
             "@php bin/cli orm:schema:migrate --allow-no-migration --no-interaction --quiet",
             "@php bin/cli oai:update:formats --quiet"
         ],
+        "post-upgrade-cmd": [
+            "@php bin/cli orm:schema:diff --allow-empty-diff --quiet",
+            "@php bin/cli orm:schema:migrate --allow-no-migration --quiet"
+        ],
         "php-cs-fixer:check": [
             "@php vendor/bin/php-cs-fixer check"
         ],
@@ -120,6 +124,7 @@
         ]
     },
     "scripts-descriptions": {
+        "post-upgrade-cmd": "Runs database migrations and other maintenance tasks required after an upgrade. This is triggered by 'bin/cli app:upgrade' and should not be run by itself.",
         "php-cs-fixer:check": "Runs a code check with PHP Coding Standards Fixer and reports problems. If a custom configuration file '.php-cs-fixer.php' exists, it will be used instead of the default settings in '.php-cs-fixer.dist.php'.",
         "php-cs-fixer:fix": "Runs a code check with PHP Coding Standards Fixer and tries to fix all issues. If a custom configuration file '.php-cs-fixer.php' exists, it will be used instead of the default settings in '.php-cs-fixer.dist.php'.",
         "phpcs:check": "Runs a code check with PHP_CodeSniffer and reports problems. If a custom configuration file '.phpcs.xml' exists, it will be used instead of the default settings in '.phpcs.xml.dist'.",

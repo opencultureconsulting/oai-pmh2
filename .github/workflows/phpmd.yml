@@ -27,6 +27,7 @@ jobs:
         with:
           command: install
           php_version: "8.1"
+          args: "--ignore-platform-req=ext-zip"
 
       - name: Run PHP Mess Detector
         uses: php-actions/phpmd@v2

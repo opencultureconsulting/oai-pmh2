@@ -103,6 +103,7 @@ final class Cli extends Application
             new Command\PruneDeletedRecordsCommand(),
             new Command\PruneResumptionTokensCommand(),
             new Command\UpdateFormatsCommand(),
+            new Command\UpgradeAppCommand()
         ]);
     }
 
