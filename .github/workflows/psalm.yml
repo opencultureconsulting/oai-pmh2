@@ -32,6 +32,7 @@ jobs:
       - name: Run Psalm
         uses: docker://ghcr.io/psalm/psalm-github-actions
         with:
+          composer_ignore_platform_reqs: true
           security_analysis: true
           report_file: psalm-results.sarif
 
