@@ -256,7 +256,6 @@ final class UpgradeAppCommand extends Console
             return $this->listAvailableReleases();
         }
 
-        $this->fs = new Filesystem();
         try {
             $this->setReleaseInfo();
             if (!str_contains($this->appInfo['version'], 'dev') && !$this->arguments['dev']) {
@@ -338,6 +337,31 @@ final class UpgradeAppCommand extends Console
     }
 
     /**
+     * Gets the user's confirmation to continue installation.
+     *
+     * @return void
+     *
+     * @throws Exception if the user cancels upgrading
+     */
+    protected function getConfirmation(): void
+    {
+        $this->io->note([
+            'You are about to perform an automatic installation.',
+            'This includes database migrations which can potentially lead to data loss.',
+            'Please carefully read the release notes and always keep a backup!'
+        ]);
+        if ($this->arguments['dev']) {
+            $this->io->caution([
+                'You selected a development branch for installation.',
+                'Be aware that those are considered unstable and not suitable for production.'
+            ]);
+        }
+        if (!$this->io->confirm('Continue?', true)) {
+            throw new Exception('Aborted.');
+        }
+    }
+
+    /**
      * Gets the specified release.
      *
      * @return void
@@ -366,6 +390,7 @@ final class UpgradeAppCommand extends Console
                 )
             );
         }
+        $this->getConfirmation();
         $file = $this->download();
         try {
             $this->unpack($file);
