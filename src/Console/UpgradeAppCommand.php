@@ -60,8 +60,7 @@ use ZipArchive;
  *     url: string,
  *     pretty_version: string,
  *     version: string,
- *     install_path?: string,
- *     dev: bool
+ *     install_path?: string
  * }
  * @SuppressWarnings("PHPMD.CouplingBetweenObjects")
  * @SuppressWarnings("PHPMD.ExcessiveClassComplexity")
@@ -260,7 +259,7 @@ final class UpgradeAppCommand extends Console
         $this->fs = new Filesystem();
         try {
             $this->setReleaseInfo();
-            if (!$this->appInfo['dev'] || !$this->arguments['dev']) {
+            if (!str_contains($this->appInfo['version'], 'dev') && !$this->arguments['dev']) {
                 $this->compareVersions();
             }
             $this->getNewRelease();
@@ -332,8 +331,7 @@ final class UpgradeAppCommand extends Console
             $versions[$releases[$i]['version']] = [
                 'url' => $releases[$i]['dist']['url'],
                 'pretty_version' => $releases[$i]['version'],
-                'version' => $releases[$i]['version_normalized'],
-                'dev' => $this->arguments['dev']
+                'version' => $releases[$i]['version_normalized']
             ];
         }
         return $versions;
@@ -348,7 +346,7 @@ final class UpgradeAppCommand extends Console
      */
     protected function getNewRelease(): void
     {
-        if (!$this->appInfo['dev'] && !$this->arguments['dev']) {
+        if (!str_contains($this->appInfo['version'], 'dev') && !$this->arguments['dev']) {
             $compare = version_compare($this->appInfo['version'], $this->releaseInfo['version']);
             $this->io->writeln(
                 sprintf(
@@ -395,7 +393,7 @@ final class UpgradeAppCommand extends Console
             new ArrayInput([
                 'command' => 'install',
                 '--no-cache' => true,
-                '--no-dev' => true,
+                '--no-dev' => !$this->appInfo['dev'],
                 '--quiet' => true,
                 '--working-dir' => Path::canonicalize($this->appInfo['install_path'] . DIRECTORY_SEPARATOR)
             ]),
