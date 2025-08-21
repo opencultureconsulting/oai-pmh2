@@ -450,7 +450,7 @@ final class UpgradeAppCommand extends Console
         }
         $this->io->write('Available versions:');
         if (count($releases) === 0) {
-            $this->io->writeln(' [none]');
+            $this->io->writeln([' [none]', '']);
             return Command::SUCCESS;
         } else {
             $this->io->newLine();
@@ -462,6 +462,7 @@ final class UpgradeAppCommand extends Console
             $line = ' ∘ ' . $release['pretty_version'];
             $this->io->writeln($line);
         }
+        $this->io->newLine();
         return Command::SUCCESS;
     }
 
