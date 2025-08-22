@@ -63,7 +63,6 @@ final class Cli extends Application
             __NAMESPACE__ . '\\Migration',
             __DIR__ . '/../data/migrations'
         );
-        $configuration->setAllOrNothing(true);
         $configuration->setCheckDatabasePlatform(true);
         $configuration->setCustomTemplate(__DIR__ . '/../src/Migration.template');
         $configuration->setMetadataStorageConfiguration($storage);
