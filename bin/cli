@@ -76,13 +76,13 @@ final class Cli extends Application
 
         $this->addCommands([
             // Doctrine migrations commands
-            new DoctrineMigrationsCommand\DiffCommand($dependencyFactory, 'orm:schema:diff'),
-            new DoctrineMigrationsCommand\MigrateCommand($dependencyFactory, 'orm:schema:migrate'),
+            (new DoctrineMigrationsCommand\DiffCommand($dependencyFactory, 'orm:schema:diff'))->setHidden(),
+            (new DoctrineMigrationsCommand\MigrateCommand($dependencyFactory, 'orm:schema:migrate'))->setHidden(),
             // Doctrine ORM commands
-            new DoctrineORMCommand\ClearCache\MetadataCommand($entityManagerProvider),
-            new DoctrineORMCommand\ClearCache\QueryCommand($entityManagerProvider),
-            new DoctrineORMCommand\ClearCache\ResultCommand($entityManagerProvider),
-            new DoctrineORMCommand\GenerateProxiesCommand($entityManagerProvider)
+            (new DoctrineORMCommand\ClearCache\MetadataCommand($entityManagerProvider))->setHidden(),
+            (new DoctrineORMCommand\ClearCache\QueryCommand($entityManagerProvider))->setHidden(),
+            (new DoctrineORMCommand\ClearCache\ResultCommand($entityManagerProvider))->setHidden(),
+            (new DoctrineORMCommand\GenerateProxiesCommand($entityManagerProvider))->setHidden()
         ]);
     }
 
