@@ -133,7 +133,7 @@ final class UpgradeAppCommand extends Console
             'force',
             'f',
             InputOption::VALUE_NONE,
-            'Force installation even if the current version is equal or newer than the target release'
+            'Force installation even if the current version is equal to or newer than the target release'
         );
         parent::configure();
     }

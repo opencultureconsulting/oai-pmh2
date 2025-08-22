@@ -38,6 +38,7 @@
         "ext-simplexml": "*",
         "ext-sqlite3": "*",
         "ext-zip": "*",
+        "composer-runtime-api": "^2.1",
         "composer/composer": "^2.8",
         "doctrine/dbal": "^4.2",
         "doctrine/migrations": "^3.9",
