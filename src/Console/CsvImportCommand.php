@@ -185,10 +185,6 @@ final class CsvImportCommand extends Console
         $progressIndicator->finish('All done! ' . (string) $count . ' records imported.');
 
         fclose($file);
-
-        $this->io->writeln('Pruning potentially orphaned sets...');
-        $this->em->pruneOrphanedSets();
-
         $this->clearResultCache();
 
         $this->io->success(

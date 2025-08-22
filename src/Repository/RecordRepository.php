@@ -91,7 +91,6 @@ final class RecordRepository extends EntityRepository
         if (Configuration::getInstance()->deletedRecords === 'no') {
             $entityManager->remove($entity);
             $entityManager->flush();
-            $entityManager->pruneOrphanedSets();
         } else {
             $entity->setContent();
             $entity->setLastChanged(new DateTime());

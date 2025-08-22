@@ -67,6 +67,5 @@ final class FormatRepository extends EntityRepository
         $entityManager = $this->getEntityManager();
         $entityManager->remove($entity);
         $entityManager->flush();
-        $entityManager->pruneOrphanedSets();
     }
 }

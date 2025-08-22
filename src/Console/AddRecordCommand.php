@@ -100,16 +100,13 @@ final class AddRecordCommand extends Console
             );
             return Command::INVALID;
         }
-
         $this->addOrUpdateRecord(
             $this->arguments['identifier'],
             trim((string) file_get_contents($this->arguments['file'])) ?: null,
             new DateTime(),
             $this->arguments['sets'] ?? []
         );
-        $this->em->pruneOrphanedSets();
         $this->clearResultCache();
-
         $this->io->success(
             sprintf(
                 'Record "%s" with metadata prefix "%s" added or updated successfully!',

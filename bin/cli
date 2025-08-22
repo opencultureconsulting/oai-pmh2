@@ -101,6 +101,7 @@ final class Cli extends Application
             new Command\DeleteRecordCommand(),
             new Command\DeleteSetCommand(),
             new Command\PruneDeletedRecordsCommand(),
+            new Command\PruneOrphanedSetsCommand(),
             new Command\PruneResumptionTokensCommand(),
             new Command\UpdateFormatsCommand(),
             new Command\UpgradeAppCommand()

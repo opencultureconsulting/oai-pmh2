@@ -345,11 +345,7 @@ final class EntityManager extends EntityManagerDecorator
         $dql->delete(Record::class, 'records')
             ->where($dql->expr()->isNull('records.content'));
         /** @var non-negative-int */
-        $deleted = $dql->getQuery()->execute();
-        if ($deleted > 0) {
-            $this->pruneOrphanedSets();
-        }
-        return $deleted;
+        return $dql->getQuery()->execute();
     }
 
     /**
