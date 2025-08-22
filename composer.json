@@ -35,8 +35,7 @@
     "require": {
         "php": "^8.1",
         "ext-dom": "*",
-        "ext-json": "*",
-        "ext-libxml": "*",
+        "ext-simplexml": "*",
         "ext-sqlite3": "*",
         "ext-zip": "*",
         "composer/composer": "^2.8",
