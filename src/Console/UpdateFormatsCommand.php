@@ -80,7 +80,6 @@ final class UpdateFormatsCommand extends Console
         if (!$this->arguments['list']) {
             $success = $this->updateMetadataFormats();
         }
-
         $prefixes = $this->em->getMetadataFormats()->getKeys();
         if (count($prefixes) > 0) {
             $this->io->note([
@@ -96,7 +95,6 @@ final class UpdateFormatsCommand extends Console
                 'run command "bin/cli oai:update:formats" again!'
             ]);
         }
-
         return $success ? Command::SUCCESS : Command::FAILURE;
     }
 
@@ -137,10 +135,24 @@ final class UpdateFormatsCommand extends Console
             }
         }
         foreach (array_diff($inDatabase->getKeys(), array_keys($formats)) as $prefix) {
-            /** @var Format */
-            $format = $inDatabase[$prefix];
-            $this->em->delete($format);
-            $success[] = sprintf('Metadata format "%s" and all associated records deleted.', $prefix);
+            $this->io->writeln([
+                sprintf(
+                    'Metadata format "%s" was removed from configuration but still exists in database.',
+                    $prefix
+                ),
+                'Deleting it from database will also purge all associated records.'
+            ]);
+            if ($this->io->confirm('Continue?', true)) {
+                /** @var Format */
+                $format = $inDatabase[$prefix];
+                $this->em->delete($format);
+                $success[] = sprintf('Metadata format "%s" and all associated records deleted.', $prefix);
+            } else {
+                $error[] = sprintf(
+                    '<error>Deletion of metadata format "%s" and all associated records was aborted.</error>',
+                    $prefix
+                );
+            }
         }
         $this->clearResultCache();
 
