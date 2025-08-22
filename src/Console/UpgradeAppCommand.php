@@ -2,7 +2,7 @@
 
 /**
  * OAI-PMH 2.0 Data Provider
- * Copyright (C) 2024 Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
+ * Copyright (C) 2025 Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -45,7 +45,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
 use ZipArchive;
 
 /**
- * Add or update a record in the database.
+ * Upgrade the application to a new release or development branch.
  *
  * @author Sebastian Meyer <sebastian.meyer@opencultureconsulting.com>
  * @package OAIPMH2
