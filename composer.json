@@ -89,13 +89,11 @@
             "@php bin/cli orm:generate-proxies --quiet"
         ],
         "post-create-project-cmd": [
-            "@php bin/cli orm:schema:diff --allow-empty-diff --quiet",
-            "@php bin/cli orm:schema:migrate --allow-no-migration --no-interaction --quiet",
+            "@php bin/cli app:upgrade:db --no-interaction --quiet",
             "@php bin/cli oai:update:formats --quiet"
         ],
         "post-upgrade-cmd": [
-            "@php bin/cli orm:schema:diff --allow-empty-diff --quiet",
-            "@php bin/cli orm:schema:migrate --allow-no-migration --quiet"
+            "@php bin/cli app:upgrade:db --no-interaction --quiet"
         ],
         "php-cs-fixer:check": [
             "@php vendor/bin/php-cs-fixer check"

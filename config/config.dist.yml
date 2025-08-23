@@ -43,8 +43,8 @@ adminEmail: 'admin@example.org'
 # database: 'pgsql://oaipmh:secret@localhost:5432/oai_data_provider'
 # database: 'sqlite3:////opt/oaipmh/database.db'
 #
-# Run commands "orm:schema:diff", "orm:schema:migrate" and "oai:update:formats"
-# after switching to a new DB to test the settings and initialize the database!
+# Run commands "app:upgrade:db" and "oai:update:formats" after switching to a
+# new database to test the settings and initialize the schema!
 #
 database: 'sqlite3:///%BASEDIR%/data/sqlite3.db'
 

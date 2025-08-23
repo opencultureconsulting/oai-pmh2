@@ -24,12 +24,6 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2;
 
 use Composer\InstalledVersions;
-use Doctrine\Migrations\Configuration\Configuration as DoctrineMigrationsConfiguration;
-use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
-use Doctrine\Migrations\Configuration\Migration\ExistingConfiguration;
-use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration;
-use Doctrine\Migrations\Tools\Console\Command as DoctrineMigrationsCommand;
 use Doctrine\ORM\Tools\Console\Command as DoctrineORMCommand;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use OCC\OaiPmh2\Configuration;
@@ -54,30 +48,7 @@ final class Cli extends Application
     protected function addDoctrineCommands(): void
     {
         $entityManagerProvider = new SingleManagerProvider(EntityManager::getInstance());
-
-        $storage = new TableMetadataStorageConfiguration();
-        $storage->setTableName('migrations');
-
-        $configuration = new DoctrineMigrationsConfiguration();
-        $configuration->addMigrationsDirectory(
-            __NAMESPACE__ . '\\Migration',
-            __DIR__ . '/../data/migrations'
-        );
-        $configuration->setCheckDatabasePlatform(true);
-        $configuration->setCustomTemplate(__DIR__ . '/../src/Migration.template');
-        $configuration->setMetadataStorageConfiguration($storage);
-        $configuration->setMigrationOrganization(DoctrineMigrationsConfiguration::VERSIONS_ORGANIZATION_NONE);
-        $configuration->setTransactional(true);
-
-        $dependencyFactory = DependencyFactory::fromEntityManager(
-            new ExistingConfiguration($configuration),
-            new ExistingEntityManager($entityManagerProvider->getDefaultManager())
-        );
-
         $this->addCommands([
-            // Doctrine migrations commands
-            (new DoctrineMigrationsCommand\DiffCommand($dependencyFactory, 'orm:schema:diff'))->setHidden(),
-            (new DoctrineMigrationsCommand\MigrateCommand($dependencyFactory, 'orm:schema:migrate'))->setHidden(),
             // Doctrine ORM commands
             (new DoctrineORMCommand\ClearCache\MetadataCommand($entityManagerProvider))->setHidden(),
             (new DoctrineORMCommand\ClearCache\QueryCommand($entityManagerProvider))->setHidden(),
@@ -103,7 +74,8 @@ final class Cli extends Application
             new Command\PruneOrphanedSetsCommand(),
             new Command\PruneResumptionTokensCommand(),
             new Command\UpdateFormatsCommand(),
-            new Command\UpgradeAppCommand()
+            new Command\UpgradeAppCommand(),
+            new Command\UpgradeDatabaseCommand()
         ]);
     }
 
