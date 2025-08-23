@@ -110,32 +110,3 @@ maxRecords: 50
 # [300 - 86400]
 #
 tokenValid: 1800 # 30 minutes
-
-#
-# Batch size for bulk imports
-#
-# When importing large amounts of records, PHP memory consumption becomes a
-# concern. Here you can configure how many records should be kept in memory
-# before flushing to database and starting the next batch.
-# The default setting (0) means the application dynamically allocates batches
-# by monitoring its memory consumption. While this is the most efficient mode
-# and will work fine in most environments, it can potentially lead to fatal
-# errors due to memory exhaustion. If you encounter those, you can set a safe
-# hard limit for the batch size instead.
-#
-# [0 - ?]
-#
-batchSize: 0
-
-#
-# Create sets automatically
-#
-# If enabled, the application will automatically create new sets when they are
-# encountered the first time while importing records. Otherwise unknown sets
-# will be ignored.
-# Newly created sets will have the same set name as setSpec, but you can change
-# the details later using the command "oai:update:set".
-#
-# [true|false]
-#
-autoSets: true

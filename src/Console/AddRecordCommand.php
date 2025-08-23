@@ -28,6 +28,7 @@ use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -40,7 +41,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  *     identifier: non-empty-string,
  *     format: non-empty-string,
  *     file: non-empty-string,
- *     sets?: non-empty-list<non-empty-string>
+ *     sets?: non-empty-list<non-empty-string>,
+ *     createSets: bool
  * }>
  */
 #[AsCommand(
@@ -79,6 +81,12 @@ final class AddRecordCommand extends Console
             'sets',
             InputArgument::IS_ARRAY | InputArgument::OPTIONAL,
             'The list of sets to associate the record with'
+        );
+        $this->addOption(
+            'createSets',
+            null,
+            InputOption::VALUE_NONE,
+            'Automatically create non-existing sets instead of ignoring them'
         );
         parent::configure();
     }

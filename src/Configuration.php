@@ -42,8 +42,6 @@ use Symfony\Component\Yaml\Yaml;
  * @property-read 'no'|'transient'|'persistent' $deletedRecords Repository's deleted records policy
  * @property-read int<1, 100> $maxRecords Maximum number of records served per request
  * @property-read int<300, 86400> $tokenValid Number of seconds resumption tokens are valid
- * @property-read non-negative-int $batchSize Batch size for bulk imports
- * @property-read bool $autoSets Whether sets should be created automatically
  *
  * @phpstan-type ConfigArray = array{
  *     repositoryName: non-empty-string,
@@ -52,9 +50,7 @@ use Symfony\Component\Yaml\Yaml;
  *     metadataPrefix: array<non-empty-string, array{namespace: non-empty-string, schema: non-empty-string}>,
  *     deletedRecords: 'no'|'transient'|'persistent',
  *     maxRecords: int<1, 100>,
- *     tokenValid: int<300, 86400>,
- *     batchSize: non-negative-int,
- *     autoSets: bool
+ *     tokenValid: int<300, 86400>
  * }
  */
 final class Configuration

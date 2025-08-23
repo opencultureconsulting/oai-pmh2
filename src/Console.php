@@ -55,6 +55,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *     dev?: bool,
  *     force?: bool,
  *     list?: bool,
+ *     batchSize?: int<0, max>,
+ *     createSets?: bool,
  *     noValidation?: bool,
  *     purge?: bool
  * }
@@ -101,11 +103,12 @@ abstract class Console extends Command
         if (isset($format)) {
             $record = new Record($identifier, $format, null, $lastChanged);
             $record->setContent($content, ($this->arguments['noValidation'] ?? false) === false);
+            $createSets = boolval($this->arguments['createSets'] ?? false);
             foreach ($sets as $setSpec) {
                 $set = $this->em->getSet($setSpec);
                 if (isset($set)) {
                     $record->addSet($set);
-                } elseif (Configuration::getInstance()->autoSets) {
+                } elseif ($createSets) {
                     $record->addSet(new Set($setSpec));
                 }
             }
@@ -126,8 +129,8 @@ abstract class Console extends Command
      */
     protected function checkMemoryUsage(int $count): void
     {
-        $batchSize = Configuration::getInstance()->batchSize;
-        if ($batchSize === 0 && (memory_get_usage() / $this->getPhpMemoryLimit()) > 0.4) {
+        $batchSize = intval($this->arguments['batchSize'] ?? 0);
+        if ($batchSize < 1 && (memory_get_usage() / $this->getPhpMemoryLimit()) > 0.4) {
             $this->flushAndClear();
         } elseif ($batchSize > 0 && $count % $batchSize === 0) {
             $this->flushAndClear();

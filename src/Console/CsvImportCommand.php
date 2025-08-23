@@ -45,6 +45,8 @@ use Symfony\Component\Console\Output\OutputInterface;
  *     contentColumn: non-empty-string,
  *     dateColumn: non-empty-string,
  *     setColumn: non-empty-string,
+ *     batchSize: int<0, max>,
+ *     createSets: bool,
  *     noValidation: bool,
  *     purge: bool
  * }>
@@ -108,6 +110,19 @@ final class CsvImportCommand extends Console
             InputOption::VALUE_OPTIONAL,
             'Name of the CSV column which holds the comma-separated list of the records\' sets',
             'sets'
+        );
+        $this->addOption(
+            'batchSize',
+            null,
+            InputOption::VALUE_OPTIONAL,
+            'Number of records to be imported at once before flushing to database ("0" for dynamic allocation)',
+            0
+        );
+        $this->addOption(
+            'createSets',
+            null,
+            InputOption::VALUE_NONE,
+            'Automatically create non-existing sets instead of ignoring them'
         );
         $this->addOption(
             'noValidation',
