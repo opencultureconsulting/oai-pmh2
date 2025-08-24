@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+            <title>OAI-PMH2 Data Provider</title>
+    
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="../../">
+    <link rel="icon" href="images/favicon.ico"/>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/base.css">
+            <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/template.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css" integrity="sha256-ybRkN9dBjhcS2qrW1z+hfCxq+1aBdwyQM5wlQoQVt/0=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-okaidia.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.css">
+                <script src="https://cdn.jsdelivr.net/npm/fuse.js@3.4.6"></script>
+        <script src="https://cdn.jsdelivr.net/npm/css-vars-ponyfill@2"></script>
+        <script src="js/template.js"></script>
+        <script src="js/search.js"></script>
+        <script defer src="js/searchIndex.js"></script>
+    </head>
+<body id="top">
+    <header class="phpdocumentor-header phpdocumentor-section">
+    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">OAI-PMH2 Data Provider</a></h1>
+    <input class="phpdocumentor-header__menu-button" type="checkbox" id="menu-button" name="menu-button" />
+    <label class="phpdocumentor-header__menu-icon" for="menu-button">
+        <i class="fas fa-bars"></i>
+    </label>
+    <section data-search-form class="phpdocumentor-search">
+    <label>
+        <span class="visually-hidden">Search for</span>
+        <svg class="phpdocumentor-search__icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="2"/>
+            <line x1="12.4892" y1="12.2727" x2="19.1559" y2="18.9393" stroke="currentColor" stroke-width="3"/>
+        </svg>
+        <input type="search" class="phpdocumentor-field phpdocumentor-search__field" placeholder="Loading .." disabled />
+    </label>
+</section>
+
+    
+<nav class="phpdocumentor-topnav">
+    <ul class="phpdocumentor-topnav__menu">
+                        <li class="phpdocumentor-topnav__menu-item -menu">
+                <a href="https://packagist.org/packages/opencultureconsulting/oai-pmh2">
+                    <span>
+                                                                        <i class="fab fa-php"></i>
+                                                
+                    </span>
+                </a>
+            </li>
+                    <li class="phpdocumentor-topnav__menu-item -menu">
+                <a href="https://github.com/opencultureconsulting/oai-pmh2">
+                    <span>
+                                                                        <i class="fab fa-github"></i>
+                                                
+                    </span>
+                </a>
+            </li>
+                </ul>
+</nav>
+</header>
+
+    <main class="phpdocumentor">
+        <div class="phpdocumentor-section">
+            <input class="phpdocumentor-sidebar__menu-button" type="checkbox" id="sidebar-button" name="sidebar-button" />
+<label class="phpdocumentor-sidebar__menu-icon" for="sidebar-button">
+    Menu
+</label>
+<aside class="phpdocumentor-column -three phpdocumentor-sidebar">
+                    <section class="phpdocumentor-sidebar__category -documentation">
+            <h2 class="phpdocumentor-sidebar__category-header">Documentation</h2>
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="guides/setup/index.html#setup" class="">Setup</a>
+</h4>
+    <ul class="phpdocumentor-list">
+                    <li>
+                <a href="guides/setup/requirements.html#requirements" class="">Requirements</a>
+                
+            </li>
+                    <li>
+                <a href="guides/setup/installation.html#installation" class="">Installation</a>
+                
+            </li>
+                    <li>
+                <a href="guides/setup/configuration.html#configuration" class="">Configuration</a>
+                
+            </li>
+                    <li>
+                <a href="guides/setup/maintenance.html#maintenance" class="">Maintenance</a>
+                
+            </li>
+                    <li>
+                <a href="guides/setup/upgrade.html#upgrading" class="">Upgrading</a>
+                
+            </li>
+            </ul>
+
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="guides/usage/index.html#user-guide" class="">User Guide</a>
+</h4>
+    <ul class="phpdocumentor-list">
+                    <li>
+                <a href="guides/usage/formats.html#metadata-formats" class="">Metadata Formats</a>
+                
+            </li>
+                    <li>
+                <a href="guides/usage/records.html#managing-records" class="">Managing Records</a>
+                
+            </li>
+                    <li>
+                <a href="guides/usage/sets.html#organizing-sets" class="">Organizing Sets</a>
+                
+            </li>
+                    <li>
+                <a href="guides/usage/tasks.html#maintenance-tasks" class="">Maintenance Tasks</a>
+                
+            </li>
+            </ul>
+
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="guides/changelog.html#changelog" class="">Changelog</a>
+</h4>
+
+                        </section>
+            </aside>
+
+            <div class="phpdocumentor-column -nine phpdocumentor-content">
+                                        <section class="section " id="configuration">
+            <h1>Configuration</h1>
+
+            <div class="admonition-wrapper">
+    <div class="admonition admonition-sidebar"><p class="sidebar-title">Table of Contents</p>
+        <div class="contents">
+        <ul class="phpdocumentor-list">
+    <li class="toc-item">
+    <a href="guides/setup/configuration.html#repository-name-and-contact">Repository Name and Contact</a>
+
+
+</li>
+
+    <li class="toc-item">
+    <a href="guides/setup/configuration.html#database-connection">Database Connection</a>
+
+
+</li>
+
+    <li class="toc-item">
+    <a href="guides/setup/configuration.html#metadata-formats">Metadata Formats</a>
+
+
+</li>
+
+    <li class="toc-item">
+    <a href="guides/setup/configuration.html#deletion-policy">Deletion Policy</a>
+
+
+</li>
+
+    <li class="toc-item">
+    <a href="guides/setup/configuration.html#harvesting-settings">Harvesting Settings</a>
+
+
+</li>
+
+    </ul>
+</div>
+
+    </div>
+</div>
+
+            
+    <p>All configuration happens in <code>./config/config.yml</code>
+. After initial <a href="guides/setup/installation.html">installation</a> this file will
+just be a copy of the default settings and should be changed according to your requirements and preferences. See below
+for a documentation of all available options.</p>
+
+            <div class="phpdocumentor-admonition hint">
+                    <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <article>
+        
+    <p>The default configuration can be found in <code>./config/config.dist.yml</code>
+. You should leave this file untouched because it
+may be overwritten with new defaults when <a href="guides/setup/upgrade.html">upgrading the application</a>. However, your custom settings
+in <code>./config/config.yml</code>
+ are preserved and always take precedence over the defaults.</p>
+
+    </article>
+</div>
+
+            <section class="section " id="repository-name-and-contact">
+            <h2>Repository Name and Contact</h2>
+
+            
+    <p>You should set an unique name for the repository and an administrative email address for contacting the repository
+owner. Those are shown along some technical information when the <em>Identify</em>
+ verb is requested.</p>
+
+            <pre><code class="language-yaml"># Default settings
+repositoryName: &#039;OAI-PMH 2.0 Data Provider&#039;
+adminEmail: &#039;admin@example.org&#039;</code></pre>
+
+    </section>
+
+            <section class="section " id="database-connection">
+            <h2>Database Connection</h2>
+
+            
+    <p>This has to be a valid data source name (DSN) URI. The <em>scheme</em>
+ is used to specify a driver, the <em>user</em>
+ and <em>password</em>
+
+in the URI encode user and password for the connection, followed by the <em>host</em>
+ and <em>port</em>
+ parts. The <em>path</em>
+ after the
+authority part represents the name of the database (the leading slash is removed so add an extra slash to specify an
+absolute file path for SQLite). Any optional <em>query</em>
+ parameters are used as additional connection parameters.</p>
+
+            <div class="phpdocumentor-admonition ">
+                        <article>
+        
+    <p><code>%DRIVER%://[[%USER%[:%PASSWORD%]@]%HOST%[:%PORT%]]/%DBNAME%[?%OPTIONS%]</code>
+</p>
+
+    </article>
+</div>
+
+            
+    <p>Since the scheme determines the database driver it also specifies if the PDO abstraction (<code>mariadb</code>
+, <code>mssql</code>
+, <code>mysql</code>
+,
+<code>oracle</code>
+, <code>postgresql</code>
+, <code>sqlite</code>
+) or native drivers (<code>ibm-db2</code>
+, <code>mysqli</code>
+, <code>oci8</code>
+, <code>pgsql</code>
+, <code>sqlite3</code>
+, <code>sqlsrv</code>
+) should
+be used to handle the connection. Make sure the corresponding PHP extension is installed.</p>
+
+            
+    <p>The placeholder <code>%BASEDIR%</code>
+ may be used to represent the application&#039;s base directory.</p>
+
+            
+    <p>Additional connection parameters are database-specific. A list of available options can be found in the <a href="https://www.doctrine-project.org/projects/doctrine-dbal/en/4.3/reference/configuration.html#connection-details">Doctrine DBAL documentation</a>.</p>
+
+            <pre><code class="language-yaml"># Default setting
+database: &#039;sqlite3:///%BASEDIR%/data/sqlite3.db&#039;
+
+# More examples
+database: &#039;mssql://user:secret@127.0.0.1/oaipmh&#039;
+database: &#039;mysql://user@localhost/oai?charset=utf8mb4&#039;
+database: &#039;pgsql://oaipmh:password@localhost:5432/oai_data_provider&#039;
+database: &#039;sqlite:////opt/oaipmh/database.db&#039;</code></pre>
+
+            <div class="phpdocumentor-admonition caution">
+                <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <article>
+        
+    <p>Using the default installation, the OAI-PMH2 Data Provider initializes a new SQLite database in <code>./data/sqlite3.db</code>
+.
+While you can work with the defaults perfectly fine, you may want to move the database file to another location or
+even use any other SQL database of your choice. This is especially recommended if your OAI-PMH2 Data Provider is
+supposed to serve more than a few thousand records or is expected to handle a lot of traffic.</p>
+
+    <p>Run the CLI commands <code>./bin/cli app:install:db</code>
+ and <code>./bin/cli oai:update:formats</code>
+ after switching to a new database
+to test the settings and initialize the schema!</p>
+
+    </article>
+</div>
+
+    </section>
+
+            <section class="section " id="metadata-formats">
+            <h2>Metadata Formats</h2>
+
+            
+    <p>The default format is <code>oai_dc</code>
+ which is also required by the OAI-PMH specification, but technically you can provide any
+XML based data formats you want. Just add another entry with the metadata prefix as key and namespace/schema URIs as
+array values or replace the default entry (although not recommended).</p>
+
+            
+    <p>You do not have to provide every record in each metadata format, but if you have the same record in multiple formats it
+is highly recommended to use the same identifier for all versions of the record.</p>
+
+            <pre><code class="language-yaml"># Default setting
+metadataPrefix: {
+  oai_dc: {
+    namespace: &#039;http://www.openarchives.org/OAI/2.0/oai_dc/&#039;,
+    schema: &#039;https://www.openarchives.org/OAI/2.0/oai_dc.xsd&#039;
+  }
+}</code></pre>
+
+            <div class="phpdocumentor-admonition caution">
+                <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <article>
+        
+    <p>Run the command <code>./bin/cli oai:update:formats</code>
+ after changing metadata prefixes to update the database accordingly!</p>
+
+    </article>
+</div>
+
+    </section>
+
+            <section class="section " id="deletion-policy">
+            <h2>Deletion Policy</h2>
+
+            
+    <p>This states if and how the repository keeps track of deleted records. You can delete records by importing empty records
+with the same identifier and metadata prefix or by using the command <code>./bin/cli oai:delete:record</code>
+. Depending on the
+deleted records policy those records will be either marked as deleted or completely removed from the database.</p>
+
+            
+    <p>Valid options are:</p>
+
+            
+    <p><code>no</code>
+ - The repository does not provide any information about deletions and deleted records are completely removed from
+the database.</p>
+
+            
+    <p><code>persistent</code>
+ - The repository provides consistent information about deletions and placeholders for deleted records are
+kept in the database.</p>
+
+            
+    <p><code>transient</code>
+ - The repository may provide information about deletions. This is handled exactly the same as <code>persistent</code>
+,
+but you are allowed to manually prune deleted records from the database (see below).</p>
+
+            <pre><code class="language-yaml"># Default setting
+deletedRecords: &#039;transient&#039;</code></pre>
+
+            <div class="phpdocumentor-admonition hint">
+                    <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <article>
+        
+    <p>Run the command <code>./bin/cli oai:prune:records</code>
+ after changing the deleted records policy to <code>no</code>
+ to remove all deleted
+records from the database.</p>
+
+    <p>If your policy is <code>transient</code>
+ and you want to clean up deleted records from the database anyway run the command with
+the <code>--force</code>
+ flag.</p>
+
+    </article>
+</div>
+
+    </section>
+
+            <section class="section " id="harvesting-settings">
+            <h2>Harvesting Settings</h2>
+
+            
+    <p>For larger result sets resumption tokens are provided repeatedly which allow requesting more batches of records until
+the set is complete. Here you can configure how many records each batch should contain and how long a resumption token
+should be considered valid.</p>
+
+            
+    <p>Valid options for records per batch are any number between <code>1</code>
+ and <code>100</code>
+.</p>
+
+            
+    <p>The expiration time for resumption tokens can be between <code>300</code>
+ and <code>86400</code>
+ seconds (i. e. from 5 minutes to 24 hours).</p>
+
+            <pre><code class="language-yaml"># Default settings
+maxRecords: 50
+tokenValid: 1800 # 30 minutes</code></pre>
+
+            <div class="phpdocumentor-admonition hint">
+                    <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <article>
+        
+    <p>Expired resumption tokens can be deleted from database by running the command <code>./bin/cli oai:prune:tokens</code>
+. For good
+<a href="guides/setup/maintenance.html">maintenance</a> it is recommended to run this command regularly as a cronjob.</p>
+
+    </article>
+</div>
+
+    </section>
+
+    </section>
+
+                            </div>
+            <section data-search-results class="phpdocumentor-search-results phpdocumentor-search-results--hidden">
+    <section class="phpdocumentor-search-results__dialog">
+        <header class="phpdocumentor-search-results__header">
+            <h2 class="phpdocumentor-search-results__title">Search results</h2>
+            <button class="phpdocumentor-search-results__close"><i class="fas fa-times"></i></button>
+        </header>
+        <section class="phpdocumentor-search-results__body">
+            <ul class="phpdocumentor-search-results__entries"></ul>
+        </section>
+    </section>
+</section>
+        </div>
+        <a href="#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
+
+    </main>
+
+    <script>
+        cssVars({});
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
+</body>
+</html>

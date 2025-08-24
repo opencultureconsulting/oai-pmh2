@@ -418,16 +418,19 @@ final class UpgradeAppCommand extends Console
         if ($this->arguments['dev']) {
             putenv('COMPOSER_ROOT_VERSION=' . $this->releaseInfo['version']);
         }
+        $input = new ArrayInput([
+            'command' => 'install',
+            '--no-cache' => true,
+            '--quiet' => true,
+            '--working-dir' => Path::canonicalize($this->appInfo['install_path'] . DIRECTORY_SEPARATOR)
+        ]);
+        if (!$this->appInfo['dev']) {
+            $input->setOption('--no-dev', true);
+        }
         $app = new ComposerApplication();
         $app->add(new InstallCommand());
         $errorCode = $app->doRun(
-            new ArrayInput([
-                'command' => 'install',
-                '--no-cache' => true,
-                '--no-dev' => !$this->appInfo['dev'],
-                '--quiet' => true,
-                '--working-dir' => Path::canonicalize($this->appInfo['install_path'] . DIRECTORY_SEPARATOR)
-            ]),
+            $input,
             $this->io
         );
         if ($errorCode !== 0) {

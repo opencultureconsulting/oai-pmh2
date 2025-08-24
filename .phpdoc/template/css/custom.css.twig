@@ -1,0 +1,143 @@
+aside.phpdocumentor-sidebar
+{
+    display: flex;
+    flex-direction: column;
+}
+
+aside.phpdocumentor-sidebar
+    section.-documentation
+{
+    order: 1;
+}
+
+aside.phpdocumentor-sidebar
+    section.-packages
+{
+    order: 2;
+}
+
+aside.phpdocumentor-sidebar
+    section.-namespaces
+{
+    order: 3;
+}
+
+aside.phpdocumentor-sidebar
+    section.-reports
+{
+    order: 4;
+}
+
+aside.phpdocumentor-sidebar
+    section.-indices
+{
+    order: 5;
+}
+
+aside.phpdocumentor-sidebar
+    ul.phpdocumentor-list
+{
+    padding: 0 var(--spacing-md) !important;
+}
+
+p > code,
+li > code,
+code.prettyprint
+{
+    background-color: var(--code-background-color);
+    border: 1px solid #f0f0f0;
+    border-radius: var(--border-radius-base-size);
+    box-sizing: border-box;
+    font-size: var(--text-sm);
+    padding: var(--spacing-xxxs);
+}
+
+@media (max-width: 999px) {
+div.admonition-wrapper
+{
+    display: none;
+}
+}
+
+@media (min-width: 1000px) {
+div.admonition-wrapper
+{
+    display: block;
+    float: right;
+    padding: var(--spacing-md);
+    margin: 0 0 var(--spacing-md) var(--spacing-md);
+    width: auto;
+    font-size: var(--text-sm);
+    border: 1px solid var(--primary-color-lighten);
+}
+}
+
+div.admonition-wrapper
+    p.sidebar-title
+{
+    font-weight: bold;
+}
+
+div.contents
+    ul.phpdocumentor-list
+{
+    margin-bottom: 0;
+}
+
+div.phpdocumentor-content
+    div.section
+        ul
+{
+    padding-left: var(--spacing-lg);
+}
+
+div.phpdocumentor-content
+    div.section
+        ul
+            li
+{
+    padding-bottom: 0;
+}
+
+dl.phpdocumentor-table-of-contents
+    dt.phpdocumentor-table-of-contents__entry.-documentation:before
+{
+    content: 'D';
+}
+
+h1.phpdocumentor-title
+{
+    font-size: var(--text-lg);
+}
+
+h2.phpdocumentor-content__title
+{
+    display: flex;
+    flex-direction: column;
+}
+
+h2.phpdocumentor-content__title
+    div.phpdocumentor-element__package
+{
+    order: 1;
+}
+
+h2.phpdocumentor-content__title
+    span.phpdocumentor-element__extends,
+h2.phpdocumentor-content__title
+    span.phpdocumentor-element__implements
+{
+    font-size: calc(var(--text-xxs) / 1.2 / 1.2);
+    order: 2;
+}
+
+h2.phpdocumentor-content__title
+    span:first-letter
+{
+    text-transform: lowercase;
+}
+
+section.phpdocumentor-search
+{
+    display: none;
+}

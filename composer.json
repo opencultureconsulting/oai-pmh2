@@ -73,7 +73,6 @@
             "phpdocumentor/shim": true
         },
         "apcu-autoloader": true,
-        "discard-changes": "stash",
         "optimize-autoloader": true
     },
     "scripts": {

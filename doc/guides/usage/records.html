@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+            <title>OAI-PMH2 Data Provider</title>
+    
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="../../">
+    <link rel="icon" href="images/favicon.ico"/>
+    <link rel="stylesheet" href="css/normalize.css">
+    <link rel="stylesheet" href="css/base.css">
+            <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@100;200;300;400;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:wght@400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/template.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.0/css/all.min.css" integrity="sha256-ybRkN9dBjhcS2qrW1z+hfCxq+1aBdwyQM5wlQoQVt/0=" crossorigin="anonymous" />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/themes/prism-okaidia.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.css">
+                <script src="https://cdn.jsdelivr.net/npm/fuse.js@3.4.6"></script>
+        <script src="https://cdn.jsdelivr.net/npm/css-vars-ponyfill@2"></script>
+        <script src="js/template.js"></script>
+        <script src="js/search.js"></script>
+        <script defer src="js/searchIndex.js"></script>
+    </head>
+<body id="top">
+    <header class="phpdocumentor-header phpdocumentor-section">
+    <h1 class="phpdocumentor-title"><a href="" class="phpdocumentor-title__link">OAI-PMH2 Data Provider</a></h1>
+    <input class="phpdocumentor-header__menu-button" type="checkbox" id="menu-button" name="menu-button" />
+    <label class="phpdocumentor-header__menu-icon" for="menu-button">
+        <i class="fas fa-bars"></i>
+    </label>
+    <section data-search-form class="phpdocumentor-search">
+    <label>
+        <span class="visually-hidden">Search for</span>
+        <svg class="phpdocumentor-search__icon" width="21" height="20" viewBox="0 0 21 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="7.5" cy="7.5" r="6.5" stroke="currentColor" stroke-width="2"/>
+            <line x1="12.4892" y1="12.2727" x2="19.1559" y2="18.9393" stroke="currentColor" stroke-width="3"/>
+        </svg>
+        <input type="search" class="phpdocumentor-field phpdocumentor-search__field" placeholder="Loading .." disabled />
+    </label>
+</section>
+
+    
+<nav class="phpdocumentor-topnav">
+    <ul class="phpdocumentor-topnav__menu">
+                        <li class="phpdocumentor-topnav__menu-item -menu">
+                <a href="https://packagist.org/packages/opencultureconsulting/oai-pmh2">
+                    <span>
+                                                                        <i class="fab fa-php"></i>
+                                                
+                    </span>
+                </a>
+            </li>
+                    <li class="phpdocumentor-topnav__menu-item -menu">
+                <a href="https://github.com/opencultureconsulting/oai-pmh2">
+                    <span>
+                                                                        <i class="fab fa-github"></i>
+                                                
+                    </span>
+                </a>
+            </li>
+                </ul>
+</nav>
+</header>
+
+    <main class="phpdocumentor">
+        <div class="phpdocumentor-section">
+            <input class="phpdocumentor-sidebar__menu-button" type="checkbox" id="sidebar-button" name="sidebar-button" />
+<label class="phpdocumentor-sidebar__menu-icon" for="sidebar-button">
+    Menu
+</label>
+<aside class="phpdocumentor-column -three phpdocumentor-sidebar">
+                    <section class="phpdocumentor-sidebar__category -documentation">
+            <h2 class="phpdocumentor-sidebar__category-header">Documentation</h2>
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="guides/setup/index.html#setup" class="">Setup</a>
+</h4>
+    <ul class="phpdocumentor-list">
+                    <li>
+                <a href="guides/setup/requirements.html#requirements" class="">Requirements</a>
+                
+            </li>
+                    <li>
+                <a href="guides/setup/installation.html#installation" class="">Installation</a>
+                
+            </li>
+                    <li>
+                <a href="guides/setup/configuration.html#configuration" class="">Configuration</a>
+                
+            </li>
+                    <li>
+                <a href="guides/setup/maintenance.html#maintenance" class="">Maintenance</a>
+                
+            </li>
+                    <li>
+                <a href="guides/setup/upgrade.html#upgrading" class="">Upgrading</a>
+                
+            </li>
+            </ul>
+
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="guides/usage/index.html#user-guide" class="">User Guide</a>
+</h4>
+    <ul class="phpdocumentor-list">
+                    <li>
+                <a href="guides/usage/formats.html#metadata-formats" class="">Metadata Formats</a>
+                
+            </li>
+                    <li>
+                <a href="guides/usage/records.html#managing-records" class="">Managing Records</a>
+                
+            </li>
+                    <li>
+                <a href="guides/usage/sets.html#organizing-sets" class="">Organizing Sets</a>
+                
+            </li>
+                    <li>
+                <a href="guides/usage/tasks.html#maintenance-tasks" class="">Maintenance Tasks</a>
+                
+            </li>
+            </ul>
+
+                                    <h4 class="phpdocumentor-sidebar__root-namespace">
+    <a href="guides/changelog.html#changelog" class="">Changelog</a>
+</h4>
+
+                        </section>
+            </aside>
+
+            <div class="phpdocumentor-column -nine phpdocumentor-content">
+                                        <section class="section " id="managing-records">
+            <h1>Managing Records</h1>
+
+            <div class="admonition-wrapper">
+    <div class="admonition admonition-sidebar"><p class="sidebar-title">Table of Contents</p>
+        <div class="contents">
+        <ul class="phpdocumentor-list">
+    <li class="toc-item">
+    <a href="guides/usage/records.html#add-or-update-records">Add or Update Records</a>
+
+
+</li>
+
+    <li class="toc-item">
+    <a href="guides/usage/records.html#batch-import-records">Batch-Import Records</a>
+
+
+</li>
+
+    <li class="toc-item">
+    <a href="guides/usage/records.html#delete-records">Delete Records</a>
+
+
+</li>
+
+    <li class="toc-item">
+    <a href="guides/usage/records.html#prune-deleted-records">Prune Deleted Records</a>
+
+
+</li>
+
+    </ul>
+</div>
+
+    </div>
+</div>
+
+            
+    <p>The purpose of an OAI-PMH2 Data Provider is to serve records via its <abbr title="application programming interface">API</abbr>
+,
+so having a toolset for managing those is essential. There are commands for adding, updating, batch-importing, and
+deleting records.</p>
+
+            <section class="section " id="add-or-update-records">
+            <h2>Add or Update Records</h2>
+
+            
+    <p>Adding and updating records works in the same way. In fact, <code>oai:update:record</code>
+ is just an alias of <code>oai:add:record</code>
+.</p>
+
+            <pre><code class="language-shell"># Add (or update) a record
+bin/cli oai:add:record &lt;identifier&gt; &lt;format&gt; &lt;file&gt; [sets]</code></pre>
+
+            
+    <p><strong>Required arguments are:</strong>
+</p>
+
+            
+    <p><code>&lt;identifier&gt;</code>
+ - This is the identifier by which the record is referenced throughout the OAI-PMH2 Data Provider. This
+must be unique, but if you are providing the same record in multiple formats it should use the same identifier across
+all formats.</p>
+
+            
+    <p><code>&lt;format&gt;</code>
+ - The metadata format in which the record is provided. This has to be a valid <em>metadata prefix</em>
+ from your
+<a href="guides/setup/configuration.html">configuration</a>.</p>
+
+            
+    <p><code>&lt;file&gt;</code>
+ - The absolute or relativ path to an XML file containing the record.</p>
+
+            <div class="phpdocumentor-admonition caution">
+                <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <article>
+        
+    <p>If you run the command with a pair of <code>&lt;identifier&gt;</code>
+ and <code>&lt;format&gt;</code>
+ matching an existing record the corresponding
+record will be updated, otherwise a new record will be added.</p>
+
+    </article>
+</div>
+
+            
+    <p><strong>Optional arguments are:</strong>
+</p>
+
+            
+    <p><code>[sets]</code>
+ - One or more sets the record should be added to. Each set has to be referenced by its <em>setSpec</em>
+.</p>
+
+            <div class="phpdocumentor-admonition hint">
+                    <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <article>
+        
+    <p>By default non-existing sets are ignored when adding or updating records. If you want to auto-create new sets instead
+you need to use the <code>--createSets</code>
+ flag.</p>
+
+    <p>Automatically created sets will have the same <em>name</em>
+ as <em>setSpec</em>
+ and an empty <em>description</em>
+ but you can <a href="guides/usage/sets.html">change
+the details</a> later.</p>
+
+    </article>
+</div>
+
+    </section>
+
+            <section class="section " id="batch-import-records">
+            <h2>Batch-Import Records</h2>
+
+            
+    <p>Instead of adding or updating records one by one you can also import a <abbr title="comma-separated values">CSV</abbr>
+ file with
+multiple records at once. The first line must contain the column names, every line after that is interpreted as one
+record, empty lines are ignored.</p>
+
+            <pre><code class="language-shell"># Import records from CSV file
+bin/cli oai:import:csv &lt;format&gt; &lt;file&gt; [--idColumn|--i] [--contentColumn|--c] [--dateColumn|--d] [--setColumn|--s]</code></pre>
+
+            
+    <p><strong>Required arguments are:</strong>
+</p>
+
+            
+    <p><code>&lt;format&gt;</code>
+ - The metadata format in which the records are provided. This has to be a valid <em>metadata prefix</em>
+ from your
+<a href="guides/setup/configuration.html">configuration</a>.</p>
+
+            
+    <p><code>&lt;file&gt;</code>
+ - The absolute or relativ path to the CSV file containing the records.</p>
+
+            
+    <p><strong>Important options are:</strong>
+</p>
+
+            
+    <p><code>--idColumn|-i</code>
+ - The name of the column containing the records&#039; identifier; defaults to <code>identifier</code>
+. Identifiers must
+be unique, but if you are providing the same record in multiple formats it should use the same identifier across all
+formats.</p>
+
+            
+    <p><code>--contentColumn|-c</code>
+ - The name of the column containing the records&#039; XML content; defaults to <code>content</code>
+. If this
+column is empty the record is deleted (according to your <a href="guides/setup/configuration.html">deletion policy</a>).</p>
+
+            
+    <p><code>--dateColumn|-d</code>
+ - The name of the column containing the records&#039; date of last change; defaults to <code>lastChanged</code>
+.
+Column entries must be valid <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601 values</a>. If no date column is found or
+if it is empty the current date and time are assumed as date of last change.</p>
+
+            
+    <p><code>--setColumn|-d</code>
+ - The name of the column containing a comma-separated list of the records&#039; sets; defaults to <code>sets</code>
+.
+Each set has to be referenced by its <em>setSpec</em>
+. This column is optional and may be omitted or empty.</p>
+
+            <div class="phpdocumentor-admonition hint">
+                    <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <article>
+        
+    <p>By default non-existing sets are ignored when importing records. If you want to auto-create new sets instead you
+need to use the <code>--createSets</code>
+ flag.</p>
+
+    <p>Automatically created sets will have the same <em>name</em>
+ as <em>setSpec</em>
+ and an empty <em>description</em>
+ but you can
+<a href="guides/usage/sets.html">change the details</a> later.</p>
+
+    </article>
+</div>
+
+            
+    <p><strong>Optional parameters are:</strong>
+</p>
+
+            
+    <p><code>--noValidation</code>
+ - Disable XML validation of the records&#039; content. This massively speeds up importing, but obviously
+comes with the caveat of potentially importing malformed XML which would break the application.</p>
+
+            
+    <p><code>--purge</code>
+ - Delete all existing records of the given <code>&lt;format&gt;</code>
+ before importing the CSV file. This is an alternative
+to providing empty records for deletions. Of course the <a href="guides/setup/configuration.html">deletion policy</a> is respected.</p>
+
+            <div class="phpdocumentor-admonition caution">
+                <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                <article>
+        
+    <p>When importing large amounts of records, PHP memory consumption becomes a concern. By default batches are dynamically
+allocated by monitoring memory usage and flushing records to database before reaching the available limit. This is
+the most efficient mode because it limits database operations to a minimum and will work fine in most environments
+but it can lead to fatal errors due to memory exhaustion if estimation fails.</p>
+
+    <p>If you encounter those errors you can set a safe hard limit for the batch size by adding the <code>--batchSize=X</code>
+ flag.
+Any number bigger than <code>0</code>
+ for <code>X</code>
+ tells the application how many records should be kept in memory before flushing to
+database and starting the next batch.</p>
+
+    </article>
+</div>
+
+    </section>
+
+            <section class="section " id="delete-records">
+            <h2>Delete Records</h2>
+
+            
+    <p>Deleting records is just as easy as adding them.</p>
+
+            <pre><code class="language-shell"># Delete a record
+bin/cli oai:delete:record &lt;identifier&gt; &lt;format&gt;</code></pre>
+
+            
+    <p>Obviously, <code>&lt;identifier&gt;</code>
+ and <code>&lt;format&gt;</code>
+ have to match an existing record. Depending on your <a href="guides/setup/configuration.html">deletion policy</a> the corresponding record will be either removed or marked as deleted.</p>
+
+    </section>
+
+            <section class="section " id="prune-deleted-records">
+            <h2>Prune Deleted Records</h2>
+
+            
+    <p>If your <a href="guides/setup/configuration.html">deletion policy</a> was <code>persistent</code>
+ or <code>transient</code>
+ and you changed it to <code>no</code>
+ you
+can purge all remaining placeholders for deleted records by running the following command.</p>
+
+            <pre><code class="language-shell"># Prune deleted records
+bin/cli oai:prune:records</code></pre>
+
+            <div class="phpdocumentor-admonition hint">
+                    <svg class="phpdocumentor-admonition__icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <article>
+        
+    <p>If your policy is <code>transient</code>
+ and you want to clean up deleted records from the database anyway run the command with
+the <code>--force</code>
+ flag.</p>
+
+    </article>
+</div>
+
+    </section>
+
+    </section>
+
+                            </div>
+            <section data-search-results class="phpdocumentor-search-results phpdocumentor-search-results--hidden">
+    <section class="phpdocumentor-search-results__dialog">
+        <header class="phpdocumentor-search-results__header">
+            <h2 class="phpdocumentor-search-results__title">Search results</h2>
+            <button class="phpdocumentor-search-results__close"><i class="fas fa-times"></i></button>
+        </header>
+        <section class="phpdocumentor-search-results__body">
+            <ul class="phpdocumentor-search-results__entries"></ul>
+        </section>
+    </section>
+</section>
+        </div>
+        <a href="#top" class="phpdocumentor-back-to-top"><i class="fas fa-chevron-circle-up"></i></a>
+
+    </main>
+
+    <script>
+        cssVars({});
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/prism.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/plugins/line-highlight/prism-line-highlight.min.js"></script>
+</body>
+</html>

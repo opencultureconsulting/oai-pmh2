@@ -1,0 +1,19 @@
+{% for version in project.versions %}
+    {% for toc in version.tableOfContents|filter(toc => toc.name|lower == "documentation" or toc.name|lower == "packages") %}
+        <h4 id="toc-{{ toc.name|lower }}">{{ toc.name|title }}</h4>
+        <dl class="phpdocumentor-table-of-contents">
+        {% for root in toc.roots %}
+            <dt class="phpdocumentor-table-of-contents__entry -{{ toc.name|lower|trim('s', 'right') }}">
+                <a href="{{ root.url }}">{{ root.title|shortFQSEN }}</a>
+            </dt>
+            {% if root.children.count > 0 %}
+            <dd>
+            {% for child in root.children %}
+                <a href="{{ child.url }}">{{ child.title|shortFQSEN }}</a><br/>
+            {% endfor %}
+            </dd>
+            {% endif %}
+        {% endfor %}
+        </dl>
+    {% endfor %}
+{% endfor %}

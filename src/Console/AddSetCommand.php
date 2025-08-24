@@ -66,8 +66,9 @@ final class AddSetCommand extends Console
         );
         $this->addArgument(
             'setName',
-            InputArgument::REQUIRED,
-            'The new set name'
+            InputArgument::OPTIONAL,
+            'The new set name',
+            'setSpec'
         );
         $this->addArgument(
             'file',
@@ -88,7 +89,10 @@ final class AddSetCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if (array_key_exists('file', $this->arguments)) {
+        if ($this->arguments['setName'] === 'setSpec') {
+            $this->arguments['setName'] = $this->arguments['setSpec'];
+        }
+        if (isset($this->arguments['file'])) {
             if (!is_readable($this->arguments['file'])) {
                 $this->io->getErrorStyle()->error(
                     sprintf('File "%s" not found or not readable.', $this->arguments['file'])

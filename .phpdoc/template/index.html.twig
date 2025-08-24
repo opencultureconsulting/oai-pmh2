@@ -1,0 +1,29 @@
+{% extends 'base.html.twig' %}
+
+{% block content %}
+<section>
+    <ul class="phpdocumentor-breadcrumbs">
+        <li><a href>Home</a></li>
+    </ul>
+
+    <h2 class="phpdocumentor-content__title">OAI-PMH2 Data Provider</h2>
+
+    <p class="phpdocumentor-summary">A stand-alone, easy to maintain application for providing a data service following
+    the <a href="https://openarchives.org/OAI/openarchivesprotocol.html">Open Archives Initiative Protocol for Metadata
+    Harvesting 2.0 (OAI-PMH2)</a>.</p>
+
+    <p>The OAI-PMH2 Data Provider serves records in multiple XML formats from any SQL database. It supports persistent
+    deletion policies by transparently keeping track of deleted records, can manage hierarchical sets with descriptions
+    and uses resumption tokens for flow control.</p>
+
+    <p>This application follows the highest coding standards of <a href="https://psalm.dev/">Psalm</a>,
+    <a href="https://phpstan.org/">PHPStan</a>, <a href="https://phpmd.org/">PHP Mess Detector</a>,
+    <a href="https://github.com/PHPCSStandards/PHP_CodeSniffer/">PHP_CodeSniffer</a>, and complies to
+    <a href="https://www.php-fig.org/psr/psr-12/">PSR-12</a> code style guidelines to make sure it is reliable,
+    maintainable and easily reusable.</p>
+
+    <h3 id="toc">Table of Contents</h3>
+
+    {% include('components/toc.html.twig') %}
+</section>
+{% endblock %}
