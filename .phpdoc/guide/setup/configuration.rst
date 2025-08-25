@@ -73,9 +73,9 @@ documentation <https://www.doctrine-project.org/projects/doctrine-dbal/en/4.3/re
 Metadata Formats
 ================
 
-The default format is `oai_dc` which is also required by the OAI-PMH specification, but technically you can provide any
-XML based data formats you want. Just add another entry with the metadata prefix as key and namespace/schema URIs as
-array values or replace the default entry (although not recommended).
+The default format is `oai_dc` which is also required by the `OAI-PMH specification <https://www.openarchives.org/pmh/>`_,
+but technically you can provide any XML based data formats you want. Just add another entry with the metadata prefix as
+key and namespace/schema URIs as array values or replace the default entry (although not recommended).
 
 You do not have to provide every record in each metadata format, but if you have the same record in multiple formats it
 is highly recommended to use the same identifier for all versions of the record.

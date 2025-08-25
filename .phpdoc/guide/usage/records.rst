@@ -29,7 +29,7 @@ all formats.
 `<format>` - The metadata format in which the record is provided. This has to be a valid *metadata prefix* from your
 :doc:`configuration <../setup/configuration>`.
 
-`<file>` - The absolute or relativ path to an XML file containing the record.
+`<file>` - The absolute or relative path to an XML file containing the record.
 
 .. caution::
 
@@ -65,7 +65,7 @@ record, empty lines are ignored.
 `<format>` - The metadata format in which the records are provided. This has to be a valid *metadata prefix* from your
 :doc:`configuration <../setup/configuration>`.
 
-`<file>` - The absolute or relativ path to the CSV file containing the records.
+`<file>` - The absolute or relative path to the CSV file containing the records.
 
 **Important options are:**
 

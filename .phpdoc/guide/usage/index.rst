@@ -13,7 +13,7 @@ all available commands and `./bin/cli <command> --help` for more information on 
 
   `--verbose` - Sets the verbosity level (e. g. `1`, `2` and `3`, or you can use shortcuts `-v`, `-vv` and `-vvv`).
 
-  `--quiet|-q` - Disables output and interaction (assuming "yes").
+  `--quiet|-q` - Disables output and interaction (assuming "yes"), except for errors.
 
   `--no-interaction|-n` - Disables interaction (assuming "yes"), but still produces output.
 
