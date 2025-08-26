@@ -10,7 +10,7 @@
         "oai-pmh2",
         "code4lib"
     ],
-    "homepage": "https://opencultureconsulting.github.io/oai-pmh2/",
+    "homepage": "https://code.opencultureconsulting.com/oai-pmh2/",
     "readme": "README.md",
     "license": "GPL-3.0-or-later",
     "authors": [
@@ -30,7 +30,7 @@
     "support": {
         "issues": "https://github.com/opencultureconsulting/oai-pmh2/issues",
         "source": "https://github.com/opencultureconsulting/oai-pmh2",
-        "docs": "https://opencultureconsulting.github.io/oai-pmh2/"
+        "docs": "https://code.opencultureconsulting.com/oai-pmh2/"
     },
     "require": {
         "php": "^8.1",

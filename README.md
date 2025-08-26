@@ -18,7 +18,7 @@ All available versions as well as further information about requirements and dep
 
 ## Full Documentation
 
-The full documentation is available on [GitHub Pages](https://opencultureconsulting.github.io/oai-pmh2/) or alternatively in [doc/](doc/).
+The full documentation is available on [GitHub Pages](https://code.opencultureconsulting.com/oai-pmh2/) or alternatively in [doc/](doc/).
 
 ## Quality Gates
 
