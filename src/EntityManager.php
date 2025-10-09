@@ -169,7 +169,7 @@ final class EntityManager extends EntityManagerDecorator
     {
         return $this->getRepository(Record::class)->findOneBy([
             'identifier' => $identifier,
-            'format' => $this->getMetadataFormat($format)
+            'metadataPrefix' => $this->getMetadataFormat($format)
         ]);
     }
 
@@ -199,7 +199,7 @@ final class EntityManager extends EntityManagerDecorator
         $dql = $this->createQueryBuilder();
         $dql->select('records')
             ->from(Record::class, 'records', 'records.identifier')
-            ->where($dql->expr()->eq('records.format', ':metadataPrefix'))
+            ->where($dql->expr()->eq('records.metadataPrefix', ':metadataPrefix'))
             ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix))
             ->setFirstResult($cursor)
             ->setMaxResults($maxRecords);
@@ -403,7 +403,7 @@ final class EntityManager extends EntityManagerDecorator
                 ->setParameter('null', null, ParameterType::NULL)
                 ->setParameter('now', new DateTime(), 'datetime');
         }
-        $dql->where($dql->expr()->eq('records.format', ':metadataPrefix'))
+        $dql->where($dql->expr()->eq('records.metadataPrefix', ':metadataPrefix'))
             ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix));
         /** @var non-negative-int */
         return $dql->getQuery()->execute();
