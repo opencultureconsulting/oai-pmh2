@@ -68,45 +68,35 @@ final class UpgradeDatabaseCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        if ($input->isInteractive()) {
-            $this->io->writeln([
-                '<comment>You are about to perform an automated database migration which can lead to data loss.</comment>',
-                '<comment>Always keep a BACKUP!</comment>'
+        $dependencyFactory = $this->getDependencyFactory();
+        /** @var Application */
+        $app = $this->getApplication();
+        $app->addCommands([
+            new DiffCommand($dependencyFactory, 'orm:schema:diff'),
+            new MigrateCommand($dependencyFactory, 'orm:schema:migrate'),
+        ]);
+        $arrayInput = new ArrayInput([
+            'command' => 'orm:schema:diff',
+            '--allow-empty-diff' => true,
+            '--quiet' => true
+        ]);
+        $arrayInput->setInteractive(false);
+        $errorCode = $app->doRun($arrayInput, new NullOutput());
+        if ($errorCode === 0) {
+            $arrayInput = new ArrayInput([
+                'command' => 'orm:schema:migrate',
+                '--allow-no-migration' => true,
+                '--no-interaction' => !$input->isInteractive()
             ]);
+            $arrayInput->setInteractive($input->isInteractive());
+            $errorCode = $app->doRun($arrayInput, $this->io);
         }
-        if ($this->io->confirm('Continue?', true)) {
-            $dependencyFactory = $this->getDependencyFactory();
-            /** @var Application */
-            $app = $this->getApplication();
-            $app->addCommands([
-                new DiffCommand($dependencyFactory, 'orm:schema:diff'),
-                new MigrateCommand($dependencyFactory, 'orm:schema:migrate'),
-            ]);
-            $output = new NullOutput();
-            $input = new ArrayInput([
-                'command' => 'orm:schema:diff',
-                '--allow-empty-diff' => true
-            ]);
-            $errorCode = $app->doRun($input, $output);
-            if ($errorCode === 0) {
-                $input = new ArrayInput([
-                    'command' => 'orm:schema:migrate',
-                    '--allow-no-migration' => true,
-                    '--no-interaction' => true
-                ]);
-                $input->setInteractive(false);
-                $errorCode = $app->doRun($input, $output);
-            }
-            if ($errorCode === 0) {
-                $this->io->success('Database successfully upgraded!');
-            } else {
-                $this->io->getErrorStyle()->error('Failed to upgrade database.');
-            }
-            return $errorCode;
+        if ($errorCode === 0) {
+            $this->io->success('Database successfully upgraded!');
         } else {
-            $this->io->getErrorStyle()->error('Aborted.');
-            return Command::FAILURE;
+            $this->io->getErrorStyle()->error('Failed to upgrade database.');
         }
+        return $errorCode;
     }
 
     /**
