@@ -38,10 +38,10 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  */
 #[ORM\Entity(repositoryClass: RecordRepository::class)]
 #[ORM\Table(name: 'records')]
-#[ORM\Index(name: 'identifier_idx', columns: ['identifier'])]
-#[ORM\Index(name: 'format_idx', columns: ['metadata_prefix'])]
-#[ORM\Index(name: 'lastChanged_idx', columns: ['last_changed'])]
-#[ORM\Index(name: 'formatLastChanged_idx', columns: ['metadata_prefix', 'last_changed'])]
+#[ORM\Index(columns: ['identifier'])]
+#[ORM\Index(columns: ['metadataPrefix'])]
+#[ORM\Index(columns: ['lastChanged'])]
+#[ORM\Index(columns: ['metadataPrefix', 'lastChanged'])]
 class Record extends Entity
 {
     /**
@@ -61,7 +61,6 @@ class Record extends Entity
         inversedBy: 'records'
     )]
     #[ORM\JoinColumn(
-        name: 'metadata_prefix',
         referencedColumnName: 'prefix',
         onDelete: 'CASCADE'
     )]
@@ -70,7 +69,7 @@ class Record extends Entity
     /**
      * The date and time of last change.
      */
-    #[ORM\Column(name: 'last_changed', type: 'datetime')]
+    #[ORM\Column(type: 'datetime')]
     private DateTime $lastChanged;
 
     /**
@@ -93,7 +92,7 @@ class Record extends Entity
     )]
     #[ORM\JoinTable(name: 'records_sets')]
     #[ORM\JoinColumn(name: 'record_identifier', referencedColumnName: 'identifier')]
-    #[ORM\JoinColumn(name: 'record_prefix', referencedColumnName: 'metadata_prefix')]
+    #[ORM\JoinColumn(name: 'record_prefix', referencedColumnName: 'metadataPrefix')]
     #[ORM\InverseJoinColumn(name: 'set_spec', referencedColumnName: 'spec')]
     private Collection $sets;
 
