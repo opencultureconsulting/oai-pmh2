@@ -61,6 +61,7 @@ class Record extends Entity
         inversedBy: 'records'
     )]
     #[ORM\JoinColumn(
+        name: 'metadataPrefix',
         referencedColumnName: 'prefix',
         onDelete: 'CASCADE'
     )]
@@ -91,9 +92,9 @@ class Record extends Entity
         indexBy: 'spec'
     )]
     #[ORM\JoinTable(name: 'records_sets')]
-    #[ORM\JoinColumn(name: 'record_identifier', referencedColumnName: 'identifier')]
-    #[ORM\JoinColumn(name: 'record_prefix', referencedColumnName: 'metadataPrefix')]
-    #[ORM\InverseJoinColumn(name: 'set_spec', referencedColumnName: 'spec')]
+    #[ORM\JoinColumn(referencedColumnName: 'identifier')]
+    #[ORM\JoinColumn(referencedColumnName: 'metadataPrefix')]
+    #[ORM\InverseJoinColumn(referencedColumnName: 'spec')]
     private Collection $sets;
 
     /**
