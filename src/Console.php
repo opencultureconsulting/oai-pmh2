@@ -138,7 +138,32 @@ abstract class Console extends Command
     }
 
     /**
-     * Clears the result cache.
+     * Clears all Doctrine caches.
+     *
+     * @return void
+     */
+    protected function clearAllCaches(): void
+    {
+        /** @var Application */
+        $app = $this->getApplication();
+        $app->doRun(
+            new ArrayInput([
+                'command' => 'orm:clear-cache:metadata',
+                '--flush' => true
+            ]),
+            new NullOutput()
+        );
+        $app->doRun(
+            new ArrayInput([
+                'command' => 'orm:clear-cache:query'
+            ]),
+            new NullOutput()
+        );
+        $this->clearResultCache();
+    }
+
+    /**
+     * Clears the Doctrine result cache.
      *
      * @return void
      */

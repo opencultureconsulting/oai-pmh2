@@ -68,35 +68,32 @@ final class UpgradeDatabaseCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $dependencyFactory = $this->getDependencyFactory();
-        /** @var Application */
-        $app = $this->getApplication();
-        $app->addCommands([
-            new DiffCommand($dependencyFactory, 'orm:schema:diff'),
-            new MigrateCommand($dependencyFactory, 'orm:schema:migrate'),
-        ]);
-        $arrayInput = new ArrayInput([
-            'command' => 'orm:schema:diff',
-            '--allow-empty-diff' => true,
-            '--quiet' => true
-        ]);
-        $arrayInput->setInteractive(false);
-        $errorCode = $app->doRun($arrayInput, new NullOutput());
-        if ($errorCode === 0) {
-            $arrayInput = new ArrayInput([
-                'command' => 'orm:schema:migrate',
-                '--allow-no-migration' => true,
-                '--no-interaction' => !$input->isInteractive()
-            ]);
-            $arrayInput->setInteractive($input->isInteractive());
-            $errorCode = $app->doRun($arrayInput, $this->io);
-        }
+        $this->clearAllCaches();
+        $this->generateProxies();
+        $errorCode = $this->migrateDatabase($input);
         if ($errorCode === 0) {
             $this->io->success('Database successfully upgraded!');
         } else {
             $this->io->getErrorStyle()->error('Failed to upgrade database.');
         }
         return $errorCode;
+    }
+
+    /**
+     * Generates the proxy classes of the Doctrine entities.
+     *
+     * @return void
+     */
+    protected function generateProxies(): void
+    {
+        /** @var Application */
+        $app = $this->getApplication();
+        $app->doRun(
+            new ArrayInput([
+                'command' => 'orm:generate-proxies'
+            ]),
+            new NullOutput()
+        );
     }
 
     /**
@@ -122,5 +119,40 @@ final class UpgradeDatabaseCommand extends Console
             new ExistingConfiguration($configuration),
             new ExistingEntityManager($this->em)
         );
+    }
+
+    /**
+     * Generates and runs the database migrations.
+     *
+     * @param InputInterface $input The input
+     *
+     * @return int 0 if everything went fine, or an error code
+     */
+    protected function migrateDatabase(InputInterface $input): int
+    {
+        $dependencyFactory = $this->getDependencyFactory();
+        /** @var Application */
+        $app = $this->getApplication();
+        $app->addCommands([
+            new DiffCommand($dependencyFactory, 'orm:schema:diff'),
+            new MigrateCommand($dependencyFactory, 'orm:schema:migrate'),
+        ]);
+        $arrayInput = new ArrayInput([
+            'command' => 'orm:schema:diff',
+            '--allow-empty-diff' => true
+        ]);
+        $arrayInput->setInteractive(false);
+        $errorCode = $app->doRun($arrayInput, new NullOutput());
+        if ($errorCode === 0) {
+            $arrayInput = new ArrayInput([
+                'command' => 'orm:schema:migrate',
+                '--allow-no-migration' => true,
+                '--no-interaction' => !$input->isInteractive(),
+                '--quiet' => true
+            ]);
+            $arrayInput->setInteractive($input->isInteractive());
+            $errorCode = $app->doRun($arrayInput, $this->io);
+        }
+        return $errorCode;
     }
 }
