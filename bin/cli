@@ -52,8 +52,7 @@ final class Cli extends Application
             // Doctrine ORM commands
             (new DoctrineORMCommand\ClearCache\MetadataCommand($entityManagerProvider))->setHidden(),
             (new DoctrineORMCommand\ClearCache\QueryCommand($entityManagerProvider))->setHidden(),
-            (new DoctrineORMCommand\ClearCache\ResultCommand($entityManagerProvider))->setHidden(),
-            (new DoctrineORMCommand\GenerateProxiesCommand($entityManagerProvider))->setHidden()
+            (new DoctrineORMCommand\ClearCache\ResultCommand($entityManagerProvider))->setHidden()
         ]);
     }
 

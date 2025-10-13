@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
+use Doctrine\ORM\Tools\Console\Command\GenerateProxiesCommand;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Doctrine\ORM\Tools\SchemaTool;
 use OCC\OaiPmh2\Console;
 use Symfony\Component\Console\Application;
@@ -93,6 +95,7 @@ final class UpgradeDatabaseCommand extends Console
     {
         /** @var Application */
         $app = $this->getApplication();
+        $app->add(new GenerateProxiesCommand(new SingleManagerProvider($this->em)));
         $app->doRun(
             new ArrayInput([
                 'command' => 'orm:generate-proxies'
