@@ -64,7 +64,6 @@ final class EntityManager extends EntityManagerDecorator
      */
     private const TABLES = [
         'formats',
-        'migrations',
         'records',
         'records_sets',
         'sets',
@@ -169,7 +168,7 @@ final class EntityManager extends EntityManagerDecorator
     {
         return $this->getRepository(Record::class)->findOneBy([
             'identifier' => $identifier,
-            'format' => $this->getMetadataFormat($format)
+            'metadataPrefix' => $this->getMetadataFormat($format)
         ]);
     }
 
@@ -199,7 +198,7 @@ final class EntityManager extends EntityManagerDecorator
         $dql = $this->createQueryBuilder();
         $dql->select('records')
             ->from(Record::class, 'records', 'records.identifier')
-            ->where($dql->expr()->eq('records.format', ':metadataPrefix'))
+            ->where($dql->expr()->eq('records.metadataPrefix', ':metadataPrefix'))
             ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix))
             ->setFirstResult($cursor)
             ->setMaxResults($maxRecords);
@@ -403,7 +402,7 @@ final class EntityManager extends EntityManagerDecorator
                 ->setParameter('null', null, ParameterType::NULL)
                 ->setParameter('now', new DateTime(), 'datetime');
         }
-        $dql->where($dql->expr()->eq('records.format', ':metadataPrefix'))
+        $dql->where($dql->expr()->eq('records.metadataPrefix', ':metadataPrefix'))
             ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix));
         /** @var non-negative-int */
         return $dql->getQuery()->execute();
@@ -415,12 +414,16 @@ final class EntityManager extends EntityManagerDecorator
     private function __construct()
     {
         $config = new DoctrineConfiguration();
-        $config->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_NEVER);
+        if (PHP_VERSION_ID < 80400) {
+            $config->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_NEVER);
+            $config->setProxyDir(__DIR__ . '/../var/generated');
+            $config->setProxyNamespace('OCC\OaiPmh2\Entity\Proxy');
+        } else {
+            $config->enableNativeLazyObjects(true);
+        }
         $config->setMetadataCache(new PhpFilesAdapter('Metadata', 0, __DIR__ . '/../var/cache'));
         $config->setMetadataDriverImpl(new AttributeDriver([__DIR__ . '/Entity']));
         $config->setMiddlewares([new DriverMiddleware()]);
-        $config->setProxyDir(__DIR__ . '/../var/generated');
-        $config->setProxyNamespace('OCC\OaiPmh2\Entity\Proxy');
         $config->setQueryCache(new PhpFilesAdapter('Query', 0, __DIR__ . '/../var/cache'));
         $config->setResultCache(new PhpFilesAdapter('Result', 0, __DIR__ . '/../var/cache'));
         $config->setSchemaAssetsFilter(

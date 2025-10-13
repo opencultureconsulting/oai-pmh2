@@ -22,13 +22,9 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
-use Doctrine\Migrations\Configuration\Configuration;
-use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
-use Doctrine\Migrations\Configuration\Migration\ExistingConfiguration;
-use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration;
-use Doctrine\Migrations\Tools\Console\Command\DiffCommand;
-use Doctrine\Migrations\Tools\Console\Command\MigrateCommand;
+use Doctrine\ORM\Tools\Console\Command\GenerateProxiesCommand;
+use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
+use Doctrine\ORM\Tools\SchemaTool;
 use OCC\OaiPmh2\Console;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -75,34 +71,13 @@ final class UpgradeDatabaseCommand extends Console
             ]);
         }
         if ($this->io->confirm('Continue?', true)) {
-            $dependencyFactory = $this->getDependencyFactory();
-            /** @var Application */
-            $app = $this->getApplication();
-            $app->addCommands([
-                new DiffCommand($dependencyFactory, 'orm:schema:diff'),
-                new MigrateCommand($dependencyFactory, 'orm:schema:migrate'),
-            ]);
-            $output = new NullOutput();
-            $input = new ArrayInput([
-                'command' => 'orm:schema:diff',
-                '--allow-empty-diff' => true
-            ]);
-            $errorCode = $app->doRun($input, $output);
-            if ($errorCode === 0) {
-                $input = new ArrayInput([
-                    'command' => 'orm:schema:migrate',
-                    '--allow-no-migration' => true,
-                    '--no-interaction' => true
-                ]);
-                $input->setInteractive(false);
-                $errorCode = $app->doRun($input, $output);
+            $this->clearAllCaches();
+            if (PHP_VERSION_ID < 80400) {
+                $this->generateProxies();
             }
-            if ($errorCode === 0) {
-                $this->io->success('Database successfully upgraded!');
-            } else {
-                $this->io->getErrorStyle()->error('Failed to upgrade database.');
-            }
-            return $errorCode;
+            $this->updateSchema();
+            $this->io->success('Database successfully upgraded!');
+            return Command::SUCCESS;
         } else {
             $this->io->getErrorStyle()->error('Aborted.');
             return Command::FAILURE;
@@ -110,27 +85,39 @@ final class UpgradeDatabaseCommand extends Console
     }
 
     /**
-     * Gets the dependency factory for migration commands.
+     * Generates the proxy classes of the Doctrine entities.
      *
-     * @return DependencyFactory The dependency factory
+     * @return void
+     *
+     * @deprecated Only necessary if using PHP < 8.4 and Doctrine ORM < 4.0
      */
-    protected function getDependencyFactory(): DependencyFactory
+    protected function generateProxies(): void
     {
-        $storage = new TableMetadataStorageConfiguration();
-        $storage->setTableName('migrations');
-        $configuration = new Configuration();
-        $configuration->addMigrationsDirectory(
-            'OCC\\OaiPmh2\\Migration',
-            __DIR__ . '/../../data/migrations'
+        /** @var Application */
+        $app = $this->getApplication();
+        $app->add(new GenerateProxiesCommand(new SingleManagerProvider($this->em)));
+        $app->doRun(
+            new ArrayInput([
+                'command' => 'orm:generate-proxies'
+            ]),
+            new NullOutput()
         );
-        $configuration->setCheckDatabasePlatform(true);
-        $configuration->setCustomTemplate(__DIR__ . '/../Migration.template');
-        $configuration->setMetadataStorageConfiguration($storage);
-        $configuration->setMigrationOrganization(Configuration::VERSIONS_ORGANIZATION_NONE);
-        $configuration->setTransactional(true);
-        return DependencyFactory::fromEntityManager(
-            new ExistingConfiguration($configuration),
-            new ExistingEntityManager($this->em)
+    }
+
+    /**
+     * Updates the database schema.
+     *
+     * @return void
+     */
+    protected function updateSchema(): void
+    {
+        $tool = new SchemaTool($this->em);
+        $classes = array(
+            $this->em->getClassMetadata('OCC\OaiPmh2\Entity\Format'),
+            $this->em->getClassMetadata('OCC\OaiPmh2\Entity\Record'),
+            $this->em->getClassMetadata('OCC\OaiPmh2\Entity\Set'),
+            $this->em->getClassMetadata('OCC\OaiPmh2\Entity\Token')
         );
+        $tool->updateSchema($classes);
     }
 }

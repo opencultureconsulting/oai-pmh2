@@ -50,7 +50,7 @@ class Format extends Entity
      * The format's namespace URI.
      */
     #[ORM\Column(type: 'string', length: 255)]
-    private string $namespace;
+    private string $namespaceUri;
 
     /**
      * The format's schema URL.
@@ -65,7 +65,7 @@ class Format extends Entity
      */
     #[ORM\OneToMany(
         targetEntity: Record::class,
-        mappedBy: 'format',
+        mappedBy: 'metadataPrefix',
         fetch: 'EXTRA_LAZY',
         orphanRemoval: true,
         indexBy: 'identifier'
@@ -79,7 +79,7 @@ class Format extends Entity
      */
     public function getNamespace(): string
     {
-        return $this->namespace;
+        return $this->namespaceUri;
     }
 
     /**
@@ -124,7 +124,7 @@ class Format extends Entity
     public function setNamespace(string $namespace): void
     {
         try {
-            $this->namespace = $this->validateUrl($namespace);
+            $this->namespaceUri = $this->validateUrl($namespace);
         } catch (ValidationFailedException $exception) {
             throw $exception;
         }

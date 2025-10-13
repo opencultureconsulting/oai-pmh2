@@ -26,11 +26,8 @@ use DateTime;
 use OCC\OaiPmh2\Console\CsvImportCommand;
 use OCC\OaiPmh2\Entity\Record;
 use OCC\OaiPmh2\Entity\Set;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -138,21 +135,25 @@ abstract class Console extends Command
     }
 
     /**
-     * Clears the result cache.
+     * Clears all Doctrine caches.
+     *
+     * @return void
+     */
+    protected function clearAllCaches(): void
+    {
+        $this->em->getConfiguration()->getMetadataCache()?->clear();
+        $this->em->getConfiguration()->getQueryCache()?->clear();
+        $this->clearResultCache();
+    }
+
+    /**
+     * Clears the Doctrine result cache.
      *
      * @return void
      */
     protected function clearResultCache(): void
     {
-        /** @var Application */
-        $app = $this->getApplication();
-        $app->doRun(
-            new ArrayInput([
-                'command' => 'orm:clear-cache:result',
-                '--flush' => true
-            ]),
-            new NullOutput()
-        );
+        $this->em->getConfiguration()->getResultCache()?->clear();
     }
 
     /**

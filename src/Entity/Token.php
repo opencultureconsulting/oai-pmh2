@@ -47,7 +47,7 @@ use OCC\OaiPmh2\Repository\TokenRepository;
  */
 #[ORM\Entity(repositoryClass: TokenRepository::class)]
 #[ORM\Table(name: 'tokens')]
-#[ORM\Index(name: 'valid_until_idx', columns: ['valid_until'])]
+#[ORM\Index(columns: ['validUntil'])]
 class Token extends Entity
 {
     /**
@@ -74,7 +74,7 @@ class Token extends Entity
     /**
      * The date and time of validity.
      */
-    #[ORM\Column(name: 'valid_until', type: 'datetime')]
+    #[ORM\Column(type: 'datetime')]
     private DateTime $validUntil;
 
     /**

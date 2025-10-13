@@ -51,7 +51,7 @@ final class RecordRepository extends EntityRepository
         $entityManager = $this->getEntityManager();
         $oldRecord = $this->find([
             'identifier' => $entity->getIdentifier(),
-            'format' => $entity->getFormat()
+            'metadataPrefix' => $entity->getFormat()
         ]);
         if (isset($oldRecord)) {
             if ($entity->hasContent() || Configuration::getInstance()->deletedRecords !== 'no') {

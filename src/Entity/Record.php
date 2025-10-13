@@ -38,10 +38,10 @@ use Symfony\Component\Validator\Exception\ValidationFailedException;
  */
 #[ORM\Entity(repositoryClass: RecordRepository::class)]
 #[ORM\Table(name: 'records')]
-#[ORM\Index(name: 'identifier_idx', columns: ['identifier'])]
-#[ORM\Index(name: 'format_idx', columns: ['format'])]
-#[ORM\Index(name: 'last_changed_idx', columns: ['last_changed'])]
-#[ORM\Index(name: 'format_last_changed_idx', columns: ['format', 'last_changed'])]
+#[ORM\Index(columns: ['identifier'])]
+#[ORM\Index(columns: ['metadataPrefix'])]
+#[ORM\Index(columns: ['lastChanged'])]
+#[ORM\Index(columns: ['metadataPrefix', 'lastChanged'])]
 class Record extends Entity
 {
     /**
@@ -61,16 +61,16 @@ class Record extends Entity
         inversedBy: 'records'
     )]
     #[ORM\JoinColumn(
-        name: 'format',
+        name: 'metadataPrefix',
         referencedColumnName: 'prefix',
         onDelete: 'CASCADE'
     )]
-    private Format $format;
+    private Format $metadataPrefix;
 
     /**
      * The date and time of last change.
      */
-    #[ORM\Column(name: 'last_changed', type: 'datetime')]
+    #[ORM\Column(type: 'datetime')]
     private DateTime $lastChanged;
 
     /**
@@ -92,9 +92,9 @@ class Record extends Entity
         indexBy: 'spec'
     )]
     #[ORM\JoinTable(name: 'records_sets')]
-    #[ORM\JoinColumn(name: 'record_identifier', referencedColumnName: 'identifier')]
-    #[ORM\JoinColumn(name: 'record_format', referencedColumnName: 'format')]
-    #[ORM\InverseJoinColumn(name: 'set_spec', referencedColumnName: 'spec')]
+    #[ORM\JoinColumn(referencedColumnName: 'identifier')]
+    #[ORM\JoinColumn(referencedColumnName: 'metadataPrefix')]
+    #[ORM\InverseJoinColumn(referencedColumnName: 'spec')]
     private Collection $sets;
 
     /**
@@ -129,7 +129,7 @@ class Record extends Entity
      */
     public function getFormat(): Format
     {
-        return $this->format;
+        return $this->metadataPrefix;
     }
 
     /**
@@ -235,7 +235,7 @@ class Record extends Entity
      */
     protected function setFormat(Format $format): void
     {
-        $this->format = $format;
+        $this->metadataPrefix = $format;
     }
 
     /**
