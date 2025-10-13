@@ -69,7 +69,9 @@ final class UpgradeDatabaseCommand extends Console
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->clearAllCaches();
-        $this->generateProxies();
+        if (PHP_VERSION_ID < 80400) {
+            $this->generateProxies();
+        }
         $errorCode = $this->migrateDatabase($input);
         if ($errorCode === 0) {
             $this->io->success('Database successfully upgraded!');
@@ -83,6 +85,8 @@ final class UpgradeDatabaseCommand extends Console
      * Generates the proxy classes of the Doctrine entities.
      *
      * @return void
+     *
+     * @deprecated Only necessary if using PHP < 8.4 and Doctrine ORM < 4.0
      */
     protected function generateProxies(): void
     {
@@ -133,10 +137,7 @@ final class UpgradeDatabaseCommand extends Console
         $dependencyFactory = $this->getDependencyFactory();
         /** @var Application */
         $app = $this->getApplication();
-        $app->addCommands([
-            new DiffCommand($dependencyFactory, 'orm:schema:diff'),
-            new MigrateCommand($dependencyFactory, 'orm:schema:migrate'),
-        ]);
+        $app->add(new DiffCommand($dependencyFactory, 'orm:schema:diff'));
         $arrayInput = new ArrayInput([
             'command' => 'orm:schema:diff',
             '--allow-empty-diff' => true
@@ -144,6 +145,7 @@ final class UpgradeDatabaseCommand extends Console
         $arrayInput->setInteractive(false);
         $errorCode = $app->doRun($arrayInput, new NullOutput());
         if ($errorCode === 0) {
+            $app->add(new MigrateCommand($dependencyFactory, 'orm:schema:migrate'));
             $arrayInput = new ArrayInput([
                 'command' => 'orm:schema:migrate',
                 '--allow-no-migration' => true,

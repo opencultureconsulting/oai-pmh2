@@ -415,12 +415,16 @@ final class EntityManager extends EntityManagerDecorator
     private function __construct()
     {
         $config = new DoctrineConfiguration();
-        $config->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_NEVER);
+        if (PHP_VERSION_ID < 80400) {
+            $config->setAutoGenerateProxyClasses(ProxyFactory::AUTOGENERATE_NEVER);
+            $config->setProxyDir(__DIR__ . '/../var/generated');
+            $config->setProxyNamespace('OCC\OaiPmh2\Entity\Proxy');
+        } else {
+            $config->enableNativeLazyObjects(true);
+        }
         $config->setMetadataCache(new PhpFilesAdapter('Metadata', 0, __DIR__ . '/../var/cache'));
         $config->setMetadataDriverImpl(new AttributeDriver([__DIR__ . '/Entity']));
         $config->setMiddlewares([new DriverMiddleware()]);
-        $config->setProxyDir(__DIR__ . '/../var/generated');
-        $config->setProxyNamespace('OCC\OaiPmh2\Entity\Proxy');
         $config->setQueryCache(new PhpFilesAdapter('Query', 0, __DIR__ . '/../var/cache'));
         $config->setResultCache(new PhpFilesAdapter('Result', 0, __DIR__ . '/../var/cache'));
         $config->setSchemaAssetsFilter(
