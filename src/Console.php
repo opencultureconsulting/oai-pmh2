@@ -26,11 +26,8 @@ use DateTime;
 use OCC\OaiPmh2\Console\CsvImportCommand;
 use OCC\OaiPmh2\Entity\Record;
 use OCC\OaiPmh2\Entity\Set;
-use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Output\NullOutput;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
@@ -144,21 +141,8 @@ abstract class Console extends Command
      */
     protected function clearAllCaches(): void
     {
-        /** @var Application */
-        $app = $this->getApplication();
-        $app->doRun(
-            new ArrayInput([
-                'command' => 'orm:clear-cache:metadata',
-                '--flush' => true
-            ]),
-            new NullOutput()
-        );
-        $app->doRun(
-            new ArrayInput([
-                'command' => 'orm:clear-cache:query'
-            ]),
-            new NullOutput()
-        );
+        $this->em->getConfiguration()->getMetadataCache()?->clear();
+        $this->em->getConfiguration()->getQueryCache()?->clear();
         $this->clearResultCache();
     }
 
@@ -169,15 +153,7 @@ abstract class Console extends Command
      */
     protected function clearResultCache(): void
     {
-        /** @var Application */
-        $app = $this->getApplication();
-        $app->doRun(
-            new ArrayInput([
-                'command' => 'orm:clear-cache:result',
-                '--flush' => true
-            ]),
-            new NullOutput()
-        );
+        $this->em->getConfiguration()->getResultCache()?->clear();
     }
 
     /**
