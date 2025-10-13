@@ -41,7 +41,6 @@
         "composer-runtime-api": "^2.1",
         "composer/composer": "^2.8",
         "doctrine/dbal": "^4.2",
-        "doctrine/migrations": "^3.9",
         "doctrine/orm": "^3.5",
         "opencultureconsulting/basics": "^2.1",
         "opencultureconsulting/psr15": "^1.3",
@@ -64,8 +63,7 @@
     },
     "autoload": {
         "psr-4": {
-            "OCC\\OaiPmh2\\": "src/",
-            "OCC\\OaiPmh2\\Migration\\": "data/migrations/"
+            "OCC\\OaiPmh2\\": "src/"
         }
     },
     "config": {
@@ -78,14 +76,12 @@
     "scripts": {
         "pre-install-cmd": [
             "@php -r \"if (!is_dir('./data')) { umask(0); mkdir('./data', 0775); }\"",
-            "@php -r \"if (!is_dir('./data/migrations')) { umask(0); mkdir('./data/migrations', 0775); }\"",
             "@php -r \"if (!file_exists('./config/config.yml')) { copy('./config/config.dist.yml', './config/config.yml'); }\""
         ],
         "post-install-cmd": [
-            "@php bin/cli orm:clear-cache:metadata --flush --quiet",
+            "@php bin/cli orm:clear-cache:metadata --quiet",
             "@php bin/cli orm:clear-cache:query --quiet",
-            "@php bin/cli orm:clear-cache:result --flush --quiet",
-            "@php bin/cli orm:generate-proxies --quiet"
+            "@php bin/cli orm:clear-cache:result --quiet"
         ],
         "post-create-project-cmd": [
             "@php bin/cli app:install:db --no-interaction --quiet",

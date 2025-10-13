@@ -64,7 +64,6 @@ final class EntityManager extends EntityManagerDecorator
      */
     private const TABLES = [
         'formats',
-        'migrations',
         'records',
         'records_sets',
         'sets',

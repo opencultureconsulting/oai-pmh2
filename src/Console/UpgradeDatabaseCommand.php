@@ -22,13 +22,7 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Console;
 
-use Doctrine\Migrations\Configuration\Configuration;
-use Doctrine\Migrations\Configuration\EntityManager\ExistingEntityManager;
-use Doctrine\Migrations\Configuration\Migration\ExistingConfiguration;
-use Doctrine\Migrations\DependencyFactory;
-use Doctrine\Migrations\Metadata\Storage\TableMetadataStorageConfiguration;
-use Doctrine\Migrations\Tools\Console\Command\DiffCommand;
-use Doctrine\Migrations\Tools\Console\Command\MigrateCommand;
+use Doctrine\ORM\Tools\SchemaTool;
 use OCC\OaiPmh2\Console;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -68,17 +62,24 @@ final class UpgradeDatabaseCommand extends Console
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $this->clearAllCaches();
-        if (PHP_VERSION_ID < 80400) {
-            $this->generateProxies();
+        if ($input->isInteractive()) {
+            $this->io->writeln([
+                '<comment>You are about to perform an automated database migration which can lead to data loss.</comment>',
+                '<comment>Always keep a BACKUP!</comment>'
+            ]);
         }
-        $errorCode = $this->migrateDatabase($input);
-        if ($errorCode === 0) {
+        if ($this->io->confirm('Continue?', true)) {
+            $this->clearAllCaches();
+            if (PHP_VERSION_ID < 80400) {
+                $this->generateProxies();
+            }
+            $this->updateSchema();
             $this->io->success('Database successfully upgraded!');
+            return Command::SUCCESS;
         } else {
-            $this->io->getErrorStyle()->error('Failed to upgrade database.');
+            $this->io->getErrorStyle()->error('Aborted.');
+            return Command::FAILURE;
         }
-        return $errorCode;
     }
 
     /**
@@ -101,60 +102,19 @@ final class UpgradeDatabaseCommand extends Console
     }
 
     /**
-     * Gets the dependency factory for migration commands.
+     * Updates the database schema.
      *
-     * @return DependencyFactory The dependency factory
+     * @return void
      */
-    protected function getDependencyFactory(): DependencyFactory
+    protected function updateSchema(): void
     {
-        $storage = new TableMetadataStorageConfiguration();
-        $storage->setTableName('migrations');
-        $configuration = new Configuration();
-        $configuration->addMigrationsDirectory(
-            'OCC\\OaiPmh2\\Migration',
-            __DIR__ . '/../../data/migrations'
+        $tool = new SchemaTool($this->em);
+        $classes = array(
+            $this->em->getClassMetadata('OCC\OaiPmh2\Entity\Format'),
+            $this->em->getClassMetadata('OCC\OaiPmh2\Entity\Record'),
+            $this->em->getClassMetadata('OCC\OaiPmh2\Entity\Set'),
+            $this->em->getClassMetadata('OCC\OaiPmh2\Entity\Token')
         );
-        $configuration->setCheckDatabasePlatform(true);
-        $configuration->setCustomTemplate(__DIR__ . '/../Migration.template');
-        $configuration->setMetadataStorageConfiguration($storage);
-        $configuration->setMigrationOrganization(Configuration::VERSIONS_ORGANIZATION_NONE);
-        $configuration->setTransactional(true);
-        return DependencyFactory::fromEntityManager(
-            new ExistingConfiguration($configuration),
-            new ExistingEntityManager($this->em)
-        );
-    }
-
-    /**
-     * Generates and runs the database migrations.
-     *
-     * @param InputInterface $input The input
-     *
-     * @return int 0 if everything went fine, or an error code
-     */
-    protected function migrateDatabase(InputInterface $input): int
-    {
-        $dependencyFactory = $this->getDependencyFactory();
-        /** @var Application */
-        $app = $this->getApplication();
-        $app->add(new DiffCommand($dependencyFactory, 'orm:schema:diff'));
-        $arrayInput = new ArrayInput([
-            'command' => 'orm:schema:diff',
-            '--allow-empty-diff' => true
-        ]);
-        $arrayInput->setInteractive(false);
-        $errorCode = $app->doRun($arrayInput, new NullOutput());
-        if ($errorCode === 0) {
-            $app->add(new MigrateCommand($dependencyFactory, 'orm:schema:migrate'));
-            $arrayInput = new ArrayInput([
-                'command' => 'orm:schema:migrate',
-                '--allow-no-migration' => true,
-                '--no-interaction' => !$input->isInteractive(),
-                '--quiet' => true
-            ]);
-            $arrayInput->setInteractive($input->isInteractive());
-            $errorCode = $app->doRun($arrayInput, $this->io);
-        }
-        return $errorCode;
+        $tool->updateSchema($classes);
     }
 }
