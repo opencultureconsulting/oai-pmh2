@@ -43,19 +43,19 @@ class Format extends Entity
      * The unique metadata prefix.
      */
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 16)]
+    #[ORM\Column(name: 'prefix', type: 'string', length: 16)]
     private string $prefix;
 
     /**
      * The format's namespace URI.
      */
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(name: 'namespaceUri', type: 'string', length: 255)]
     private string $namespaceUri;
 
     /**
      * The format's schema URL.
      */
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(name: 'xmlSchema', type: 'string', length: 255)]
     private string $xmlSchema;
 
     /**
