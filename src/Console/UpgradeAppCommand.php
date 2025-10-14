@@ -244,6 +244,7 @@ final class UpgradeAppCommand extends Console
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->appInfo = InstalledVersions::getRootPackage();
+        $this->fs = new Filesystem();
         $this->http = HttpClient::create();
         $this->io->writeln([
             '',
@@ -418,19 +419,19 @@ final class UpgradeAppCommand extends Console
         if ($this->arguments['dev']) {
             putenv('COMPOSER_ROOT_VERSION=' . $this->releaseInfo['version']);
         }
-        $input = new ArrayInput([
+        $input = [
             'command' => 'install',
             '--no-cache' => true,
             '--quiet' => true,
             '--working-dir' => Path::canonicalize($this->appInfo['install_path'] . DIRECTORY_SEPARATOR)
-        ]);
+        ];
         if (!$this->appInfo['dev']) {
-            $input->setOption('--no-dev', true);
+            $input['--no-dev'] = true;
         }
         $app = new ComposerApplication();
         $app->add(new InstallCommand());
         $errorCode = $app->doRun(
-            $input,
+            new ArrayInput($input),
             $this->io
         );
         if ($errorCode !== 0) {
