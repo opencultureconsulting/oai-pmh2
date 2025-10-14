@@ -105,14 +105,14 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function getEarliestDatestamp(): string
     {
-        $timestamp = '0000-01-01T00:00:00Z';
         $dql = $this->createQueryBuilder();
         $dql->select($dql->expr()->min('records.lastChanged'));
         $dql->from(Record::class, 'records');
         $query = $dql->getQuery()->enableResultCache();
-        /** @var ?DateTime */
+        /** @var ?non-empty-string */
         $result = $query->getOneOrNullResult(AbstractQuery::HYDRATE_SCALAR_COLUMN);
-        return $result?->format('Y-m-d\TH:i:s\Z') ?? $timestamp;
+        $datestamp = new DateTime($result ?? '0000-01-01T00:00:00Z');
+        return $datestamp->format('Y-m-d\TH:i:s\Z');
     }
 
     /**

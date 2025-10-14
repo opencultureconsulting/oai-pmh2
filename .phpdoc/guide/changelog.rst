@@ -10,6 +10,14 @@ All available versions as well as further information about :doc:`requirements a
 can be found in the `Packagist repository <https://packagist.org/packages/opencultureconsulting/oai-pmh2>`_ and on the
 `GitHub releases page <https://github.com/opencultureconsulting/oai-pmh2/releases>`_.
 
+v1.0.3
+======
+
+**Minor Changes:**
+
+* Fixed a bug in the *Identify* response when DQL returns a `string` instead of a `DateTime` object
+* Fixed a bug in the self-update command which failed to initialize the filesystem handler
+
 v1.0.2
 ======
 
