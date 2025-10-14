@@ -110,9 +110,9 @@ final class EntityManager extends EntityManagerDecorator
         $dql->select($dql->expr()->min('records.lastChanged'));
         $dql->from(Record::class, 'records');
         $query = $dql->getQuery()->enableResultCache();
-        /** @var ?non-empty-string */
+        /** @var ?DateTime */
         $result = $query->getOneOrNullResult(AbstractQuery::HYDRATE_SCALAR_COLUMN);
-        return $result ?? $timestamp;
+        return $result?->format('Y-m-d\TH:i:s\Z') ?? $timestamp;
     }
 
     /**
