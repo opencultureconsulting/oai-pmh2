@@ -48,7 +48,7 @@ class Record extends Entity
      * The record identifier.
      */
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 255)]
+    #[ORM\Column(name: 'identifier', type: 'string', length: 255)]
     private string $identifier;
 
     /**
@@ -70,13 +70,13 @@ class Record extends Entity
     /**
      * The date and time of last change.
      */
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(name: 'lastChanged', type: 'datetime')]
     private DateTime $lastChanged;
 
     /**
      * The record's content.
      */
-    #[ORM\Column(type: 'text', nullable: true)]
+    #[ORM\Column(name: 'content', type: 'text', nullable: true)]
     private ?string $content = null;
 
     /**

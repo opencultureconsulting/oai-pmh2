@@ -54,13 +54,13 @@ class Token extends Entity
      * The resumption token.
      */
     #[ORM\Id]
-    #[ORM\Column(type: 'string', length: 8)]
+    #[ORM\Column(name: 'token', type: 'string', length: 8)]
     private string $token;
 
     /**
      * The verb for which the token is issued.
      */
-    #[ORM\Column(type: 'string', length: 16)]
+    #[ORM\Column(name: 'verb', type: 'string', length: 16)]
     private string $verb;
 
     /**
@@ -68,13 +68,13 @@ class Token extends Entity
      *
      * @var TokenParameters
      */
-    #[ORM\Column(type: 'json')]
+    #[ORM\Column(name: 'parameters', type: 'json')]
     private array $parameters;
 
     /**
      * The date and time of validity.
      */
-    #[ORM\Column(type: 'datetime')]
+    #[ORM\Column(name: 'validUntil', type: 'datetime')]
     private DateTime $validUntil;
 
     /**
