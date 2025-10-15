@@ -178,6 +178,14 @@ abstract class Middleware extends AbstractMiddleware
      */
     protected function validateDateTime(): void
     {
+        if (
+            array_key_exists('from', $this->arguments)
+            and array_key_exists('until', $this->arguments)
+            and strlen($this->arguments['from']) !== strlen($this->arguments['until'])
+        ) {
+            $this->errorHandler->withError('badArgument');
+            return;
+        }
         $from = date_create($this->arguments['from'] ?? $this->em->getEarliestDatestamp());
         $until = date_create($this->arguments['until'] ?? 'NOW');
         if ($from === false || $until === false || $from > $until) {
