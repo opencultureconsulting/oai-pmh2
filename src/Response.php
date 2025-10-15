@@ -130,7 +130,7 @@ final class Response
         );
         $this->rootNode->setAttribute(
             'xsi:schemaLocation',
-            'http://www.openarchives.org/OAI/2.0/ https://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
+            'http://www.openarchives.org/OAI/2.0/ http://www.openarchives.org/OAI/2.0/OAI-PMH.xsd'
         );
         $this->dom->appendChild($this->rootNode);
     }
