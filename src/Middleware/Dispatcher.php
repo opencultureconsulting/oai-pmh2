@@ -139,12 +139,12 @@ final class Dispatcher extends AbstractMiddleware
     protected function validateArguments(array $arguments): bool
     {
         if (
-            count(array_diff(array_keys($arguments), self::OAI_PARAMS)) !== 0
-            or !isset($arguments['verb'])
+            !array_key_exists('verb', $arguments)
+            or !in_array($arguments['verb'], array_keys(self::OAI_VERBS), true)
         ) {
-            ErrorHandler::getInstance()->withError('badArgument');
-        } elseif (!in_array($arguments['verb'], array_keys(self::OAI_VERBS), true)) {
             ErrorHandler::getInstance()->withError('badVerb');
+        } elseif (count(array_diff(array_keys($arguments), self::OAI_PARAMS)) !== 0) {
+            ErrorHandler::getInstance()->withError('badArgument');
         }
         return !ErrorHandler::getInstance()->hasErrors();
     }
