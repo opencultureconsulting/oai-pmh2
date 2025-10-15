@@ -186,9 +186,12 @@ abstract class Middleware extends AbstractMiddleware
             $this->errorHandler->withError('badArgument');
             return;
         }
+        $earliest = date_create($this->em->getEarliestDatestamp());
         $from = date_create($this->arguments['from'] ?? $this->em->getEarliestDatestamp());
         $until = date_create($this->arguments['until'] ?? 'NOW');
-        if ($from === false || $until === false || $from > $until) {
+        if ($until !== false && $until < $earliest) {
+            $this->errorHandler->withError('noRecordsMatch');
+        } elseif ($from === false || $until === false || $from > $until) {
             $this->errorHandler->withError('badArgument');
         }
     }
