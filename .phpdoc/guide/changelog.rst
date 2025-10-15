@@ -10,6 +10,14 @@ All available versions as well as further information about :doc:`requirements a
 can be found in the `Packagist repository <https://packagist.org/packages/opencultureconsulting/oai-pmh2>`_ and on the
 `GitHub releases page <https://github.com/opencultureconsulting/oai-pmh2/releases>`_.
 
+v1.0.4
+======
+
+**Minor Changes:**
+
+* Fixed some edge cases returning the wrong error codes according to `Cornell University's OAI-PMH validation service
+  <https://www.openarchives.org/Register/ValidateSite>`_
+
 v1.0.3
 ======
 
