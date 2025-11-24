@@ -39,7 +39,7 @@
         "ext-sqlite3": "*",
         "ext-zip": "*",
         "composer-runtime-api": "^2.1",
-        "composer/composer": "^2.8",
+        "composer/composer": "^2.9",
         "doctrine/dbal": "^4.2",
         "doctrine/orm": "^3.5",
         "opencultureconsulting/basics": "^2.1",
@@ -52,12 +52,12 @@
         "symfony/yaml": "^6.4"
     },
     "require-dev": {
-        "phpdocumentor/shim": "^3.8",
+        "phpdocumentor/shim": "^3.9",
         "phpmd/phpmd": "^2.15",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-doctrine": "^2.0",
         "phpstan/phpstan-strict-rules": "^2.0",
-        "friendsofphp/php-cs-fixer": "^3.88",
+        "friendsofphp/php-cs-fixer": "^3.90",
         "squizlabs/php_codesniffer": "^3.13",
         "vimeo/psalm": "^6.13"
     },
