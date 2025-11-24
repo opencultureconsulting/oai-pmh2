@@ -270,6 +270,7 @@ final class CsvImportCommand extends Console
                 )
             );
             $this->em->purgeRecords($this->arguments['format']);
+            $this->flushAndClear();
             $this->clearResultCache();
         }
     }
