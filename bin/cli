@@ -69,6 +69,7 @@ final class Cli extends Application
             new Command\CsvImportCommand(),
             new Command\DeleteRecordCommand(),
             new Command\DeleteSetCommand(),
+            new Command\MaintenanceModeCommand(),
             new Command\PruneDeletedRecordsCommand(),
             new Command\PruneOrphanedSetsCommand(),
             new Command\PruneResumptionTokensCommand(),
