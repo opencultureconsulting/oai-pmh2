@@ -117,10 +117,11 @@ final class Configuration
      *
      * @param bool $enable Whether to enable or disable maintenance mode
      *
-     * @return void
+     * @return bool The previous maintenance mode status
      */
-    public function setMaintenanceMode(bool $enable): void
+    public function setMaintenanceMode(bool $enable): bool
     {
+        $previousMode = $this->settings['maintenanceMode'];
         $fs = new Filesystem();
         if ($enable && !$this->settings['maintenanceMode']) {
             $fs->dumpFile(self::MAINTENANCE_MODE_FILE, 'Maintenance mode enabled.');
@@ -129,6 +130,7 @@ final class Configuration
             $fs->remove(self::MAINTENANCE_MODE_FILE);
             $this->settings['maintenanceMode'] = false;
         }
+        return $previousMode;
     }
 
     /**

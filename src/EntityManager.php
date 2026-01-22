@@ -60,17 +60,6 @@ final class EntityManager extends EntityManagerDecorator
     use Singleton;
 
     /**
-     * The database tables this class is allowed to handle.
-     */
-    private const TABLES = [
-        'formats',
-        'records',
-        'records_sets',
-        'sets',
-        'tokens'
-    ];
-
-    /**
      * Add or update entity.
      *
      * @param Format|Record|Set|Token $entity The entity
@@ -426,14 +415,6 @@ final class EntityManager extends EntityManagerDecorator
         $config->setMiddlewares([new DriverMiddleware()]);
         $config->setQueryCache(new PhpFilesAdapter('Query', 0, __DIR__ . '/../var/cache'));
         $config->setResultCache(new PhpFilesAdapter('Result', 0, __DIR__ . '/../var/cache'));
-        $config->setSchemaAssetsFilter(
-            static function (string|AbstractAsset $assetName): bool {
-                if ($assetName instanceof AbstractAsset) {
-                    $assetName = $assetName->getName();
-                }
-                return in_array($assetName, self::TABLES, true);
-            }
-        );
 
         $dsn = str_replace(
             '%BASEDIR%',
