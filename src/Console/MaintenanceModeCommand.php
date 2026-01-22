@@ -41,7 +41,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * }>
  */
 #[AsCommand(
-    name: 'oai:maintenance:mode',
+    name: 'app:maintenance:mode',
     description: 'Show maintenance mode status and turn it on or off',
 )]
 final class MaintenanceModeCommand extends Console

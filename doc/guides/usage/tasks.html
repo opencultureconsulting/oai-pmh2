@@ -138,6 +138,12 @@
         <div class="contents">
         <ul class="phpdocumentor-list">
     <li class="toc-item">
+    <a href="guides/usage/tasks.html#maintenance-mode">Maintenance Mode</a>
+
+
+</li>
+
+    <li class="toc-item">
     <a href="guides/usage/tasks.html#pruning-expired-tokens">Pruning Expired Tokens</a>
 
 
@@ -158,6 +164,29 @@
             
     <p>Additional commands are provided for common maintenance tasks like upgrading the application, migrating the database
 and pruning expired resumption tokens.</p>
+
+            <section class="section " id="maintenance-mode">
+            <h2>Maintenance Mode</h2>
+
+            
+    <p>When performing maintenance tasks like upgrading the application or importing large sets of records it is advisable to
+put the application into maintenance mode to prevent users from receiving inconsistent data.</p>
+
+            <pre><code class="language-shell"># Show current maintenance mode status
+bin/cli app:maintenance:mode
+
+# Enable maintenance mode
+bin/cli app:maintenance:mode on
+
+# Disable maintenance mode
+bin/cli app:maintenance:mode off</code></pre>
+
+            
+    <p>While maintenance mode is enabled all requests to the OAI-PMH2 Data Provider will return HTTP status code 503 (Service
+Unavailable) along with a <code>Retry-After</code>
+ header indicating it will be available again after approximately 5 minutes.</p>
+
+    </section>
 
             <section class="section " id="pruning-expired-tokens">
             <h2>Pruning Expired Tokens</h2>
