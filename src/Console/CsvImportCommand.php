@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use DateTime;
+use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -157,59 +158,17 @@ final class CsvImportCommand extends Console
             return Command::INVALID;
         }
 
-        $file = fopen($this->arguments['file'], 'r');
-        if ($file === false) {
-            $this->io->getErrorStyle()->error(
-                sprintf('File "%s" not found or not readable.', $this->arguments['file'])
-            );
-            return Command::INVALID;
+        if ($this->arguments['purge']) {
+            $previousMode = Configuration::getInstance()->setMaintenanceMode(true);
         }
 
-        $columns = $this->getColumnMapping($file);
-        if (!isset($columns)) {
-            return Command::FAILURE;
+        $returnCode = $this->importCsv();
+
+        if ($this->arguments['purge']) {
+            Configuration::getInstance()->setMaintenanceMode($previousMode);
         }
 
-        $this->purgeRecords();
-
-        $count = 0;
-        $progressIndicator = new ProgressIndicator($this->io, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
-        $progressIndicator->start('Importing...');
-
-        while ($row = fgetcsv($file, null, ",", "\"", "\\")) {
-            if (!is_null($row[0])) {
-                $this->addOrUpdateRecord(
-                    /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
-                    $row[$columns['idColumn']],
-                    /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
-                    trim($row[$columns['contentColumn']]) ?: null,
-                    $columns['dateColumn'] >= 0 ? new DateTime($row[$columns['dateColumn']] ?? 'now') : null,
-                    /** @phpstan-ignore arrayFilter.strict */
-                    $columns['setColumn'] >= 0 ? array_filter(explode(',', $row[$columns['setColumn']] ?? '')) : []
-                );
-
-                ++$count;
-                $progressIndicator->advance();
-                $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed.');
-
-                $this->checkMemoryUsage($count);
-            }
-        }
-
-        $this->flushAndClear();
-        $progressIndicator->finish('All done! ' . (string) $count . ' records imported.');
-
-        fclose($file);
-        $this->clearResultCache();
-
-        $this->io->success(
-            sprintf(
-                '%d records with metadata prefix "%s" were imported successfully!',
-                $count,
-                $this->arguments['format']
-            )
-        );
-        return Command::SUCCESS;
+        return $returnCode;
     }
 
     /**
@@ -256,22 +215,85 @@ final class CsvImportCommand extends Console
     }
 
     /**
+     * Import the CSV file into the database.
+     *
+     * @return int 0 if everything went fine, or an error code
+     */
+    protected function importCsv(): int
+    {
+        $file = fopen($this->arguments['file'], 'r');
+        if ($file === false) {
+            $this->io->getErrorStyle()->error(
+                sprintf('File "%s" not found or not readable.', $this->arguments['file'])
+            );
+            return Command::INVALID;
+        }
+
+        $columns = $this->getColumnMapping($file);
+        if (!isset($columns)) {
+            return Command::FAILURE;
+        }
+
+        if ($this->arguments['purge']) {
+            $this->purgeRecords();
+        }
+
+        $count = 0;
+        $progressIndicator = new ProgressIndicator($this->io, null, 100, ['⠏', '⠛', '⠹', '⢸', '⣰', '⣤', '⣆', '⡇']);
+        $progressIndicator->start('Importing...');
+
+        while ($row = fgetcsv($file, null, ",", "\"", "\\")) {
+            if (!is_null($row[0])) {
+                $this->addOrUpdateRecord(
+                    /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
+                    $row[$columns['idColumn']],
+                    /** @phpstan-ignore-next-line - see https://github.com/phpstan/phpstan/issues/12195 */
+                    trim($row[$columns['contentColumn']]) ?: null,
+                    $columns['dateColumn'] >= 0 ? new DateTime($row[$columns['dateColumn']] ?? 'now') : null,
+                    /** @phpstan-ignore arrayFilter.strict */
+                    $columns['setColumn'] >= 0 ? array_filter(explode(',', $row[$columns['setColumn']] ?? '')) : []
+                );
+
+                ++$count;
+                $progressIndicator->advance();
+                $progressIndicator->setMessage('Importing... ' . (string) $count . ' records processed.');
+
+                $this->checkMemoryUsage($count);
+            }
+        }
+
+        $this->flushAndClear();
+        $progressIndicator->finish('All done! ' . (string) $count . ' records imported.');
+
+        fclose($file);
+        $this->clearResultCache();
+
+        $this->io->success(
+            sprintf(
+                '%d records with metadata prefix "%s" were imported successfully!',
+                $count,
+                $this->arguments['format']
+            )
+        );
+
+        return Command::SUCCESS;
+    }
+
+    /**
      * Purge existing records before importing new ones.
      *
      * @return void
      */
     protected function purgeRecords(): void
     {
-        if ($this->arguments['purge']) {
-            $this->io->writeln(
-                sprintf(
-                    'Purging existing records with metadata prefix "%s"...',
-                    $this->arguments['format']
-                )
-            );
-            $this->em->purgeRecords($this->arguments['format']);
-            $this->flushAndClear();
-            $this->clearResultCache();
-        }
+        $this->io->writeln(
+            sprintf(
+                'Purging existing records with metadata prefix "%s"...',
+                $this->arguments['format']
+            )
+        );
+        $this->em->purgeRecords($this->arguments['format']);
+        $this->flushAndClear();
+        $this->clearResultCache();
     }
 }

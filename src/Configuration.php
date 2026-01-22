@@ -25,6 +25,7 @@ namespace OCC\OaiPmh2;
 use OCC\Basics\Traits\Singleton;
 use OCC\OaiPmh2\Validator\ConfigurationValidator;
 use Symfony\Component\Filesystem\Exception\FileNotFoundException;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Filesystem\Path;
 use Symfony\Component\Yaml\Exception\ParseException;
 use Symfony\Component\Yaml\Yaml;
@@ -42,6 +43,7 @@ use Symfony\Component\Yaml\Yaml;
  * @property-read 'no'|'transient'|'persistent' $deletedRecords Repository's deleted records policy
  * @property-read int<1, 100> $maxRecords Maximum number of records served per request
  * @property-read int<300, 86400> $tokenValid Number of seconds resumption tokens are valid
+ * @property-read bool $maintenanceMode Whether the repository is in maintenance mode
  *
  * @phpstan-type ConfigArray = array{
  *     repositoryName: non-empty-string,
@@ -50,7 +52,8 @@ use Symfony\Component\Yaml\Yaml;
  *     metadataPrefix: array<non-empty-string, array{namespace: non-empty-string, schema: non-empty-string}>,
  *     deletedRecords: 'no'|'transient'|'persistent',
  *     maxRecords: int<1, 100>,
- *     tokenValid: int<300, 86400>
+ *     tokenValid: int<300, 86400>,
+ *     maintenanceMode: bool
  * }
  */
 final class Configuration
@@ -72,11 +75,18 @@ final class Configuration
     protected const DEFAULT_CONFIG_FILE = __DIR__ . '/../config/config.dist.yml';
 
     /**
+     * Fully qualified path to the temporary maintenance mode file.
+     *
+     * @var non-empty-string
+     */
+    protected const MAINTENANCE_MODE_FILE = __DIR__ . '/../data/MAINTENANCE_MODE';
+
+    /**
      * The configuration settings.
      *
      * @var ConfigArray
      */
-    protected readonly array $settings;
+    protected array $settings;
 
     /**
      * Get configuration from file.
@@ -103,13 +113,37 @@ final class Configuration
     }
 
     /**
+     * Enable or disable maintenance mode.
+     *
+     * @param bool $enable Whether to enable or disable maintenance mode
+     *
+     * @return bool The previous maintenance mode status
+     */
+    public function setMaintenanceMode(bool $enable): bool
+    {
+        $previousMode = $this->settings['maintenanceMode'];
+        $fs = new Filesystem();
+        if ($enable && !$this->settings['maintenanceMode']) {
+            $fs->dumpFile(self::MAINTENANCE_MODE_FILE, 'Maintenance mode enabled.');
+            $this->settings['maintenanceMode'] = true;
+        } elseif (!$enable && $this->settings['maintenanceMode']) {
+            $fs->remove(self::MAINTENANCE_MODE_FILE);
+            $this->settings['maintenanceMode'] = false;
+        }
+        return $previousMode;
+    }
+
+    /**
      * Load and validate configuration settings from YAML file.
      */
     private function __construct()
     {
         $config = array_merge(
             (array) $this->getConfiguration(self::DEFAULT_CONFIG_FILE),
-            (array) $this->getConfiguration(self::CONFIG_FILE)
+            (array) $this->getConfiguration(self::CONFIG_FILE),
+            [
+                'maintenanceMode' => file_exists(self::MAINTENANCE_MODE_FILE),
+            ]
         );
         /** @psalm-suppress TypeDoesNotContainType */
         ConfigurationValidator::validate($config);

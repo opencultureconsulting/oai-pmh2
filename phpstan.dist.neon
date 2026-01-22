@@ -9,7 +9,7 @@ includes:
 
 parameters:
     level: 10
-    phpVersion: 80100 # PHP 8.1
+    phpVersion: 80200 # PHP 8.2
     treatPhpDocTypesAsCertain: false
     ignoreErrors:
         - identifier: ternary.shortNotAllowed

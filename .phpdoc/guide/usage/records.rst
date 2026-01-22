@@ -99,6 +99,11 @@ comes with the caveat of potentially importing malformed XML which would break t
 `--purge` - Delete all existing records of the given `<format>` before importing the CSV file. This is an alternative
 to providing empty records for deletions. Of course the :doc:`deletion policy <../setup/configuration>` is respected.
 
+.. hint::
+
+  When using the `--purge` flag, :doc:`maintenance mode <tasks>` is automatically enabled during the import process to
+  avoid serving inconsistent data to clients.
+
 .. caution::
 
   When importing large amounts of records, PHP memory consumption becomes a concern. By default batches are dynamically

@@ -26,14 +26,14 @@ jobs:
         uses: php-actions/composer@v6
         with:
           command: install
-          php_version: "8.1"
+          php_version: "8.2"
           args: "--ignore-platform-req=ext-zip"
 
       - name: Run PHP Mess Detector
         uses: php-actions/phpmd@v2
         with:
           path: bin/,public/,src/
-          php_version: "8.1"
+          php_version: "8.2"
           ruleset: .phpmd.dist.xml
           output: sarif
           reportfile: phpmd-results.sarif

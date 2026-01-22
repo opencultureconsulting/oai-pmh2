@@ -53,10 +53,18 @@ final class App
      */
     public function run(): void
     {
-        $this->requestHandler->handle();
-        if ($this->requestHandler->response->hasHeader('Warning')) {
-            // An exception occured. Maybe we don't want to output the response, but log an error instead?
+        if (Configuration::getInstance()->maintenanceMode) {
+            http_response_code(503);
+            header('Expires: 0');
+            header('Refresh: 300');
+            header('Retry-After: 300');
+            echo Configuration::getInstance()->repositoryName . ' is currently down for maintenance. Please try again later.';
+        } else {
+            $this->requestHandler->handle();
+            if ($this->requestHandler->response->hasHeader('Warning')) {
+                // An exception occured. Maybe we don't want to output the response, but log an error instead?
+            }
+            $this->requestHandler->respond();
         }
-        $this->requestHandler->respond();
     }
 }

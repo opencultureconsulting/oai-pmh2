@@ -55,7 +55,8 @@ use Symfony\Component\Console\Style\SymfonyStyle;
  *     batchSize?: int<0, max>,
  *     createSets?: bool,
  *     noValidation?: bool,
- *     purge?: bool
+ *     purge?: bool,
+ *     switch?: 'on'|'off'|null
  * }
  */
 abstract class Console extends Command

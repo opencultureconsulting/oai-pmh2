@@ -10,6 +10,18 @@ All available versions as well as further information about :doc:`requirements a
 can be found in the `Packagist repository <https://packagist.org/packages/opencultureconsulting/oai-pmh2>`_ and on the
 `GitHub releases page <https://github.com/opencultureconsulting/oai-pmh2/releases>`_.
 
+v1.1.0
+======
+
+**New Features:**
+
+* Added a :doc:`maintenance mode <usage/tasks>` for CLI operations to prevent web requests during long-running tasks
+* Dropped support for PHP 8.1 since it is no longer maintained by the PHP development team
+
+**Maintenance:**
+
+* Updated dependencies
+
 v1.0.4
 ======
 

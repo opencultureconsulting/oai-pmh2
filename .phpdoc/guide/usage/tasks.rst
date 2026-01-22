@@ -9,6 +9,26 @@ Maintenance Tasks
 Additional commands are provided for common maintenance tasks like upgrading the application, migrating the database
 and pruning expired resumption tokens.
 
+Maintenance Mode
+================
+
+When performing maintenance tasks like upgrading the application or importing large sets of records it is advisable to
+put the application into maintenance mode to prevent users from receiving inconsistent data.
+
+.. code-block:: shell
+
+  # Show current maintenance mode status
+  bin/cli app:maintenance:mode
+
+  # Enable maintenance mode
+  bin/cli app:maintenance:mode on
+
+  # Disable maintenance mode
+  bin/cli app:maintenance:mode off
+
+While maintenance mode is enabled all requests to the OAI-PMH2 Data Provider will return HTTP status code 503 (Service
+Unavailable) along with a `Retry-After` header indicating it will be available again after approximately 5 minutes.
+
 Pruning Expired Tokens
 ======================
 
