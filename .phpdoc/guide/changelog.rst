@@ -10,6 +10,13 @@ All available versions as well as further information about :doc:`requirements a
 can be found in the `Packagist repository <https://packagist.org/packages/opencultureconsulting/oai-pmh2>`_ and on the
 `GitHub releases page <https://github.com/opencultureconsulting/oai-pmh2/releases>`_.
 
+v1.1.1
+======
+
+**Minor Changes:**
+
+* Updated `Symfony components <https://symfony.com/>`_ to version 7.4 to mitigate a vulnerability in `symfony/process`
+
 v1.1.0
 ======
 
