@@ -71,7 +71,10 @@
             "phpdocumentor/shim": true
         },
         "apcu-autoloader": true,
-        "optimize-autoloader": true
+        "optimize-autoloader": true,
+        "platform": {
+            "php": "8.2.31"
+        }
     },
     "scripts": {
         "pre-install-cmd": [
