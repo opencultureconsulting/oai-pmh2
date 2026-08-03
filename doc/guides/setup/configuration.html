@@ -7,7 +7,10 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="../../">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png"/>
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png"/>
     <link rel="icon" href="images/favicon.ico"/>
+    <link rel="apple-touch-icon" href="images/apple-touch-icon.png"/>
     <link rel="stylesheet" href="css/normalize.css">
     <link rel="stylesheet" href="css/base.css">
             <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -221,15 +224,6 @@ in the URI encode user and password for the connection, followed by the <em>host
 authority part represents the name of the database (the leading slash is removed so add an extra slash to specify an
 absolute file path for SQLite). Any optional <em>query</em>
  parameters are used as additional connection parameters.</p>
-
-            <div class="phpdocumentor-admonition ">
-                        <article>
-        
-    <p><code>%DRIVER%://[[%USER%[:%PASSWORD%]@]%HOST%[:%PORT%]]/%DBNAME%[?%OPTIONS%]</code>
-</p>
-
-    </article>
-</div>
 
             
     <p>Since the scheme determines the database driver it also specifies if the PDO abstraction (<code>mariadb</code>
