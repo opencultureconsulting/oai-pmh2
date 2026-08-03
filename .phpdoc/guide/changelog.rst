@@ -10,6 +10,14 @@ All available versions as well as further information about :doc:`requirements a
 can be found in the `Packagist repository <https://packagist.org/packages/opencultureconsulting/oai-pmh2>`_ and on the
 `GitHub releases page <https://github.com/opencultureconsulting/oai-pmh2/releases>`_.
 
+v1.1.3
+======
+
+**Minor Changes:**
+
+* Updated `Guzzle PSR-7 <https://github.com/guzzle/psr7>`_ to version 2.13 to mitigate a vulnerability in `guzzlehttp/psr7`
+* Updated `Symfony components <https://symfony.com/>`_ to version 7.4.15 to mitigate a vulnerability in `symfony/cache`
+
 v1.1.2
 ======
 

@@ -73,6 +73,7 @@ final class UpgradeDatabaseCommand extends Console
         if ($this->io->confirm('Continue?', true)) {
             $this->clearAllCaches();
             if (PHP_VERSION_ID < 80400) {
+                /** @psalm-suppress DeprecatedMethod */
                 $this->generateProxies();
             }
             $this->updateSchema();
@@ -95,7 +96,7 @@ final class UpgradeDatabaseCommand extends Console
     {
         /** @var Application */
         $app = $this->getApplication();
-        $app->add(new GenerateProxiesCommand(new SingleManagerProvider($this->em)));
+        $app->addCommand(new GenerateProxiesCommand(new SingleManagerProvider($this->em)));
         $app->doRun(
             new ArrayInput([
                 'command' => 'orm:generate-proxies'

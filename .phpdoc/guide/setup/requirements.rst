@@ -9,7 +9,7 @@ Requirements
 Environment
 ===========
 
-This application requires at least **PHP 8.1** with extension `zip` enabled. In addition, you will need the database
+This application requires at least **PHP 8.2** with extension `zip` enabled. In addition, you will need the database
 API extension of your preferred DBMS (e. g. `mysqli` or `pdo_mysql`) if you don't want to use the default SQLite
 database. For performance reasons SQLite is only recommended if you have no more than a few thousand records to serve.
 
