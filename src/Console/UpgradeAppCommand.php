@@ -429,7 +429,7 @@ final class UpgradeAppCommand extends Console
             $input['--no-dev'] = true;
         }
         $app = new ComposerApplication();
-        $app->add(new InstallCommand());
+        $app->addCommand(new InstallCommand());
         $errorCode = $app->doRun(
             new ArrayInput($input),
             $this->io
@@ -533,7 +533,7 @@ final class UpgradeAppCommand extends Console
     {
         $this->io->writeln('Running post-upgrade migrations...');
         $app = new ComposerApplication();
-        $app->add(new RunScriptCommand());
+        $app->addCommand(new RunScriptCommand());
         $errorCode = $app->doRun(
             new ArrayInput([
                 'command' => 'run-script',

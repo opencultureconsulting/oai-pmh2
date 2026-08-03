@@ -160,15 +160,12 @@ final class CsvImportCommand extends Console
 
         if ($this->arguments['purge']) {
             $previousMode = Configuration::getInstance()->setMaintenanceMode(true);
-        }
-
-        $returnCode = $this->importCsv();
-
-        if ($this->arguments['purge']) {
+            $returnCode = $this->importCsv();
             Configuration::getInstance()->setMaintenanceMode($previousMode);
+            return $returnCode;
+        } else {
+            return $this->importCsv();
         }
-
-        return $returnCode;
     }
 
     /**
