@@ -39,9 +39,9 @@
         "ext-sqlite3": "*",
         "ext-zip": "*",
         "composer-runtime-api": "^2.1",
-        "composer/composer": "^2.9",
-        "doctrine/dbal": "^4.4",
-        "doctrine/orm": "^3.6",
+        "composer/composer": "^2.11",
+        "doctrine/dbal": "^4.5",
+        "doctrine/orm": "^3.7",
         "opencultureconsulting/basics": "^2.1",
         "opencultureconsulting/psr15": "^1.3",
         "symfony/cache": "^7.4",
@@ -54,12 +54,12 @@
     "require-dev": {
         "phpdocumentor/shim": "^3.10",
         "phpmd/phpmd": "^2.15",
-        "phpstan/phpstan": "^2.2",
-        "phpstan/phpstan-doctrine": "^2.0",
-        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpstan/phpstan": "^2.3",
+        "phpstan/phpstan-doctrine": "^2.1",
+        "phpstan/phpstan-strict-rules": "^2.1",
         "friendsofphp/php-cs-fixer": "^3.95",
         "squizlabs/php_codesniffer": "^4.0",
-        "vimeo/psalm": "^6.16"
+        "vimeo/psalm": "^6.20"
     },
     "autoload": {
         "psr-4": {
@@ -71,10 +71,7 @@
             "phpdocumentor/shim": true
         },
         "apcu-autoloader": true,
-        "optimize-autoloader": true,
-        "platform": {
-            "php": "8.2.33"
-        }
+        "optimize-autoloader": true
     },
     "scripts": {
         "pre-install-cmd": [
