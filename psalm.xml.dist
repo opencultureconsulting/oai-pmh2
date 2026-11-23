@@ -25,14 +25,6 @@
             </errorLevel>
         </ClassMustBeFinal>
         <!--
-            This is a false-positive caused by Doctrine's ArrayCollection.
-        -->
-        <PossiblyNullReference>
-            <errorLevel type="suppress">
-                <file name="src/Console/UpdateFormatsCommand.php"/>
-            </errorLevel>
-        </PossiblyNullReference>
-        <!--
             DBAL entities require getter/setter methods even if they are never called directly.
         -->
         <PossiblyUnusedMethod errorLevel="suppress"/>
