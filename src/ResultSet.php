@@ -67,9 +67,9 @@ final class ResultSet extends ArrayCollection
      * Create new result set.
      *
      * @param array<string, TEntity> $elements Array of entities
-     * @param Token $token Optional resumption token
+     * @param ?Token $token Optional resumption token
      */
-    public function __construct(array $elements = [], Token $token = null)
+    public function __construct(array $elements = [], ?Token $token = null)
     {
         parent::__construct($elements);
         $this->resumptionToken = $token;
