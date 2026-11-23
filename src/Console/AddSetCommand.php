@@ -104,6 +104,7 @@ final class AddSetCommand extends Console
 
         $set = new Set($this->arguments['setSpec'], $this->arguments['setName'], $description ?? null);
         $this->em->addOrUpdate($set);
+        $this->clearResultCache();
 
         $this->io->success(
             sprintf(
