@@ -189,7 +189,8 @@ final class EntityManager extends EntityManagerDecorator
         $dql->select('records')
             ->from(Record::class, 'records', 'records.identifier')
             ->where($dql->expr()->eq('records.metadataPrefix', ':metadataPrefix'))
-            ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix));
+            ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix))
+            ->orderBy('records.identifier');
         if (isset($from)) {
             $dql->andWhere($dql->expr()->gte('records.lastChanged', ':from'));
             $dql->setParameter('from', new DateTime($from), 'datetime');
@@ -292,7 +293,8 @@ final class EntityManager extends EntityManagerDecorator
 
         $dql = $this->createQueryBuilder();
         $dql->select('sets')
-            ->from(Set::class, 'sets', 'sets.spec');
+            ->from(Set::class, 'sets', 'sets.spec')
+            ->orderBy('sets.spec');
         /** @var OffsetPaginator<Set> */
         $paginator = new OffsetPaginator(fetchJoinCollection: false);
         $page = $paginator->paginate($dql->getQuery()->enableResultCache(), new Window($cursor, $maxRecords));
