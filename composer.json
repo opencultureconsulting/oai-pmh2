@@ -49,7 +49,7 @@
         "symfony/filesystem": "^7.4",
         "symfony/http-client": "^7.4",
         "symfony/validator": "^7.4",
-        "symfony/yaml": "^7.4"
+        "symfony/yaml": "^8.1"
     },
     "require-dev": {
         "phpdocumentor/shim": "^3.10",
