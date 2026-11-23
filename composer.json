@@ -44,7 +44,7 @@
         "doctrine/orm": "^3.7",
         "opencultureconsulting/basics": "^2.1",
         "opencultureconsulting/psr15": "^1.3",
-        "symfony/cache": "^7.4",
+        "symfony/cache": "^8.1",
         "symfony/console": "^7.4",
         "symfony/filesystem": "^7.4",
         "symfony/http-client": "^7.4",
