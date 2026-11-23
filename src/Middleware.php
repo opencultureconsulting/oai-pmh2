@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2;
 
+use DateTime;
 use DOMElement;
 use GuzzleHttp\Psr7\Utils;
 use OCC\OaiPmh2\Entity\Token;
@@ -178,22 +179,75 @@ abstract class Middleware extends AbstractMiddleware
      */
     protected function validateDateTime(): void
     {
-        if (
-            array_key_exists('from', $this->arguments)
-            and array_key_exists('until', $this->arguments)
-            and strlen($this->arguments['from']) !== strlen($this->arguments['until'])
-        ) {
+        if (!$this->hasValidDatestamps()) {
             $this->errorHandler->withError('badArgument');
             return;
         }
-        $earliest = date_create($this->em->getEarliestDatestamp());
-        $from = date_create($this->arguments['from'] ?? $this->em->getEarliestDatestamp());
-        $until = date_create($this->arguments['until'] ?? 'NOW');
-        if ($until !== false && $until < $earliest) {
+        $this->expandDatestamps();
+        $earliest = new DateTime($this->em->getEarliestDatestamp());
+        $from = new DateTime($this->arguments['from'] ?? $this->em->getEarliestDatestamp());
+        $until = new DateTime($this->arguments['until'] ?? 'now');
+        if ($until < $earliest) {
             $this->errorHandler->withError('noRecordsMatch');
-        } elseif ($from === false || $until === false || $from > $until) {
+        } elseif ($from > $until) {
             $this->errorHandler->withError('badArgument');
         }
+    }
+
+    /**
+     * Expand "from" and "until" arguments with day granularity to seconds granularity.
+     *
+     * This makes "until" include the whole day. The expanded values are used for the
+     * database query and stored in the resumption token.
+     *
+     * @return void
+     */
+    protected function expandDatestamps(): void
+    {
+        $suffixes = ['from' => 'T00:00:00Z', 'until' => 'T23:59:59Z'];
+        foreach ($suffixes as $parameter => $suffix) {
+            $datestamp = $this->arguments[$parameter] ?? '';
+            if (strlen($datestamp) === 10) {
+                /** @psalm-suppress InvalidPropertyAssignmentValue */
+                /** @phpstan-ignore assign.propertyType */
+                $this->arguments[$parameter] = $datestamp . $suffix;
+            }
+        }
+    }
+
+    /**
+     * Check if the "from" and "until" arguments are valid and have the same granularity.
+     *
+     * @return bool Whether the datestamps are valid
+     */
+    protected function hasValidDatestamps(): bool
+    {
+        $from = $this->arguments['from'] ?? null;
+        $until = $this->arguments['until'] ?? null;
+        foreach ([$from, $until] as $datestamp) {
+            if (isset($datestamp) && !$this->isValidDatestamp($datestamp)) {
+                return false;
+            }
+        }
+        return !isset($from, $until) || strlen($from) === strlen($until);
+    }
+
+    /**
+     * Check if a datestamp has a valid syntax and denotes an existing date.
+     *
+     * @see https://openarchives.org/OAI/openarchivesprotocol.html#DatestampsRequests
+     *
+     * @param string $datestamp The datestamp ("YYYY-MM-DD" or "YYYY-MM-DDThh:mm:ssZ")
+     *
+     * @return bool Whether the datestamp is valid
+     */
+    protected function isValidDatestamp(string $datestamp): bool
+    {
+        return preg_match(
+            '/^(\d{4})-(\d{2})-(\d{2})(T([01]\d|2[0-3]):[0-5]\d:[0-5]\dZ)?$/',
+            $datestamp,
+            $matches
+        ) === 1 && checkdate((int) $matches[2], (int) $matches[3], (int) $matches[1]);
     }
 
     /**
