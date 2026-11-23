@@ -29,6 +29,7 @@ use OCC\OaiPmh2\Response;
 use OCC\PSR15\AbstractMiddleware;
 use Override;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 
 /**
@@ -65,13 +66,18 @@ final class ErrorHandler extends AbstractMiddleware
     protected array $errors = [];
 
     /**
+     * The server request the response is generated for.
+     */
+    protected ServerRequestInterface $request;
+
+    /**
      * Prepare the response body.
      *
      * @return StreamInterface The response body stream
      */
     protected function getResponseBody(): StreamInterface
     {
-        $response = new Response($this->requestHandler->request);
+        $response = new Response($this->request);
         foreach (array_unique($this->errors) as $errorCode) {
             $error = $response->createElement(
                 'error',
@@ -91,6 +97,20 @@ final class ErrorHandler extends AbstractMiddleware
     public function hasErrors(): bool
     {
         return count($this->errors) > 0;
+    }
+
+    /**
+     * Remember the request to generate the error response for.
+     *
+     * @param ServerRequestInterface $request The incoming request
+     *
+     * @return ServerRequestInterface The unchanged request
+     */
+    #[Override]
+    protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
+    {
+        $this->request = $request;
+        return $request;
     }
 
     /**

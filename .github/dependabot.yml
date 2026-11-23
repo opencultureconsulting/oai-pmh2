@@ -5,6 +5,10 @@ updates:
     schedule:
       interval: "weekly"
     versioning-strategy: "increase-if-necessary"
+    ignore:
+      # Stay on Symfony 7.4, because it's a long-term support (LTS) version.
+      - dependency-name: "symfony/*"
+        versions: [ ">=7.5" ]
     assignees:
       - "sebastian-meyer"
     labels: [ ]

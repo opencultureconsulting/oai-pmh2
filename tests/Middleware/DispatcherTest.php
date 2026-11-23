@@ -22,6 +22,9 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Tests\Middleware;
 
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\ServerRequest;
+use LogicException;
 use OCC\OaiPmh2\Middleware\Dispatcher;
 use OCC\OaiPmh2\Middleware\ErrorHandler;
 use OCC\OaiPmh2\Tests\TestCase;
@@ -29,6 +32,9 @@ use Override;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Test;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 #[CoversClass(Dispatcher::class)]
 #[CoversClass(ErrorHandler::class)]
@@ -141,5 +147,20 @@ final class DispatcherTest extends TestCase
         $xpath = $this->requestXml('verb=ListIdentifiers&metadataPrefix=marc&from=yesterday');
 
         $this->assertSame(['cannotDisseminateFormat', 'badArgument'], self::errors($xpath));
+    }
+
+    #[Test]
+    public function itRequiresAQueueRequestHandler(): void
+    {
+        $handler = new class () implements RequestHandlerInterface {
+            public function handle(ServerRequestInterface $request): ResponseInterface
+            {
+                return new Response();
+            }
+        };
+
+        $this->expectException(LogicException::class);
+
+        (new Dispatcher())->process(new ServerRequest('GET', 'http://example.org/oai?verb=Identify'), $handler);
     }
 }

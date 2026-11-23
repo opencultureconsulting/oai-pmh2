@@ -50,6 +50,11 @@ Unreleased
   `GitHub Pages <https://code.opencultureconsulting.com/oai-pmh2/>`_ automatically for every release. To read it
   offline, build it locally with `composer phpdoc:build`
 * Updated Psalm to version 7 and PHP Mess Detector to version 3
+* Updated `opencultureconsulting/psr15 <https://packagist.org/packages/opencultureconsulting/psr15>`_ to version 2.
+  Uncaught exceptions now result in a plain `500 Internal Server Error` response and are written to PHP's error log
+  instead of being reported in a `Warning` header
+* Allowed `opencultureconsulting/basics <https://packagist.org/packages/opencultureconsulting/basics>`_ version 3, which
+  will be installed as soon as a compatible release of `opencultureconsulting/psr15` is available
 
 v1.1.3
 ======

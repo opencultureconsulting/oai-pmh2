@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2;
 
 use OCC\OaiPmh2\Middleware\Dispatcher;
+use OCC\PSR15\ErrorMiddleware;
 use OCC\PSR15\QueueRequestHandler;
 
 /**
@@ -43,7 +44,7 @@ final class App
      */
     public function __construct()
     {
-        $this->requestHandler = new QueueRequestHandler([new Dispatcher()]);
+        $this->requestHandler = new QueueRequestHandler([new ErrorMiddleware(), new Dispatcher()]);
     }
 
     /**
@@ -61,9 +62,6 @@ final class App
             echo Configuration::getInstance()->repositoryName . ' is currently down for maintenance. Please try again later.';
         } else {
             $this->requestHandler->handle();
-            if ($this->requestHandler->response->hasHeader('Warning')) {
-                // An exception occured. Maybe we don't want to output the response, but log an error instead?
-            }
             $this->requestHandler->respond();
         }
     }

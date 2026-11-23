@@ -35,7 +35,6 @@ use OCC\OaiPmh2\Entity\Set;
 use OCC\OaiPmh2\Middleware\Dispatcher;
 use OCC\OaiPmh2\Middleware\ErrorHandler;
 use OCC\OaiPmh2\Validator\ConfigurationValidator;
-use OCC\PSR15\MiddlewareQueue;
 use OCC\PSR15\QueueRequestHandler;
 use Override;
 use PHPUnit\Framework\TestCase as PHPUnitTestCase;
@@ -235,7 +234,6 @@ abstract class TestCase extends PHPUnitTestCase
     ): ResponseInterface {
         // Every request is processed by a new PHP process in production, so reset the per-request state.
         self::setSingleton(ErrorHandler::class, null);
-        self::setSingleton(MiddlewareQueue::class, null);
         $this->em->clear();
         if ($method === 'GET') {
             $request = new ServerRequest('GET', $uri . ($query !== '' ? '?' . $query : ''));
@@ -243,8 +241,6 @@ abstract class TestCase extends PHPUnitTestCase
             $request = new ServerRequest($method, $uri, $headers, $query);
         }
         $response = (new QueueRequestHandler([new Dispatcher()]))->handle($request);
-        // Exceptions are converted into "500 Internal Server Error" responses with a "Warning" header.
-        $this->assertFalse($response->hasHeader('Warning'), (string) $response->getBody());
         $this->assertSame(200, $response->getStatusCode());
         return $response;
     }
@@ -389,7 +385,7 @@ abstract class TestCase extends PHPUnitTestCase
         if (isset($this->em)) {
             $this->em->getConnection()->close();
         }
-        foreach ([EntityManager::class, Configuration::class, ErrorHandler::class, MiddlewareQueue::class] as $class) {
+        foreach ([EntityManager::class, Configuration::class, ErrorHandler::class] as $class) {
             self::setSingleton($class, null);
         }
         foreach ($this->tempFiles as $file) {
