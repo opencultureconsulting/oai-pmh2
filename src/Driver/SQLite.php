@@ -55,6 +55,8 @@ final class SQLite extends AbstractDriverMiddleware
         $connection = parent::connect($params);
         // Set busy timeout to 5 seconds to gracefully handle concurrent access
         $connection->exec('PRAGMA busy_timeout = 5000');
+        // Activate foreign key constraints to allow Doctrine's CASCADE operations to work properly
+        $connection->exec('PRAGMA foreign_keys = ON');
         return $connection;
     }
 }
