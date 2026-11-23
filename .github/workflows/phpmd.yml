@@ -36,7 +36,7 @@ jobs:
         run: vendor/bin/phpmd analyze --ruleset=.phpmd.dist.xml --reportfile-sarif=phpmd-results.sarif --no-progress bin/ public/ src/
 
       - name: Upload Analysis Results
-        uses: github/codeql-action/upload-sarif@v4.39.1
+        uses: github/codeql-action/upload-sarif@v4.39.4
         with:
           sarif_file: phpmd-results.sarif
           wait-for-processing: true
