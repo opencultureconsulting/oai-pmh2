@@ -70,10 +70,14 @@ final class RecordRepository extends EntityRepository
             } else {
                 $entityManager->remove($oldRecord);
             }
-        } else {
-            if ($entity->hasContent() || Configuration::getInstance()->deletedRecords !== 'no') {
-                $entityManager->persist($entity);
-            }
+        } elseif ($entity->hasContent() || Configuration::getInstance()->deletedRecords !== 'no') {
+            $entityManager->persist($entity);
+            return;
+        }
+        // The given record itself is not persisted, so remove it from the inverse side
+        // of its sets. Otherwise Doctrine finds it as an unknown entity when flushing.
+        foreach ($entity->getSets()->toArray() as $set) {
+            $set->removeRecord($entity);
         }
     }
 
