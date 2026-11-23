@@ -24,6 +24,7 @@ namespace OCC\OaiPmh2\Middleware;
 
 use OCC\OaiPmh2\Middleware;
 use OCC\OaiPmh2\Response;
+use Override;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -53,7 +54,7 @@ class ListIdentifiers extends Middleware
      *
      * @return void
      */
-    #[\Override]
+    #[Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $records = $this->em->getRecords(
@@ -100,13 +101,14 @@ class ListIdentifiers extends Middleware
                 $header->appendChild($setSpec);
             }
 
-            if (!$oaiRecord->hasContent()) {
+            $content = $oaiRecord->getContent();
+            if (!isset($content)) {
                 $header->setAttribute('status', 'deleted');
             } elseif ($this->arguments['verb'] === 'ListRecords') {
                 $metadata = $response->createElement('metadata');
                 $baseNode->appendChild($metadata);
 
-                $data = $response->importData($oaiRecord->getContent());
+                $data = $response->importData($content);
                 $metadata->appendChild($data);
             }
         }
@@ -125,10 +127,14 @@ class ListIdentifiers extends Middleware
      *
      * @phpstan-assert-if-true RequestParameters $this->arguments
      */
-    #[\Override]
+    #[Override]
     protected function validateArguments(): bool
     {
         $this->validateResumptionToken();
+        if ($this->errorHandler->hasErrors()) {
+            // Without a valid resumption token, there are no further arguments to validate.
+            return false;
+        }
         if (
             !array_key_exists('metadataPrefix', $this->arguments)
             or array_key_exists('identifier', $this->arguments)

@@ -25,6 +25,7 @@ namespace OCC\OaiPmh2\Middleware;
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Middleware;
 use OCC\OaiPmh2\Response;
+use Override;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -49,7 +50,7 @@ final class Identify extends Middleware
      *
      * @return void
      */
-    #[\Override]
+    #[Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $response = new Response($request);
@@ -107,7 +108,7 @@ final class Identify extends Middleware
      *
      * @phpstan-assert-if-true RequestParameters $this->arguments
      */
-    #[\Override]
+    #[Override]
     protected function validateArguments(): bool
     {
         if (count($this->arguments) !== 1) {

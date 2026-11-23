@@ -107,22 +107,23 @@ psalm.xml    text eol=lf
 ###
 
 # Configuration
-.editorconfig text eol=lf
-*.dist.xml    text eol=lf
-*.xml.dist    text eol=lf
-*.neon        text eol=lf
+.editorconfig   text eol=lf
+*.dist.xml      text eol=lf
+*.xml.dist      text eol=lf
+*.neon          text eol=lf
 
-# Generated documentation
-doc/*      linguist-generated=true
-
-# Exclude files from exporting
-.ddev/*                export-ignore
-.github/*              export-ignore
-.phpdoc/*              export-ignore
-.editorconfig          export-ignore
-.php-cs-fixer.dist.php export-ignore
-.phpmd.dist.xml        export-ignore
-phpcs.xml.dist         export-ignore
-phpdoc.dist.xml        export-ignore
-phpstan.dist.neon      export-ignore
-psalm.xml.dist         export-ignore
+# Exclude development files from exporting (i.e. from the Composer package)
+/.ddev                  export-ignore
+/.github                export-ignore
+/.phpdoc                export-ignore
+/tests                  export-ignore
+/.editorconfig          export-ignore
+/.php-cs-fixer.dist.php export-ignore
+/.phpmd.dist.xml        export-ignore
+/CODE_OF_CONDUCT.md     export-ignore
+/CONTRIBUTING.md        export-ignore
+/phpcs.xml.dist         export-ignore
+/phpdoc.dist.xml        export-ignore
+/phpstan.dist.neon      export-ignore
+/phpunit.xml.dist       export-ignore
+/psalm.xml.dist         export-ignore

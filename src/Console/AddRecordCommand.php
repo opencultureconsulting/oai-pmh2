@@ -24,6 +24,7 @@ namespace OCC\OaiPmh2\Console;
 
 use DateTime;
 use OCC\OaiPmh2\Console;
+use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -57,7 +58,7 @@ final class AddRecordCommand extends Console
      *
      * @return void
      */
-    #[\Override]
+    #[Override]
     protected function configure(): void
     {
         $this->addArgument(
@@ -99,9 +100,15 @@ final class AddRecordCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
-    #[\Override]
+    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
+        if (!$this->em->getMetadataFormats()->containsKey($this->arguments['format'])) {
+            $this->io->getErrorStyle()->error(
+                sprintf('Metadata format "%s" is not supported.', $this->arguments['format'])
+            );
+            return Command::INVALID;
+        }
         if (!is_readable($this->arguments['file'])) {
             $this->io->getErrorStyle()->error(
                 sprintf('File "%s" not found or not readable.', $this->arguments['file'])

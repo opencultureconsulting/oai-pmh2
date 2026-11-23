@@ -24,6 +24,7 @@ namespace OCC\OaiPmh2\Middleware;
 
 use OCC\OaiPmh2\Middleware;
 use OCC\OaiPmh2\Response;
+use Override;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -49,7 +50,7 @@ final class ListSets extends Middleware
      *
      * @return void
      */
-    #[\Override]
+    #[Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $sets = $this->em->getSets($this->flowControl['counter']);
@@ -78,11 +79,12 @@ final class ListSets extends Middleware
             );
             $set->appendChild($setName);
 
-            if ($oaiSet->hasDescription()) {
+            $description = $oaiSet->getDescription();
+            if (isset($description)) {
                 $setDescription = $response->createElement('setDescription');
                 $set->appendChild($setDescription);
 
-                $data = $response->importData($oaiSet->getDescription());
+                $data = $response->importData($description);
                 $setDescription->appendChild($data);
             }
         }
@@ -101,7 +103,7 @@ final class ListSets extends Middleware
      *
      * @phpstan-assert-if-true RequestParameters $this->arguments
      */
-    #[\Override]
+    #[Override]
     protected function validateArguments(): bool
     {
         $this->validateResumptionToken();

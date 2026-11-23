@@ -25,7 +25,6 @@ namespace OCC\OaiPmh2;
 use DateTime;
 use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\ParameterType;
-use Doctrine\DBAL\Schema\AbstractAsset;
 use Doctrine\DBAL\Tools\DsnParser;
 use Doctrine\ORM\AbstractQuery;
 use Doctrine\ORM\Configuration as DoctrineConfiguration;
@@ -42,6 +41,7 @@ use OCC\OaiPmh2\Entity\Format;
 use OCC\OaiPmh2\Entity\Record;
 use OCC\OaiPmh2\Entity\Set;
 use OCC\OaiPmh2\Entity\Token;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Cache\Adapter\PhpFilesAdapter;
 use Symfony\Component\Filesystem\Path;
 
@@ -412,8 +412,11 @@ final class EntityManager extends EntityManagerDecorator
 
     /**
      * Instantiate new Doctrine entity manager and connect to database.
+     *
+     * @param ?CacheItemPoolInterface $cache Optional cache for metadata, queries and results instead of the default
+     *                                       file caches in var/cache (e.g. for running tests in isolation)
      */
-    private function __construct()
+    private function __construct(?CacheItemPoolInterface $cache = null)
     {
         $config = new DoctrineConfiguration();
         if (PHP_VERSION_ID < 80400) {
@@ -423,11 +426,11 @@ final class EntityManager extends EntityManagerDecorator
         } else {
             $config->enableNativeLazyObjects(true);
         }
-        $config->setMetadataCache(new PhpFilesAdapter('Metadata', 0, __DIR__ . '/../var/cache'));
+        $config->setMetadataCache($cache ?? new PhpFilesAdapter('Metadata', 0, __DIR__ . '/../var/cache'));
         $config->setMetadataDriverImpl(new AttributeDriver([__DIR__ . '/Entity']));
         $config->setMiddlewares([new DriverMiddleware()]);
-        $config->setQueryCache(new PhpFilesAdapter('Query', 0, __DIR__ . '/../var/cache'));
-        $config->setResultCache(new PhpFilesAdapter('Result', 0, __DIR__ . '/../var/cache'));
+        $config->setQueryCache($cache ?? new PhpFilesAdapter('Query', 0, __DIR__ . '/../var/cache'));
+        $config->setResultCache($cache ?? new PhpFilesAdapter('Result', 0, __DIR__ . '/../var/cache'));
 
         $dsn = str_replace(
             '%BASEDIR%',

@@ -26,6 +26,7 @@ use Doctrine\DBAL\Driver;
 use Doctrine\DBAL\Driver\Middleware as DriverMiddleware;
 use Doctrine\DBAL\Driver\PDO\SQLite\Driver as SQLiteDriver;
 use Doctrine\DBAL\Driver\SQLite3\Driver as SQLite3Driver;
+use Override;
 
 /**
  * Middleware for Doctrine DBAL drivers.
@@ -42,7 +43,7 @@ final class Middleware implements DriverMiddleware
      *
      * @return Driver The wrapped driver
      */
-    #[\Override]
+    #[Override]
     public function wrap(Driver $driver): Driver
     {
         if ($driver instanceof SQLiteDriver || $driver instanceof SQLite3Driver) {

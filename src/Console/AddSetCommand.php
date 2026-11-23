@@ -24,6 +24,7 @@ namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Console;
 use OCC\OaiPmh2\Entity\Set;
+use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -54,7 +55,7 @@ final class AddSetCommand extends Console
      *
      * @return void
      */
-    #[\Override]
+    #[Override]
     protected function configure(): void
     {
         $this->addArgument(
@@ -86,7 +87,7 @@ final class AddSetCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
-    #[\Override]
+    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($this->arguments['setName'] === 'setSpec') {

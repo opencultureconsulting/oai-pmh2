@@ -29,6 +29,7 @@ use OCC\OaiPmh2\Entity\Token;
 use OCC\OaiPmh2\Middleware\Dispatcher;
 use OCC\OaiPmh2\Middleware\ErrorHandler;
 use OCC\PSR15\AbstractMiddleware;
+use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -133,7 +134,7 @@ abstract class Middleware extends AbstractMiddleware
      *
      * @return ServerRequestInterface The processed server request
      */
-    #[\Override]
+    #[Override]
     protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
     {
         /** @var RequestParameters */
@@ -152,7 +153,7 @@ abstract class Middleware extends AbstractMiddleware
      *
      * @return ResponseInterface The processed response
      */
-    #[\Override]
+    #[Override]
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
         if (!$this->errorHandler->hasErrors() && isset($this->preparedResponse)) {

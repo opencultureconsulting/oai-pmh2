@@ -14,7 +14,7 @@
 >
     <issueHandlers>
         <!--
-            Entity classes must not be final in order for Doctrine DBAL to work.
+            Entity classes must not be final in order for Doctrine to work.
         -->
         <ClassMustBeFinal>
             <errorLevel type="suppress">
@@ -25,7 +25,17 @@
             </errorLevel>
         </ClassMustBeFinal>
         <!--
-            DBAL entities require getter/setter methods even if they are never called directly.
+            These mapped properties are only accessed by Doctrine (via reflection and in queries).
+        -->
+        <UnusedProperty>
+            <errorLevel type="suppress">
+                <referencedProperty name="OCC\OaiPmh2\Entity\Format::$records"/>
+                <referencedProperty name="OCC\OaiPmh2\Entity\Record::$metadataPrefix"/>
+                <referencedProperty name="OCC\OaiPmh2\Entity\Token::$verb"/>
+            </errorLevel>
+        </UnusedProperty>
+        <!--
+            Doctrine entities require getter/setter methods even if they are never called directly.
         -->
         <PossiblyUnusedMethod errorLevel="suppress"/>
         <PossiblyUnusedReturnValue errorLevel="suppress"/>

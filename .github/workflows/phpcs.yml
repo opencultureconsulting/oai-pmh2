@@ -22,11 +22,14 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Setup Environment
-        uses: php-actions/composer@v6
+        uses: shivammathur/setup-php@v2
         with:
-          command: install
-          php_version: "8.2"
-          args: "--ignore-platform-req=ext-zip"
+          php-version: "8.5"
+          coverage: none
+          tools: composer
 
-      - name: Run PHP_CodeSniffer
-        run: composer phpcs:check
+      - name: Install Dependencies
+        run: composer update --no-interaction --no-progress
+
+      - name: Run PHPCS
+        run: vendor/bin/phpcs --standard=phpcs.xml.dist

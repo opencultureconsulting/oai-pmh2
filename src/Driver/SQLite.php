@@ -26,6 +26,8 @@ use Doctrine\DBAL\DriverManager;
 use Doctrine\DBAL\Driver\Connection;
 use Doctrine\DBAL\Driver\Middleware\AbstractDriverMiddleware;
 use Exception;
+use Override;
+use SensitiveParameter;
 
 /**
  * Decorator for Doctrine DBAL SQLite drivers.
@@ -47,9 +49,9 @@ final class SQLite extends AbstractDriverMiddleware
      *
      * @throws Exception if connection can not be established
      */
-    #[\Override]
+    #[Override]
     public function connect(
-        #[\SensitiveParameter]
+        #[SensitiveParameter]
         array $params,
     ): Connection {
         $connection = parent::connect($params);

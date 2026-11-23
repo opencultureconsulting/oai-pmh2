@@ -26,6 +26,7 @@ use Doctrine\ORM\Tools\Console\Command\GenerateProxiesCommand;
 use Doctrine\ORM\Tools\Console\EntityManagerProvider\SingleManagerProvider;
 use Doctrine\ORM\Tools\SchemaTool;
 use OCC\OaiPmh2\Console;
+use Override;
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
@@ -61,7 +62,7 @@ final class UpgradeDatabaseCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
-    #[\Override]
+    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         if ($input->isInteractive()) {

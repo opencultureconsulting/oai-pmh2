@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Middleware;
 
 use OCC\PSR15\AbstractMiddleware;
+use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
@@ -126,7 +127,7 @@ final class Dispatcher extends AbstractMiddleware
      *
      * @return ServerRequestInterface The processed server request
      */
-    #[\Override]
+    #[Override]
     protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
     {
         $request = $this->getRequestWithAttributes($request);
@@ -148,7 +149,7 @@ final class Dispatcher extends AbstractMiddleware
      *
      * @return ResponseInterface The final response
      */
-    #[\Override]
+    #[Override]
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
         // TODO: Add support for content compression

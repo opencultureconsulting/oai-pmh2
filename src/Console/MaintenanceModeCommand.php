@@ -24,6 +24,7 @@ namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
+use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -51,7 +52,7 @@ final class MaintenanceModeCommand extends Console
      *
      * @return void
      */
-    #[\Override]
+    #[Override]
     protected function configure(): void
     {
         $this->addArgument(
@@ -70,7 +71,7 @@ final class MaintenanceModeCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
-    #[\Override]
+    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         match ($input->getArgument('switch')) {

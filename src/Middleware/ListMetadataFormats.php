@@ -24,6 +24,7 @@ namespace OCC\OaiPmh2\Middleware;
 
 use OCC\OaiPmh2\Middleware;
 use OCC\OaiPmh2\Response;
+use Override;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -49,7 +50,7 @@ final class ListMetadataFormats extends Middleware
      *
      * @return void
      */
-    #[\Override]
+    #[Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $formats = $this->em->getMetadataFormats($this->arguments['identifier'] ?? null);
@@ -104,7 +105,7 @@ final class ListMetadataFormats extends Middleware
      *
      * @phpstan-assert-if-true RequestParameters $this->arguments
      */
-    #[\Override]
+    #[Override]
     protected function validateArguments(): bool
     {
         if (count($this->arguments) > 1) {
