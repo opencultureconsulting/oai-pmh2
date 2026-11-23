@@ -36,7 +36,7 @@ jobs:
         run: vendor/bin/psalm --config=psalm.xml.dist --taint-analysis --report=psalm-results.sarif --no-progress
 
       - name: Upload Analysis Results
-        uses: github/codeql-action/upload-sarif@v4.39.1
+        uses: github/codeql-action/upload-sarif@v4.39.4
         with:
           sarif_file: psalm-results.sarif
           wait-for-processing: true
