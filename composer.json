@@ -48,7 +48,7 @@
         "symfony/console": "^7.4",
         "symfony/filesystem": "^7.4",
         "symfony/http-client": "^7.4",
-        "symfony/validator": "^7.4",
+        "symfony/validator": "^8.1",
         "symfony/yaml": "^7.4"
     },
     "require-dev": {
