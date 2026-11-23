@@ -77,8 +77,9 @@ formats.
 column is empty the record is deleted (according to your :doc:`deletion policy <../setup/configuration>`).
 
 `--dateColumn|-d` - The name of the column containing the records' date of last change; defaults to `lastChanged`.
-Column entries must be valid `ISO 8601 values <https://en.wikipedia.org/wiki/ISO_8601>`_. If no date column is found or
-if it is empty the current date and time are assumed as date of last change.
+Column entries must be valid `ISO 8601 values <https://en.wikipedia.org/wiki/ISO_8601>`_. Values with a timezone offset
+are converted to UTC, values without one are interpreted as UTC. If no date column is found or if it is empty the
+current date and time are assumed as date of last change.
 
 `--setColumn|-d` - The name of the column containing a comma-separated list of the records' sets; defaults to `sets`.
 Each set has to be referenced by its *setSpec*. This column is optional and may be omitted or empty.

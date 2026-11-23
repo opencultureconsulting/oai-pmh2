@@ -24,4 +24,7 @@ namespace OCC\OaiPmh2;
 
 require __DIR__ . '/../vendor/autoload.php';
 
+// OAI-PMH datestamps are always UTC, so don't depend on the server's timezone setting.
+date_default_timezone_set('UTC');
+
 (new App())->run();
