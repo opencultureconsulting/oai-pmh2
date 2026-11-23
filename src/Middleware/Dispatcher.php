@@ -22,7 +22,9 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Middleware;
 
+use LogicException;
 use OCC\PSR15\AbstractMiddleware;
+use OCC\PSR15\QueueRequestHandler;
 use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -126,10 +128,17 @@ final class Dispatcher extends AbstractMiddleware
      * @param ServerRequestInterface $request The request to dispatch
      *
      * @return ServerRequestInterface The processed server request
+     *
+     * @throws LogicException if the request handler is not a queue request handler
      */
     #[Override]
     protected function processRequest(ServerRequestInterface $request): ServerRequestInterface
     {
+        if (!$this->requestHandler instanceof QueueRequestHandler) {
+            throw new LogicException(
+                sprintf('The dispatcher requires a %s to enqueue the OAI-PMH middlewares.', QueueRequestHandler::class)
+            );
+        }
         $request = $this->getRequestWithAttributes($request);
         $errorHandler = ErrorHandler::getInstance();
         if (!$errorHandler->hasErrors()) {
