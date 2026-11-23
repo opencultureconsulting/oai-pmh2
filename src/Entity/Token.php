@@ -131,9 +131,9 @@ class Token extends Entity
         $alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
         $maxIndex = strlen($alphabet) - 1;
         $token = '';
-        for ($i = 0; $i < 8; $i++) {
+        do {
             $token .= $alphabet[random_int(0, $maxIndex)];
-        }
+        } while (strlen($token) < 8);
         return $token;
     }
 
