@@ -68,25 +68,55 @@ final class Dispatcher extends AbstractMiddleware
      */
     protected function getRequestWithAttributes(ServerRequestInterface $request): ServerRequestInterface
     {
-        $arguments = [];
+        $query = '';
         if ($request->getMethod() === 'GET') {
-            $arguments = $request->getQueryParams();
-        } elseif ($request->getMethod() === 'POST') {
-            if ($request->getHeaderLine('Content-Type') === 'application/x-www-form-urlencoded') {
-                $arguments = (array) $request->getParsedBody();
-            }
+            $query = $request->getUri()->getQuery();
+        } elseif ($request->getMethod() === 'POST' && $this->isFormUrlEncoded($request)) {
+            $query = (string) $request->getBody();
         }
-        $arguments = array_filter(
-            $arguments,
-            fn ($value, $key): bool => is_string($key) && is_string($value),
-            ARRAY_FILTER_USE_BOTH
-        );
+        $arguments = $this->parseArguments($query);
         if ($this->validateArguments($arguments)) {
-            foreach ($arguments as $param => $value) {
-                $request = $request->withAttribute($param, $value);
+            foreach ($arguments as $param => $values) {
+                $request = $request->withAttribute((string) $param, $values[0]);
             }
         }
         return $request;
+    }
+
+    /**
+     * Check if the request body is form-urlencoded, ignoring parameters like "charset".
+     *
+     * @param ServerRequestInterface $request The POST request
+     *
+     * @return bool Whether the request body is form-urlencoded
+     */
+    protected function isFormUrlEncoded(ServerRequestInterface $request): bool
+    {
+        $mediaType = explode(';', $request->getHeaderLine('Content-Type'), 2)[0];
+        return strtolower(trim($mediaType)) === 'application/x-www-form-urlencoded';
+    }
+
+    /**
+     * Parse a raw query string or form-urlencoded body.
+     *
+     * PHP's own parser silently keeps only the last value of a repeated argument,
+     * so parse the raw string to be able to detect repeated arguments.
+     *
+     * @param string $query The raw query string or request body
+     *
+     * @return array<array-key, non-empty-list<string>> All values of each argument
+     */
+    protected function parseArguments(string $query): array
+    {
+        $arguments = [];
+        foreach (explode('&', $query) as $pair) {
+            if ($pair === '') {
+                continue;
+            }
+            $parts = explode('=', $pair, 2);
+            $arguments[urldecode($parts[0])][] = urldecode($parts[1] ?? '');
+        }
+        return $arguments;
     }
 
     /**
@@ -132,7 +162,7 @@ final class Dispatcher extends AbstractMiddleware
      *
      * @see https://openarchives.org/OAI/openarchivesprotocol.html#ProtocolMessages
      *
-     * @param array<string, string> $arguments The request parameters
+     * @param array<array-key, non-empty-list<string>> $arguments All values of each request parameter
      *
      * @return bool Whether the parameters are valid
      */
@@ -140,10 +170,14 @@ final class Dispatcher extends AbstractMiddleware
     {
         if (
             !array_key_exists('verb', $arguments)
-            or !in_array($arguments['verb'], array_keys(self::OAI_VERBS), true)
+            or count($arguments['verb']) !== 1
+            or !in_array($arguments['verb'][0], array_keys(self::OAI_VERBS), true)
         ) {
             ErrorHandler::getInstance()->withError('badVerb');
-        } elseif (count(array_diff(array_keys($arguments), self::OAI_PARAMS)) !== 0) {
+        } elseif (
+            count(array_diff(array_keys($arguments), self::OAI_PARAMS)) !== 0
+            or count(array_filter($arguments, fn (array $values): bool => count($values) > 1)) !== 0
+        ) {
             ErrorHandler::getInstance()->withError('badArgument');
         }
         return !ErrorHandler::getInstance()->hasErrors();
