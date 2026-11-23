@@ -18,12 +18,12 @@ All available versions as well as further information about requirements and dep
 
 ## Full Documentation
 
-The full documentation is available on [GitHub Pages](https://code.opencultureconsulting.com/oai-pmh2/) or alternatively in [doc/](doc/).
+The full documentation is available on [GitHub Pages](https://code.opencultureconsulting.com/oai-pmh2/).
 
 ## Quality Gates
 
 [![PHPCS](https://github.com/opencultureconsulting/oai-pmh2/actions/workflows/phpcs.yml/badge.svg)](https://github.com/opencultureconsulting/oai-pmh2/actions/workflows/phpcs.yml)
 [![PHPMD](https://github.com/opencultureconsulting/oai-pmh2/actions/workflows/phpmd.yml/badge.svg)](https://github.com/opencultureconsulting/oai-pmh2/actions/workflows/phpmd.yml)
-
 [![PHPStan](https://github.com/opencultureconsulting/oai-pmh2/actions/workflows/phpstan.yml/badge.svg)](https://github.com/opencultureconsulting/oai-pmh2/actions/workflows/phpstan.yml)
 [![Psalm](https://github.com/opencultureconsulting/oai-pmh2/actions/workflows/psalm.yml/badge.svg)](https://github.com/opencultureconsulting/oai-pmh2/actions/workflows/psalm.yml)
+[![PHPUnit](https://github.com/opencultureconsulting/oai-pmh2/actions/workflows/tests.yml/badge.svg)](https://github.com/opencultureconsulting/oai-pmh2/actions/workflows/tests.yml)

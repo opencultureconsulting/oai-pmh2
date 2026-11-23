@@ -26,6 +26,7 @@ use DateTime;
 use OCC\OaiPmh2\Console\CsvImportCommand;
 use OCC\OaiPmh2\Entity\Record;
 use OCC\OaiPmh2\Entity\Set;
+use Override;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -216,7 +217,7 @@ abstract class Console extends Command
      *
      * @return void
      */
-    #[\Override]
+    #[Override]
     protected function initialize(InputInterface $input, OutputInterface $output): void
     {
         $this->io = new SymfonyStyle($input, $output);

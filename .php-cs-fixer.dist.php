@@ -35,4 +35,4 @@ $finder = new Finder();
 return $config
     ->setRiskyAllowed(true)
     ->setRules(['@PSR12' => true])
-    ->setFinder($finder->in([__DIR__ . '/src']));
+    ->setFinder($finder->in([__DIR__ . '/src', __DIR__ . '/tests']));

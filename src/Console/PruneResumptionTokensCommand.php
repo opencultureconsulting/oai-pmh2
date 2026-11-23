@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Console;
 
 use OCC\OaiPmh2\Console;
+use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -50,7 +51,7 @@ final class PruneResumptionTokensCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
-    #[\Override]
+    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $expired = $this->em->pruneExpiredTokens();

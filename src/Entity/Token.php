@@ -118,6 +118,26 @@ class Token extends Entity
     }
 
     /**
+     * Generate a cryptographically secure random token.
+     *
+     * The token consists of 8 lowercase alphanumeric characters (about 41 bits of entropy),
+     * which is the maximum the database column allows. Uppercase letters are left out,
+     * because some databases compare strings case-insensitively.
+     *
+     * @return non-empty-string The random token
+     */
+    private static function generateToken(): string
+    {
+        $alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
+        $maxIndex = strlen($alphabet) - 1;
+        $token = '';
+        do {
+            $token .= $alphabet[random_int(0, $maxIndex)];
+        } while (strlen($token) < 8);
+        return $token;
+    }
+
+    /**
      * Get new entity of resumption token.
      *
      * @param string $verb The verb for which the token is issued
@@ -125,7 +145,7 @@ class Token extends Entity
      */
     public function __construct(string $verb, array $parameters)
     {
-        $this->token = substr(md5(microtime()), 0, 8);
+        $this->token = self::generateToken();
         $this->verb = $verb;
         $this->parameters = $parameters;
         $validUntil = new DateTime();

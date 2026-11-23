@@ -29,6 +29,7 @@ use Composer\InstalledVersions;
 use Exception;
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Console;
+use Override;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -108,7 +109,7 @@ final class UpgradeAppCommand extends Console
      *
      * @return void
      */
-    #[\Override]
+    #[Override]
     protected function configure(): void
     {
         $this->addArgument(
@@ -240,7 +241,7 @@ final class UpgradeAppCommand extends Console
      *
      * @return int 0 if everything went fine, or an error code
      */
-    #[\Override]
+    #[Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->appInfo = InstalledVersions::getRootPackage();

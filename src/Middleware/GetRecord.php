@@ -24,6 +24,7 @@ namespace OCC\OaiPmh2\Middleware;
 
 use OCC\OaiPmh2\Middleware;
 use OCC\OaiPmh2\Response;
+use Override;
 use Psr\Http\Message\ServerRequestInterface;
 
 /**
@@ -50,7 +51,7 @@ final class GetRecord extends Middleware
      *
      * @return void
      */
-    #[\Override]
+    #[Override]
     protected function prepareResponse(ServerRequestInterface $request): void
     {
         $oaiRecord = $this->em->getRecord(
@@ -73,8 +74,10 @@ final class GetRecord extends Middleware
         $record = $response->createElement('record');
         $getRecord->appendChild($record);
 
+        $content = $oaiRecord->getContent();
+
         $header = $response->createElement('header');
-        if (!$oaiRecord->hasContent()) {
+        if (!isset($content)) {
             $header->setAttribute('status', 'deleted');
         }
         $record->appendChild($header);
@@ -93,11 +96,11 @@ final class GetRecord extends Middleware
             $header->appendChild($setSpec);
         }
 
-        if ($oaiRecord->hasContent()) {
+        if (isset($content)) {
             $metadata = $response->createElement('metadata');
             $record->appendChild($metadata);
 
-            $data = $response->importData($oaiRecord->getContent());
+            $data = $response->importData($content);
             $metadata->appendChild($data);
         }
 
@@ -113,7 +116,7 @@ final class GetRecord extends Middleware
      *
      * @phpstan-assert-if-true RequestParameters $this->arguments
      */
-    #[\Override]
+    #[Override]
     protected function validateArguments(): bool
     {
         if (

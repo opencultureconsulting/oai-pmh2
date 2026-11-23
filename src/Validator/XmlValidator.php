@@ -62,7 +62,12 @@ final class XmlValidator
             $xml,
             self::getValidationConstraints()
         );
-        if (simplexml_load_string($xml) === false) {
+        // Collect parser errors instead of emitting PHP warnings.
+        $useInternalErrors = libxml_use_internal_errors(true);
+        $document = simplexml_load_string($xml);
+        libxml_clear_errors();
+        libxml_use_internal_errors($useInternalErrors);
+        if ($document === false) {
             $violations->add(
                 new ConstraintViolation(
                     'Value could not be parsed as XML.',

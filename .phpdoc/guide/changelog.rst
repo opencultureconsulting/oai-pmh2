@@ -10,6 +10,47 @@ All available versions as well as further information about :doc:`requirements a
 can be found in the `Packagist repository <https://packagist.org/packages/opencultureconsulting/oai-pmh2>`_ and on the
 `GitHub releases page <https://github.com/opencultureconsulting/oai-pmh2/releases>`_.
 
+Unreleased
+==========
+
+**Minor Changes:**
+
+* Fixed `setSpec` elements in record headers containing the set's name instead of its spec
+* Fixed selective harvesting by set returning all records instead of only the records in that set (and its subsets)
+* Fixed set specs containing `_` matching unrelated sets in selective harvesting
+* Fixed incomplete lists and repeated records when harvesting with resumption tokens by ordering records and sets
+  consistently
+* Fixed day granularity `until` arguments excluding records changed during that day
+* Fixed invalid dates (e.g. `2024-02-30`) or datestamps with wrong syntax being accepted as `from` and `until` arguments
+* Fixed datestamps depending on the server's timezone setting; all datestamps are now stored and returned in UTC, and
+  dates with a timezone offset (e.g. from CSV imports) are converted accordingly
+* Fixed repeated arguments (e.g. `verb=Identify&verb=Identify`) not resulting in a `badVerb` or `badArgument` error
+* Fixed `POST` requests being rejected when the `Content-Type` header contains a `charset` parameter
+* Fixed `<baseURL>`, `<request>` and the stylesheet URL missing a non-default port
+* Fixed double-escaped special characters in the `<request>` element's attributes
+* Fixed updating or deleting records with sets failing with a Doctrine error, especially when new sets were created
+  with `--createSets`
+* Fixed removing metadata formats, records or sets leaving orphaned data in SQLite databases, because foreign key
+  constraints were not enforced
+* Fixed stale cached set lists after adding sets or pruning orphaned sets
+* Fixed a deprecation warning on PHP 8.4 for an implicitly nullable parameter
+* Resumption tokens are now generated with a cryptographically secure random number generator, which makes them
+  unpredictable and prevents collisions of tokens issued at the same time
+* An invalid or expired resumption token for `ListIdentifiers` and `ListRecords` now only results in a
+  `badResumptionToken` error instead of an additional `badArgument` error
+* Empty record identifiers, set specs and metadata prefixes are no longer accepted (e.g. from an empty CSV column)
+* Invalid XML no longer causes PHP warnings in addition to the validation error
+* `oai:add:record` now fails with an error for unsupported metadata formats instead of reporting success
+
+**Maintenance:**
+
+* Added a test suite for PHPUnit (run with `composer phpunit:test`), which is run for every supported PHP version (8.2
+  to 8.5) on GitHub
+* The documentation is no longer part of the repository, but built and deployed to
+  `GitHub Pages <https://code.opencultureconsulting.com/oai-pmh2/>`_ automatically for every release. To read it
+  offline, build it locally with `composer phpdoc:build`
+* Updated Psalm to version 7 and PHP Mess Detector to version 3
+
 v1.1.3
 ======
 

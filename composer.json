@@ -53,17 +53,23 @@
     },
     "require-dev": {
         "phpdocumentor/shim": "^3.10",
-        "phpmd/phpmd": "^2.15",
+        "phpmd/phpmd": "^3.0",
         "phpstan/phpstan": "^2.3",
         "phpstan/phpstan-doctrine": "^2.1",
         "phpstan/phpstan-strict-rules": "^2.1",
+        "phpunit/phpunit": "^10.5 || ^11.5 || ^12.5 || ^13.0",
         "friendsofphp/php-cs-fixer": "^3.95",
         "squizlabs/php_codesniffer": "^4.0",
-        "vimeo/psalm": "^6.20"
+        "vimeo/psalm": "^7.16"
     },
     "autoload": {
         "psr-4": {
             "OCC\\OaiPmh2\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "OCC\\OaiPmh2\\Tests\\": "tests/"
         }
     },
     "config": {
@@ -104,7 +110,7 @@
         ],
         "phpmd:check": [
             "@php -r \"if (!file_exists('./.phpmd.xml')) { copy('./.phpmd.dist.xml', './.phpmd.xml'); }\"",
-            "@php vendor/bin/phpmd bin/,public/,src/ ansi .phpmd.xml --cache"
+            "@php vendor/bin/phpmd analyze --format=ansi --ruleset=.phpmd.xml --cache --ignore-violations-on-exit bin/ public/ src/"
         ],
         "phpstan:check": [
             "@php vendor/bin/phpstan"
@@ -114,6 +120,9 @@
         ],
         "psalm:check-security": [
             "@php vendor/bin/psalm --taint-analysis"
+        ],
+        "phpunit:test": [
+            "@php vendor/bin/phpunit"
         ]
     },
     "scripts-descriptions": {
@@ -125,6 +134,7 @@
         "phpmd:check": "Runs a code check with PHP Mess Detector static code analyzer and reports problems. If a custom configuration file '.phpmd.xml' exists, it will be used instead of the default settings in '.phpmd.dist.xml'.",
         "phpstan:check": "Runs a code check with PHPStan static code analyzer and reports problems. If a custom configuration file 'phpstan.neon' exists, it will be used instead of the default settings in 'phpstan.dist.neon'.",
         "psalm:check": "Runs a code check with Psalm static code analyzer and reports problems. If a custom configuration file 'psalm.xml' exists, it will be used instead of the default settings in 'psalm.xml.dist'.",
-        "psalm:check-security": "Runs a code check with Psalm static code analyzer and reports security issues. If a custom configuration file 'psalm.xml' exists, it will be used instead of the default settings in 'psalm.xml.dist'."
+        "psalm:check-security": "Runs a code check with Psalm static code analyzer and reports security issues. If a custom configuration file 'psalm.xml' exists, it will be used instead of the default settings in 'psalm.xml.dist'.",
+        "phpunit:test": "Runs all tests with PHPUnit. If a custom configuration file 'phpunit.xml' exists, it will be used instead of the default settings in 'phpunit.xml.dist'."
     }
 }

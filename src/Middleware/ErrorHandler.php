@@ -27,6 +27,7 @@ use GuzzleHttp\Psr7\Utils;
 use OCC\Basics\Traits\Singleton;
 use OCC\OaiPmh2\Response;
 use OCC\PSR15\AbstractMiddleware;
+use Override;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
 
@@ -99,7 +100,7 @@ final class ErrorHandler extends AbstractMiddleware
      *
      * @return ResponseInterface The error response
      */
-    #[\Override]
+    #[Override]
     protected function processResponse(ResponseInterface $response): ResponseInterface
     {
         if ($this->hasErrors()) {
