@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace OCC\OaiPmh2\Middleware;
 
-use GuzzleHttp\Psr7\Uri;
 use OCC\OaiPmh2\Configuration;
 use OCC\OaiPmh2\Middleware;
 use OCC\OaiPmh2\Response;
@@ -62,14 +61,7 @@ final class Identify extends Middleware
         );
         $identify->appendChild($repositoryName);
 
-        $uri = Uri::composeComponents(
-            $request->getUri()->getScheme(),
-            $request->getUri()->getHost(),
-            $request->getUri()->getPath(),
-            null,
-            null
-        );
-        $baseURL = $response->createElement('baseURL', $uri);
+        $baseURL = $response->createElement('baseURL', $response->getBaseUrl());
         $identify->appendChild($baseURL);
 
         $protocolVersion = $response->createElement('protocolVersion', '2.0');

@@ -48,6 +48,36 @@ final class Response
     private DOMElement $rootNode;
 
     /**
+     * Compose an absolute URL for the given path on the requested host.
+     *
+     * The port is included unless it is the default for the scheme. User information
+     * is deliberately left out, so credentials never end up in the response.
+     *
+     * @param string $path The URL path
+     *
+     * @return string The absolute URL
+     */
+    protected function composeUrl(string $path): string
+    {
+        $uri = $this->serverRequest->getUri();
+        $authority = $uri->getHost();
+        if ($uri->getPort() !== null) {
+            $authority .= ':' . $uri->getPort();
+        }
+        return Uri::composeComponents($uri->getScheme(), $authority, $path, null, null);
+    }
+
+    /**
+     * Get the base URL of the repository (without query string).
+     *
+     * @return string The base URL
+     */
+    public function getBaseUrl(): string
+    {
+        return $this->composeUrl($this->serverRequest->getUri()->getPath());
+    }
+
+    /**
      * Add XSL processing instructions to XML response document.
      *
      * @return void
@@ -59,13 +89,7 @@ final class Response
         if (str_ends_with($basePath, 'index.php')) {
             $basePath = pathinfo($basePath, PATHINFO_DIRNAME);
         }
-        $stylesheet = Uri::composeComponents(
-            $uri->getScheme(),
-            $uri->getHost(),
-            rtrim($basePath, '/') . '/resources/stylesheet.xsl',
-            null,
-            null
-        );
+        $stylesheet = $this->composeUrl(rtrim($basePath, '/') . '/resources/stylesheet.xsl');
         $xslt = $this->dom->createProcessingInstruction(
             'xml-stylesheet',
             sprintf(
@@ -83,15 +107,7 @@ final class Response
      */
     protected function appendRequest(): void
     {
-        $uri = $this->serverRequest->getUri();
-        $baseUrl = Uri::composeComponents(
-            $uri->getScheme(),
-            $uri->getHost(),
-            $uri->getPath(),
-            null,
-            null
-        );
-        $request = $this->createElement('request', $baseUrl, true);
+        $request = $this->createElement('request', $this->getBaseUrl(), true);
         /** @var array<string, string> */
         $params = $this->serverRequest->getAttributes();
         foreach ($params as $param => $value) {
