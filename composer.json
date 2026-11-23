@@ -42,7 +42,7 @@
         "composer/composer": "^2.11",
         "doctrine/dbal": "^4.5",
         "doctrine/orm": "^3.7",
-        "guzzlehttp/psr7": "^2.13",
+        "guzzlehttp/psr7": "^3.5",
         "opencultureconsulting/basics": "^2.1 || ^3.0.1",
         "opencultureconsulting/psr15": "^2.0",
         "symfony/cache": "^7.4",
