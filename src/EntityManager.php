@@ -113,7 +113,7 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function getMetadataFormat(string $prefix): ?Format
     {
-        return $this->getReference(Format::class, $prefix);
+        return $this->find(Format::class, $prefix);
     }
 
     /**
@@ -268,7 +268,7 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function getSet(string $spec): ?Set
     {
-        return $this->getReference(Set::class, $spec);
+        return $this->find(Set::class, $spec);
     }
 
     /**
