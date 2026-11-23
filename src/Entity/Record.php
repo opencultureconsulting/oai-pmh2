@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OCC\OaiPmh2\Entity;
 
 use DateTime;
+use DateTimeZone;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -247,10 +248,9 @@ class Record extends Entity
      */
     public function setLastChanged(?DateTime $dateTime = null): void
     {
-        if (!isset($dateTime)) {
-            $dateTime = new DateTime();
-        }
-        $this->lastChanged = $dateTime;
+        $dateTime = isset($dateTime) ? clone $dateTime : new DateTime();
+        // Datestamps are stored without timezone, so always store them in UTC.
+        $this->lastChanged = $dateTime->setTimezone(new DateTimeZone('UTC'));
     }
 
     /**
