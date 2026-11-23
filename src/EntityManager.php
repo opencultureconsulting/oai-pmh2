@@ -34,7 +34,8 @@ use Doctrine\ORM\EntityManager as DoctrineEntityManager;
 use Doctrine\ORM\Mapping\Driver\AttributeDriver;
 use Doctrine\ORM\Proxy\ProxyFactory;
 use Doctrine\ORM\Query\Expr\Join;
-use Doctrine\ORM\Tools\Pagination\Paginator;
+use Doctrine\ORM\Tools\Pagination\OffsetPaginator;
+use Doctrine\ORM\Tools\Pagination\Window;
 use OCC\Basics\Traits\Singleton;
 use OCC\OaiPmh2\Driver\Middleware as DriverMiddleware;
 use OCC\OaiPmh2\Entity\Format;
@@ -113,7 +114,7 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function getMetadataFormat(string $prefix): ?Format
     {
-        return $this->getReference(Format::class, $prefix);
+        return $this->find(Format::class, $prefix);
     }
 
     /**
@@ -188,9 +189,7 @@ final class EntityManager extends EntityManagerDecorator
         $dql->select('records')
             ->from(Record::class, 'records', 'records.identifier')
             ->where($dql->expr()->eq('records.metadataPrefix', ':metadataPrefix'))
-            ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix))
-            ->setFirstResult($cursor)
-            ->setMaxResults($maxRecords);
+            ->setParameter('metadataPrefix', $this->getMetadataFormat($metadataPrefix));
         if (isset($from)) {
             $dql->andWhere($dql->expr()->gte('records.lastChanged', ':from'));
             $dql->setParameter('from', new DateTime($from), 'datetime');
@@ -200,24 +199,32 @@ final class EntityManager extends EntityManagerDecorator
             $dql->setParameter('until', new DateTime($until), 'datetime');
         }
         if (isset($set)) {
-            $dql->innerJoin(
-                Set::class,
-                'sets',
-                Join::WITH,
-                $dql->expr()->orX(
-                    $dql->expr()->eq('sets.spec', ':setSpec'),
-                    $dql->expr()->like('sets.spec', ':setLike')
-                )
-            );
+            $dql->distinct()
+                ->innerJoin(
+                    'records.sets',
+                    'sets',
+                    Join::WITH,
+                    $dql->expr()->orX(
+                        $dql->expr()->eq('sets.spec', ':setSpec'),
+                        "sets.spec LIKE :setLike ESCAPE '!'"
+                    )
+                );
             $dql->setParameter('setSpec', $set);
-            $dql->setParameter('setLike', $set . ':%');
+            // "_" is a valid setSpec character, but a LIKE wildcard, so escape it.
+            $dql->setParameter('setLike', str_replace(['!', '%', '_'], ['!!', '!%', '!_'], $set) . ':%');
         }
-        $query = $dql->getQuery();
-        /** @var array<non-empty-string, Record> */
-        $queryResult = $query->getResult();
-        $result = new ResultSet($queryResult);
-        $paginator = new Paginator($query, true);
-        if (count($paginator) > ($cursor + count($result))) {
+        /** @var OffsetPaginator<Record> */
+        $paginator = new OffsetPaginator(fetchJoinCollection: false);
+        $page = $paginator->paginate($dql->getQuery(), new Window($cursor, $maxRecords));
+        // The paginator drops the array keys, so index the records by identifier again.
+        $entities = [];
+        foreach ($page as $record) {
+            $entities[$record->getIdentifier()] = $record;
+        }
+        $result = new ResultSet($entities);
+        /** @var non-negative-int */
+        $totalCount = $page->getTotalCount();
+        if ($totalCount > ($cursor + count($result))) {
             /** @psalm-suppress ArgumentTypeCoercion */
             $token = new Token(
                 $verb,
@@ -228,7 +235,7 @@ final class EntityManager extends EntityManagerDecorator
                     'until' => $until,
                     'set' => $set,
                     'counter' => $counter + 1,
-                    'completeListSize' => count($paginator)
+                    'completeListSize' => $totalCount
                 ], fn ($value): bool => isset($value))
             );
             $this->persist($token);
@@ -268,7 +275,7 @@ final class EntityManager extends EntityManagerDecorator
      */
     public function getSet(string $spec): ?Set
     {
-        return $this->getReference(Set::class, $spec);
+        return $this->find(Set::class, $spec);
     }
 
     /**
@@ -285,21 +292,25 @@ final class EntityManager extends EntityManagerDecorator
 
         $dql = $this->createQueryBuilder();
         $dql->select('sets')
-            ->from(Set::class, 'sets', 'sets.spec')
-            ->setFirstResult($cursor)
-            ->setMaxResults($maxRecords);
-        $query = $dql->getQuery()->enableResultCache();
-        /** @var array<non-empty-string, Set> */
-        $queryResult = $query->getResult(AbstractQuery::HYDRATE_OBJECT);
-        $result = new ResultSet($queryResult);
-        $paginator = new Paginator($query);
-        if (count($paginator) > ($cursor + count($result))) {
+            ->from(Set::class, 'sets', 'sets.spec');
+        /** @var OffsetPaginator<Set> */
+        $paginator = new OffsetPaginator(fetchJoinCollection: false);
+        $page = $paginator->paginate($dql->getQuery()->enableResultCache(), new Window($cursor, $maxRecords));
+        // The paginator drops the array keys, so index the sets by spec again.
+        $entities = [];
+        foreach ($page as $set) {
+            $entities[$set->getSpec()] = $set;
+        }
+        $result = new ResultSet($entities);
+        /** @var non-negative-int */
+        $totalCount = $page->getTotalCount();
+        if ($totalCount > ($cursor + count($result))) {
             $token = new Token(
                 'ListSets',
                 [
                     'verb' => 'ListSets',
                     'counter' => $counter + 1,
-                    'completeListSize' => count($paginator)
+                    'completeListSize' => $totalCount
                 ]
             );
             $this->persist($token);

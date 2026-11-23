@@ -54,6 +54,9 @@ final class PruneOrphanedSetsCommand extends Console
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $removed = $this->em->pruneOrphanedSets();
+        if ($removed > 0) {
+            $this->clearResultCache();
+        }
         $this->io->success(
             sprintf('%d orphaned sets were successfully deleted!', $removed)
         );

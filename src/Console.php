@@ -107,7 +107,9 @@ abstract class Console extends Command
                 if (isset($set)) {
                     $record->addSet($set);
                 } elseif ($createSets) {
-                    $record->addSet(new Set($setSpec));
+                    $set = new Set($setSpec);
+                    $this->em->persist($set);
+                    $record->addSet($set);
                 }
             }
             $this->em->addOrUpdate($record, get_class($this) === CsvImportCommand::class);

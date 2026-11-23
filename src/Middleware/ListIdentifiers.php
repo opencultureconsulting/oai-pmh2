@@ -96,7 +96,7 @@ class ListIdentifiers extends Middleware
             $header->appendChild($datestamp);
 
             foreach ($oaiRecord->getSets() as $oaiSet) {
-                $setSpec = $response->createElement('setSpec', $oaiSet->getName());
+                $setSpec = $response->createElement('setSpec', $oaiSet->getSpec());
                 $header->appendChild($setSpec);
             }
 

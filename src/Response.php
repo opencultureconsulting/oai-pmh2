@@ -95,10 +95,7 @@ final class Response
         /** @var array<string, string> */
         $params = $this->serverRequest->getAttributes();
         foreach ($params as $param => $value) {
-            $request->setAttribute(
-                $param,
-                htmlspecialchars($value, ENT_XML1 | ENT_COMPAT, 'UTF-8')
-            );
+            $request->setAttribute($param, $value);
         }
     }
 

@@ -89,7 +89,7 @@ final class GetRecord extends Middleware
         $header->appendChild($datestamp);
 
         foreach ($oaiRecord->getSets() as $set) {
-            $setSpec = $response->createElement('setSpec', $set->getName());
+            $setSpec = $response->createElement('setSpec', $set->getSpec());
             $header->appendChild($setSpec);
         }
 
