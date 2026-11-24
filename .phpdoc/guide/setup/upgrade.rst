@@ -37,8 +37,8 @@ Step by Step
 
      .. code-block:: shell
 
-       # Upgrade to release 1.3.0
-       composer app:upgrade v1.3.0
+       # Upgrade to release 1.2.1
+       composer app:upgrade v1.2.1
 
      The following command lists all available releases.
 
