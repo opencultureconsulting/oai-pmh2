@@ -52,7 +52,7 @@ Upgrading the OAI-PMH2 Data Provider is as easy as running a single command.
 .. code-block:: shell
 
   # Upgrade to the latest stable release
-  bin/cli app:upgrade
+  composer app:upgrade
 
 .. hint::
 

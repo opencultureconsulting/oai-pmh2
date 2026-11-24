@@ -10,6 +10,45 @@ All available versions as well as further information about :doc:`requirements a
 can be found in the `Packagist repository <https://packagist.org/packages/opencultureconsulting/oai-pmh2>`_ and on the
 `GitHub releases page <https://github.com/opencultureconsulting/oai-pmh2/releases>`_.
 
+v1.2.1
+======
+
+**Minor Changes:**
+
+* Replaced the built-in upgrade command `bin/cli app:upgrade` with the Composer plugin
+  `opencultureconsulting/updater <https://packagist.org/packages/opencultureconsulting/updater>`_. Upgrades are now
+  performed with :doc:`composer app:upgrade <setup/upgrade>`, which supports the same options as before (`--list`,
+  `--dev` and `--force`) and adds `--ignore-platform-reqs` and `--no-backup`
+* Failed upgrades are now rolled back automatically: the application's files and the `vendor` directory are backed up
+  before the upgrade and restored if replacing the files or installing the dependencies fails
+* Releases requiring a newer PHP version or missing PHP extensions are skipped when upgrading to the latest release
+* The repository is now put into :doc:`maintenance mode <usage/tasks>` for the duration of an upgrade
+* Fixed new files in the application's root directory not being installed by `bin/cli app:upgrade`
+* Fixed `bin/cli app:upgrade` extracting the release archive directly into the system's temporary directory
+* Fixed the progress bar of `bin/cli app:upgrade` while extracting the release archive
+* Fixed `composer create-project` failing, because the configuration file and the data directory were not created
+* Dropped the requirement of PHP extension `zip`
+
+.. important::
+
+  If you are upgrading from v1.2.0 or earlier, install the new upgrade tool first:
+
+  .. code-block:: shell
+
+    composer config allow-plugins.opencultureconsulting/updater true
+    composer require opencultureconsulting/updater
+    composer app:upgrade
+
+  Alternatively, you can use the old `bin/cli app:upgrade` one last time. See :doc:`upgrading <setup/upgrade>` for
+  details.
+
+**Maintenance:**
+
+* Releases include a `composer.lock` again, so every installation gets exactly the versions of the dependencies the
+  release was tested with
+* The old upgrade configuration `upgrade.yml` and the dependencies `composer/composer` and `symfony/http-client` are
+  only kept for upgrading from v1.2.0 or earlier with `bin/cli app:upgrade` and will be removed in a future release
+
 v1.2.0
 ======
 
