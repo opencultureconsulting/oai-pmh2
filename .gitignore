@@ -13,7 +13,6 @@
 .phpmd.result-cache.php
 .phpmd.xml
 .phpunit.cache
-composer.lock
 phpcs.xml
 phpdoc.xml
 phpstan.neon

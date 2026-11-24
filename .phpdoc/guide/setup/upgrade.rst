@@ -67,9 +67,17 @@ Step by Step
 
 .. hint::
 
-  Releases up to v1.2.0 came with their own upgrade command. If you are upgrading from one of those, use
-  `bin/cli app:upgrade` one last time. Afterwards use `composer app:upgrade` as described above. (The current version
-  is shown as "unknown" until the first upgrade with the new command, which is no cause for concern.)
+  Releases up to v1.2.0 came with their own upgrade command `bin/cli app:upgrade`. If you are upgrading from one of
+  those, install the new upgrade tool first and then upgrade as described above.
+
+  .. code-block:: shell
+
+    composer config allow-plugins.opencultureconsulting/updater true
+    composer require opencultureconsulting/updater
+    composer app:upgrade
+
+  The current version is shown as "unknown" during this first upgrade, which is no cause for concern. Alternatively,
+  you can use the old `bin/cli app:upgrade` one last time instead.
 
 .. caution::
 
