@@ -77,7 +77,6 @@ final class Cli extends Application
             new Command\PruneOrphanedSetsCommand(),
             new Command\PruneResumptionTokensCommand(),
             new Command\UpdateFormatsCommand(),
-            new Command\UpgradeAppCommand(),
             new Command\UpgradeDatabaseCommand()
         ]);
     }
